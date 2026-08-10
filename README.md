@@ -21,11 +21,12 @@ nicio imagine în proiect. Codul și comentariile sunt în română.
 
 ## Fișiere
 
-| Fișier      | Ce conține                                   |
-|-------------|----------------------------------------------|
-| `index.html`| Scena întreagă: personaje, masă, animații    |
-| `SPEC.md`   | Descrierea personajelor, a scenei și etapele |
-| `PLAN.md`   | Planul de implementare pe faze și stadiul lui|
+| Fișier          | Ce conține                                        |
+|-----------------|---------------------------------------------------|
+| `index.html`    | Scena întreagă: personaje, masă, animații         |
+| `personaje.json`| Configurarea celor trei personaje, într-un loc    |
+| `SPEC.md`       | Descrierea personajelor, a scenei și etapele      |
+| `PLAN.md`       | Planul de implementare pe faze și stadiul lui     |
 
 ## Stadiu
 

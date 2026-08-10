@@ -1,0 +1,96 @@
+{
+  "versiune": 1,
+  "descriere": "Configurarea celor trei personaje: datele de model (temperatură, prompt de sistem), descrierea lor și parametrii de scenă folosiți în index.html.",
+  "implicit": {
+    "temperature": 1.0
+  },
+  "personaje": [
+    {
+      "id": "clovnul",
+      "nume": "Clovnul",
+      "model": {
+        "temperature": 1.0,
+        "promptSistem": "Un clovn de circ, costum colorat, amuzant, jucăuș."
+      },
+      "descriere": {
+        "aspect": "Costum colorat (petice de roșu, galben, turcoaz), nas rotund, pantofi mari.",
+        "personalitate": "Amuzant, jucăuș. Nu stă locului.",
+        "idle": "Se leagănă pe scaun, respiră, trage cu ochiul la vecini.",
+        "reactii": {
+          "joaca": "Își ascunde cărțile prea teatral.",
+          "castig": "Sărbătorește exagerat.",
+          "pierdere": "Aruncă cărțile în aer."
+        }
+      },
+      "scena": {
+        "unghiGrade": 90,
+        "pozitie": "în față, cu spatele la privitor",
+        "culoare": "#c9483f",
+        "culoareSus": "#e8a13c",
+        "ritm": 1.9,
+        "latime": 11,
+        "inaltime": 20,
+        "gandire": 0.9,
+        "notaGandire": "gândește repede și haotic"
+      }
+    },
+    {
+      "id": "draconianul",
+      "nume": "Draconianul",
+      "model": {
+        "temperature": 1.0,
+        "promptSistem": "Un draconian (personaj fantastic) masiv, cu două aripi, 2 labe (mâini), 2 labe (picioare), cap de dinozaur, fioros, scoate foc pe bot."
+      },
+      "descriere": {
+        "aspect": "Masiv, ocupă cel mai mult loc la masă. Cap de dinozaur, două aripi pliate pe spate, două labe-mâini, două labe-picioare.",
+        "personalitate": "Fioros, tăcut. Nervos des.",
+        "idle": "Aproape imobil, respirație grea, aripile tresar. Ține cărțile în gheare, prea mici pentru el.",
+        "reactii": {
+          "joaca": "Trântește cartea pe masă.",
+          "castig": "Mârâie scurt și trage cărțile.",
+          "pierdere": "Scoate foc pe bot."
+        }
+      },
+      "scena": {
+        "unghiGrade": 210,
+        "pozitie": "stânga-spate",
+        "culoare": "#4a6b3a",
+        "culoareSus": "#86a85c",
+        "ritm": 0.9,
+        "latime": 15,
+        "inaltime": 24,
+        "gandire": 1.6,
+        "notaGandire": "masiv și lent"
+      }
+    },
+    {
+      "id": "reptilianul",
+      "nume": "Reptilianul",
+      "model": {
+        "temperature": 1.0,
+        "promptSistem": "Un reptilian umanoid/crocodil."
+      },
+      "descriere": {
+        "aspect": "Umanoid-crocodil: bot lung, solzi verzi-măslinii, postură dreaptă, îmbrăcat.",
+        "personalitate": "Calm, calculat, cel mai bun jucător dintre cei trei.",
+        "idle": "Aproape nemișcat, clipește rar, cu pleoapa laterală.",
+        "reactii": {
+          "joaca": "Pune cartea fără grabă.",
+          "castig": "Nu arată nimic — doar trage cărțile.",
+          "pierdere": "Nicio reacție."
+        }
+      },
+      "scena": {
+        "unghiGrade": 330,
+        "pozitie": "dreapta-spate",
+        "culoare": "#3d6357",
+        "culoareSus": "#6f9a86",
+        "ritm": 1.2,
+        "latime": 10.5,
+        "inaltime": 21,
+        "gandire": 1.3,
+        "notaGandire": "constant, niciodată grăbit"
+      }
+    }
+  ]
+}

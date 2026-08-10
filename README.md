@@ -48,5 +48,11 @@ cărțile, fiecare joacă, unul câștigă și strânge cărțile, apoi se reia.
 
 Clovnul e desenat: costum cârpit, guler cu volane, pălărie strâmbă, pantofi
 mari. Stă cu spatele la privitor și tot întoarce capul spre vecini; când pierde
-mâna, își aruncă în aer cărțile rămase. Draconianul și reptilianul sunt încă
-siluete colorate, cu numele scris deasupra. Vezi [PLAN.md](PLAN.md).
+mâna, își aruncă în aer cărțile rămase.
+
+Draconianul la fel: cap de dinozaur cu dinți și ochi galbeni, aripi pliate pe
+spate, gheare. Stă aproape nemișcat până pierde o mână — atunci scoate foc pe
+bot. Reptilianul e încă o siluetă colorată, cu numele scris deasupra.
+
+Urmează reptilianul, apoi rafinarea, apoi barul din jur — tejgheaua cu sucuri,
+a doua masă cu doi clienți și chelnerul care îi servește. Vezi [PLAN.md](PLAN.md).

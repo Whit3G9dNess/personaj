@@ -17,9 +17,10 @@ funcționează deja.
 | 1 | Masa, lumina, cele trei locuri | ✅ gata |
 | 2 | Cărțile și ciclul complet — **felia verticală** | ✅ gata |
 | 3 | Clovnul | ✅ gata |
-| 4 | Draconianul + focul | ⬜ |
+| 4 | Draconianul + focul | ✅ gata |
 | 5 | Reptilianul | ⬜ |
 | 6 | Rafinare | ⬜ |
+| 7 | Barul din jur | ⬜ |
 
 ---
 
@@ -85,6 +86,15 @@ comună (respirație, legănat, tresărire) rămâne a scenei, iar desenul propr
 - Idle: aproape imobil, respirație grea, aripile tresar.
 - Foc pe bot — sistem simplu de particule, refolosibil. Se declanșează când pierde.
 
+Sistemul de particule nu știe nimic despre draconian: îi spui unde să aprindă și
+încotro (`aprindeFoc(x, y, unghi, câte, putere)`). Îl va refolosi Faza 7 pentru
+lumânările de pe mese și aburul din spatele barului.
+
+Draconianul a adăugat două lucruri la contractul comun, amândouă opționale:
+`p.gura`, un punct de pe corp dat în unități U, mutat odată cu scena, și
+`p.actualizeaza(dt)`, pentru personajele care au ceva de întreținut în timp
+(la el, jetul de foc care ține o clipă după reacție).
+
 ## Faza 5 — Reptilianul
 
 - Bot lung, solzi verzi-măslinii, postură dreaptă, îmbrăcat.
@@ -97,6 +107,46 @@ comună (respirație, legănat, tresărire) rămâne a scenei, iar desenul propr
   lent, reptilianul constant).
 - Umbre proiectate pe masă, cărți cu grosime, tremur ușor de lumină.
 - Reacții încrucișate: clovnul trage cu ochiul, draconianul mârâie.
+
+## Faza 7 — Barul din jur
+
+Până aici scena e o masă suspendată în întuneric. Faza asta îi dă un loc:
+suntem într-un bar, iar masa celor trei e doar una dintre mese.
+
+Vine după Faza 6 fiindcă e fundal: se adaugă în spatele a ceva care merge deja,
+și nimic din ea nu atinge ciclul jocului.
+
+**Ce se adaugă**
+
+- **Tejgheaua barului**, în spate, cu sticle de sucuri colorate pe raft și o
+  lumină proprie, mai rece decât cea de deasupra mesei.
+- **A doua masă**, în lateral, mai departe și mai mică — perspectiva se face din
+  scară și din cât de întunecat e desenul, camera rămâne fixă.
+- **Doi clienți** la masa aceea, care stau de vorbă: idle lent, fără reguli,
+  fără cărți. Nu joacă nimic, doar populează localul.
+- **Chelnerul**, care merge de la bar la masa a doua și înapoi, pe un drum fix,
+  cu o tavă. Se oprește, servește, pleacă. Un ciclu propriu, independent de al
+  mesei principale.
+
+**Reguli**
+
+1. Fundalul nu are voie să fure atenția: mai mic, mai întunecat, mai puțin
+   detaliat, fără culori la fel de tari ca la cei trei.
+2. Fundalul nu știe de ciclul jocului și nici jocul de el. Două bucle separate,
+   care nu se așteaptă una pe alta.
+3. Personajele de fundal respectă același contract (`deseneaza`, `actualizeaza`),
+   ca să nu apară un al doilea fel de a face un personaj.
+4. Chelnerul se mișcă pe un drum dat în unități U, ca tot restul, ca să se
+   scaleze corect pe orice ecran.
+
+**Ce rămâne de hotărât** (discutăm când ajungem acolo)
+
+- Ce fel de creaturi sunt cei doi clienți și chelnerul.
+- Dacă barul are un barman în spatele tejghelei sau doar sticle.
+- Dacă se aud lucruri — deocamdată SPEC §5 zice fără sunet.
+
+**Verificare:** scena arată a bar, dar dacă te uiți la masa celor trei, nimic
+din ce se întâmplă în spate nu te trage cu ochiul.
 
 ---
 
@@ -132,7 +182,7 @@ apoi `http://localhost:8767/teste.html`.
 
 ## Rămas de făcut
 
-- Numele afișate deasupra siluetelor sunt un ajutor temporar de dezvoltare;
-  dispar pe măsură ce fiecare personaj primește desenul lui real.
+- A rămas o singură siluetă cu numele scris deasupra, reptilianul. Numele e un
+  ajutor temporar de dezvoltare și dispare la Faza 5.
 - Brațul dinspre privitor al clovnului e acoperit de cărțile din mână. Se vede
   când personajul le ridică; de rezolvat, dacă deranjează, la Faza 6.

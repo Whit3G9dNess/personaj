@@ -29,10 +29,16 @@ clipește rar, cu pleoapa laterală. Când câștigă, nu arată nimic.
 
 ## 3. Scena
 
+Cei trei joacă la o masă dintr-un bar.
+
 - Masă rotundă, văzută ușor de sus, într-o lumină caldă de deasupra.
-- Restul încăperii rămâne în întuneric — nu se desenează pereți.
 - Cei trei sunt așezați la 120° unul de altul; camera fixă.
 - În centru: teancul de cărți și mâna jucată curent.
+- În jur, în penumbră: barul cu sticle de sucuri, o a doua masă cu doi clienți
+  și un chelner care îi servește. Nu se desenează pereți — barul și masa a doua
+  ies din întuneric doar cât să se înțeleagă unde suntem.
+- Masa celor trei rămâne singura complet luminată. Tot ce e în jur e mai
+  întunecat, mai mic și mai puțin detaliat, ca să nu fure atenția.
 
 ## 4. Ciclul unei mâini
 
@@ -60,6 +66,9 @@ Bucla merge la nesfârșit, fără input din partea privitorului.
 3. Animații de idle (respirație, legănat, clipit).
 4. Ciclul de împărțit și jucat cărțile.
 5. Reacțiile la câștig/pierdere, inclusiv focul draconianului.
+6. Barul din jur: tejgheaua cu sucuri, masa a doua cu doi clienți, chelnerul.
+
+Ordinea de lucru efectivă e cea din [PLAN.md](PLAN.md).
 
 ## 7. În afara scopului
 

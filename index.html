@@ -279,6 +279,62 @@ function deseneazaTeanc() {
 }
 
 /* ==========================================================================
+   4b. PARTICULE — FOC ȘI SCÂNTEI
+   ========================================================================== */
+
+/* Un sistem cât se poate de simplu, care nu știe nimic despre draconian: îi
+   spui unde să aprindă și încotro, iar el se ocupă de restul. Orice altceva
+   din scenă care are nevoie de foc îl poate folosi la fel. */
+
+const particule = [];
+
+function aprindeFoc(x, y, unghi, cate, putere) {
+  const p = putere || 1;
+  for (let i = 0; i < cate; i++) {
+    const abatere = intreg(-0.22, 0.22);
+    const viteza = intreg(22, 46) * U * p;
+    particule.push({
+      x: x + intreg(-0.5, 0.5) * U,
+      y: y + intreg(-0.5, 0.5) * U,
+      vx: Math.cos(unghi + abatere) * viteza,
+      vy: Math.sin(unghi + abatere) * viteza,
+      raza: intreg(0.5, 1.6) * U * p,
+      viata: 0,
+      durata: intreg(0.35, 0.8)
+    });
+  }
+}
+
+function actualizeazaParticule(dt) {
+  for (let i = particule.length - 1; i >= 0; i--) {
+    const f = particule[i];
+    f.viata += dt;
+    if (f.viata >= f.durata) { particule.splice(i, 1); continue; }
+    f.x += f.vx * dt;
+    f.y += f.vy * dt;
+    f.vy -= 30 * U * dt;   // căldura ridică flacăra
+    f.vx *= 0.93;          // și o încetinește
+    f.vy *= 0.95;
+  }
+}
+
+function deseneazaParticule() {
+  for (const f of particule) {
+    // k merge de la 0 (abia aprinsă) la 1 (stinsă): întâi alb-gălbui, apoi
+    // portocaliu, la urmă un pic de fum.
+    const k = f.viata / f.durata;
+    const raza = f.raza * (0.6 + k * 0.9);   // flacăra se lățește pe măsură ce se răcește
+    ctx.fillStyle =
+      k < 0.16 ? "rgba(255, 246, 214, 0.95)" :
+      k < 0.40 ? "rgba(255, 186, 60, "  + (1.0 - k * 0.5) + ")" :
+      k < 0.72 ? "rgba(232, 96, 32, "   + (1.0 - k * 0.7) + ")" :
+                 "rgba(90, 52, 40, "    + (0.5 * (1 - k)) + ")";
+    elipsa(f.x, f.y, raza, raza);
+    ctx.fill();
+  }
+}
+
+/* ==========================================================================
    5. PERSONAJELE
    ========================================================================== */
 
@@ -343,6 +399,13 @@ function aseazaPersonaj(p) {
   // Cărțile lui sunt rotite spre el, dar atenuat — privim masa de sus, dar
   // sub un unghi mic, așa că o rotire completă ar arăta fals.
   p.rotCarte = normalizeazaUnghi(p.unghi - Math.PI / 2) * 0.45;
+
+  // Unele personaje au puncte proprii pe corp, date în unități U față de bază.
+  // Botul draconianului e unul: de acolo iese focul.
+  if (p.gura) {
+    p.guraX = p.x + p.gura.x * U * p.scara;
+    p.guraY = p.y + p.gura.y * U * p.scara;
+  }
 }
 
 // Așază în evantai cărțile din mână. Se recalculează de fiecare dată când
@@ -373,6 +436,7 @@ function trimiteEveniment(p, tip) {
 
 function actualizeazaPersonaj(p, dt) {
   if (p.reactieTimp > 0) p.reactieTimp = Math.max(0, p.reactieTimp - dt);
+  if (p.actualizeaza) p.actualizeaza(dt);
 }
 
 // Mișcarea de fond e aceeași pentru toți: respirație, legănat, tresărire la
@@ -600,6 +664,181 @@ clovnul.reactie = function (tip) {
 };
 
 /* ==========================================================================
+   5c. DRACONIANUL
+   ========================================================================== */
+
+/* Stă în spate-stânga, întors spre masă, deci îl vedem din față. E cel mai
+   mare de la masă și cel mai nemișcat: respiră greu, îi tresar aripile, atât.
+   Toată energia lui iese dintr-odată, pe bot, când pierde. */
+
+const DRACON = {
+  solzi:    "#4a6b3a",
+  solziSus: "#7d9e52",
+  solziJos: "#405c35",
+  aripa:    "#3a5230",
+  membrana: "#6b8a45",
+  burta:    "#c8b06a",
+  gheara:   "#efe6cd",
+  corn:     "#cbbb99",
+  ochi:     "#e8b93c",
+  pupila:   "#1d1610"
+};
+
+function deseneazaDraconian(p, ctx, t) {
+  const lat = p.latime * U;
+  const inalt = p.inaltime * U;
+
+  // --- Aripile pliate pe spate, în urma trupului. Doar ele se mișcă vizibil.
+  for (let s = -1; s <= 1; s += 2) {
+    const tresarire = 0.055 * Math.sin(t * 0.8 + p.faza + s * 1.3);
+    ctx.save();
+    ctx.translate(s * lat * 0.34, -inalt * 0.84);
+    ctx.rotate(s * (0.10 + tresarire));
+
+    ctx.fillStyle = DRACON.aripa;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(s * lat * 0.30, -inalt * 0.36, s * lat * 0.12, -inalt * 0.54);
+    ctx.lineTo(s * lat * 0.40, -inalt * 0.16);
+    ctx.quadraticCurveTo(s * lat * 0.34, inalt * 0.12, 0, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Nervurile membranei.
+    ctx.strokeStyle = DRACON.membrana;
+    ctx.lineWidth = 0.22 * U;
+    for (let i = 1; i <= 2; i++) {
+      ctx.beginPath();
+      ctx.moveTo(s * lat * 0.04, -inalt * 0.02);
+      ctx.lineTo(s * lat * (0.16 + i * 0.09), -inalt * (0.40 - i * 0.14));
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // --- Picioarele, groase, cu gheare.
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.fillStyle = DRACON.solziJos;
+    dreptunghiRotunjit(s * lat * 0.24 - lat * 0.15, -inalt * 0.34,
+                       lat * 0.30, inalt * 0.34, lat * 0.13);
+    ctx.fill();
+    ctx.fillStyle = DRACON.gheara;
+    for (let i = -1; i <= 1; i++) {
+      elipsa(s * lat * 0.24 + i * lat * 0.09, -0.4 * U, lat * 0.04, lat * 0.035);
+      ctx.fill();
+    }
+  }
+
+  // --- Trupul: masiv, cu umeri lați și burtă deschisă la culoare.
+  const piele = ctx.createLinearGradient(0, -inalt, 0, -inalt * 0.25);
+  piele.addColorStop(0, DRACON.solziSus);
+  piele.addColorStop(1, DRACON.solzi);
+  ctx.fillStyle = DRACON.solzi;
+  dreptunghiRotunjit(-lat * 0.42, -inalt, lat * 0.84, inalt * 0.78, lat * 0.28);
+  ctx.fill();
+  ctx.fillStyle = piele;
+  dreptunghiRotunjit(-lat * 0.42, -inalt, lat * 0.84, inalt * 0.50, lat * 0.28);
+  ctx.fill();
+
+  ctx.fillStyle = DRACON.burta;
+  elipsa(0, -inalt * 0.44, lat * 0.24, inalt * 0.26);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(90, 70, 30, 0.35)";
+  ctx.lineWidth = 0.2 * U;
+  for (let i = -2; i <= 2; i++) {
+    ctx.beginPath();
+    ctx.moveTo(-lat * 0.20, -inalt * (0.44 + i * 0.075));
+    ctx.lineTo(lat * 0.20, -inalt * (0.44 + i * 0.075));
+    ctx.stroke();
+  }
+
+  // --- Brațele scurte, cu gheare mari, întinse spre masă.
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.save();
+    ctx.translate(s * lat * 0.38, -inalt * 0.74);
+    ctx.rotate(s * 0.75);
+    ctx.fillStyle = DRACON.solzi;
+    dreptunghiRotunjit(-lat * 0.10, 0, lat * 0.20, inalt * 0.34, lat * 0.10);
+    ctx.fill();
+    ctx.fillStyle = DRACON.gheara;
+    for (let i = -1; i <= 1; i++) {
+      elipsa(i * lat * 0.07, inalt * 0.35, lat * 0.045, lat * 0.05);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // --- Capul: craniu, bot lung spre masă, falcă și dinți.
+  const capY = -inalt - lat * 0.20;
+  ctx.fillStyle = DRACON.solzi;
+  elipsa(-lat * 0.04, capY, lat * 0.34, lat * 0.27);
+  ctx.fill();
+
+  // Botul, îndreptat spre centrul mesei.
+  ctx.fillStyle = DRACON.solzi;
+  dreptunghiRotunjit(lat * 0.14, capY - lat * 0.10, lat * 0.52, lat * 0.20, lat * 0.07);
+  ctx.fill();
+  ctx.fillStyle = DRACON.solziJos;                 // falca de jos
+  dreptunghiRotunjit(lat * 0.14, capY + lat * 0.08, lat * 0.46, lat * 0.10, lat * 0.04);
+  ctx.fill();
+
+  ctx.fillStyle = DRACON.gheara;                   // dinții
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(lat * (0.22 + i * 0.10), capY + lat * 0.09);
+    ctx.lineTo(lat * (0.26 + i * 0.10), capY + lat * 0.09);
+    ctx.lineTo(lat * (0.24 + i * 0.10), capY + lat * 0.17);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.fillStyle = DRACON.pupila;                   // nările
+  elipsa(lat * 0.60, capY - lat * 0.04, lat * 0.025, lat * 0.02);
+  ctx.fill();
+
+  // Coarnele, întoarse spre spate.
+  ctx.fillStyle = DRACON.corn;
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.beginPath();
+    ctx.moveTo(-lat * 0.10, capY - lat * 0.18 + s * lat * 0.05);
+    ctx.lineTo(-lat * 0.40, capY - lat * 0.34 + s * lat * 0.10);
+    ctx.lineTo(-lat * 0.12, capY - lat * 0.08 + s * lat * 0.05);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // --- Ochii: galbeni, cu pupilă îngustă. Se uită spre masă.
+  const ochi = [[-lat * 0.02, capY - lat * 0.10], [lat * 0.16, capY - lat * 0.09]];
+  for (const o of ochi) {
+    ctx.fillStyle = DRACON.ochi;
+    elipsa(o[0], o[1], lat * 0.065, lat * 0.055);
+    ctx.fill();
+    ctx.fillStyle = DRACON.pupila;
+    elipsa(o[0] + lat * 0.02, o[1], lat * 0.014, lat * 0.045);
+    ctx.fill();
+  }
+}
+
+// Suflă foc din bot, spre centrul mesei și puțin în sus.
+function sufleFoc(p, cate) {
+  const unghi = Math.atan2(cy - p.guraY, cx - p.guraX) - 0.30;
+  aprindeFoc(p.guraX, p.guraY, unghi, cate, 1);
+}
+
+const draconianul = personaje[1];
+draconianul.gura = { x: 11.2, y: -25.6 };   // vârful botului, în unități U
+draconianul.deseneaza = function (context, t) { deseneazaDraconian(this, context, t); };
+draconianul.reactie = function (tip) {
+  // E nervos des: pierderea îi aprinde botul pentru o clipă.
+  if (tip === "pierdere") { this.focTimp = 0.9; sufleFoc(this, 18); }
+};
+draconianul.actualizeaza = function (dt) {
+  if (!this.focTimp) return;
+  this.focTimp = Math.max(0, this.focTimp - dt);
+  if (this.focTimp > 0) sufleFoc(this, Math.max(1, Math.round(dt * 110)));
+};
+
+/* ==========================================================================
    6. MAȘINA DE STĂRI A UNEI MÂINI
    ========================================================================== */
 
@@ -753,6 +992,7 @@ function cadru(acum) {
   actualizeazaJocul(dt);
   for (const p of personaje) actualizeazaPersonaj(p, dt);
   for (const c of carti) actualizeazaCarte(c, dt);
+  actualizeazaParticule(dt);
 
   // Ordinea de desenare ține loc de adâncime: cine e mai aproape, mai târziu.
   deseneazaFundal();
@@ -769,6 +1009,7 @@ function cadru(acum) {
 
   deseneazaTeanc();
   for (const c of carti) deseneazaCarte(c);
+  deseneazaParticule();
 
   deseneazaLumina();
   deseneazaVigneta();

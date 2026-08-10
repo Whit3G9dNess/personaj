@@ -260,7 +260,12 @@ return {
   U: function () { return U; },
   cx: function () { return cx; },
   cy: function () { return cy; },
-  CLOVN: typeof CLOVN !== "undefined" ? CLOVN : null
+  CLOVN: typeof CLOVN !== "undefined" ? CLOVN : null,
+  DRACON: typeof DRACON !== "undefined" ? DRACON : null,
+  particule: typeof particule !== "undefined" ? particule : null,
+  aprindeFoc: typeof aprindeFoc !== "undefined" ? aprindeFoc : null,
+  actualizeazaParticule: typeof actualizeazaParticule !== "undefined" ? actualizeazaParticule : null,
+  deseneazaParticule: typeof deseneazaParticule !== "undefined" ? deseneazaParticule : null
 };`;
 
 let sursaScenei = null;
@@ -308,6 +313,7 @@ function porneste(optiuni) {
       scena.actualizeazaJocul(dt);
       for (const pers of scena.personaje) scena.actualizeazaPersonaj(pers, dt);
       for (const c of scena.carti) scena.actualizeazaCarte(c, dt);
+      if (scena.actualizeazaParticule) scena.actualizeazaParticule(dt);
       ramas -= dt;
     }
   };
@@ -497,9 +503,8 @@ function testeClovn() {
     egal(typeof clovn.reactie, "function", "clovn.reactie");
   });
 
-  test("ceilalți doi rămân siluete până la fazele lor", function () {
+  test("reptilianul rămâne siluetă până la faza lui", function () {
     const s = porneste();
-    egal(typeof s.personaj("Draconianul").deseneaza, "undefined", "draconianul");
     egal(typeof s.personaj("Reptilianul").deseneaza, "undefined", "reptilianul");
   });
 
@@ -548,8 +553,8 @@ function testeClovn() {
   test("clovnul desenat nu mai are numele scris deasupra", function () {
     const s = porneste();
     egal(texte(s.deseneaza(s.personaj("Clovnul"), 0)).length, 0, "texte pe clovn");
-    adevarat(texte(s.deseneaza(s.personaj("Draconianul"), 0)).indexOf("Draconianul") >= 0,
-             "silueta draconianului încă își poartă numele");
+    adevarat(texte(s.deseneaza(s.personaj("Reptilianul"), 0)).indexOf("Reptilianul") >= 0,
+             "silueta reptilianului încă își poartă numele");
   });
 
   test("idle: se leagănă — desenul diferă de la un moment la altul", function () {
@@ -592,6 +597,136 @@ function testeClovn() {
   });
 }
 
+/* --- 6.4 Faza 4: draconianul și focul -------------------------------------- */
+
+/* SPEC §2.2: masiv, cap de dinozaur, aripi pliate pe spate, gheare, foc pe bot
+   când e nervos — și e nervos des. */
+
+const SOLZI = "#4a6b3a";
+const BURTA = "#c8b06a";
+const ARIPA = "#3a5230";
+const OCHI  = "#e8b93c";
+
+function testeDraconian() {
+  sectiune("6.4 Faza 4 — Draconianul și focul");
+
+  test("draconianul respectă contractul: deseneaza(ctx, t) și reactie(tip)", function () {
+    const s = porneste();
+    const d = s.personaj("Draconianul");
+    egal(typeof d.deseneaza, "function", "dracon.deseneaza");
+    egal(typeof d.reactie, "function", "dracon.reactie");
+  });
+
+  test("are solzi verzi și burtă mai deschisă", function () {
+    const s = porneste();
+    const c = culori(s.deseneaza(s.personaj("Draconianul"), 0));
+    adevarat(c.has(SOLZI), "lipsesc solzii " + SOLZI);
+    adevarat(c.has(BURTA), "lipsește burta " + BURTA);
+  });
+
+  test("are două aripi pliate, una de fiecare parte", function () {
+    const s = porneste();
+    const d = s.personaj("Draconianul");
+    const U = s.U();
+    const aripi = formeDeCuloare(s.deseneaza(d, 0), ARIPA)
+      .filter(function (f) { return f.limite && f.limite.cy < d.y - d.inaltime * U * 0.35; });
+    adevarat(aripi.length >= 2, "am găsit " + aripi.length + " aripi sus pe spate");
+    adevarat(aripi.some(function (f) { return f.limite.cx < d.x; }) &&
+             aripi.some(function (f) { return f.limite.cx > d.x; }),
+             "aripile trebuie să fie de o parte și de alta");
+    const inaltimeAripa = Math.max.apply(null, aripi.map(function (f) {
+      return f.limite.y1 - f.limite.y0;
+    }));
+    adevarat(inaltimeAripa > 5 * U, "aripile sunt mari: " + (inaltimeAripa / U).toFixed(1) + "U");
+  });
+
+  test("are doi ochi în dreptul capului", function () {
+    const s = porneste();
+    const d = s.personaj("Draconianul");
+    const U = s.U();
+    const ochi = cercuriDeCuloare(s.deseneaza(d, 0), OCHI);
+    egal(ochi.length, 2, "cercuri de culoarea ochilor");
+    for (const o of ochi) {
+      adevarat(o.y < d.y - d.inaltime * U * 0.7,
+               "ochii trebuie să fie sus, în dreptul capului (y=" + Math.round(o.y) + ")");
+    }
+  });
+
+  test("draconianul desenat nu mai are numele scris deasupra", function () {
+    const s = porneste();
+    egal(texte(s.deseneaza(s.personaj("Draconianul"), 0)).length, 0, "texte pe draconian");
+  });
+
+  test("idle: stă aproape nemișcat, dar aripile tresar", function () {
+    const s = porneste();
+    const d = s.personaj("Draconianul");
+    const a = formeDeCuloare(s.deseneaza(d, 0), ARIPA)[0];
+    const b = formeDeCuloare(s.deseneaza(d, 2.3), ARIPA)[0];
+    adevarat(a && b, "aripa trebuie desenată la ambele momente");
+    adevarat(Math.abs(a.limite.x0 - b.limite.x0) + Math.abs(a.limite.y0 - b.limite.y0) > 0.05,
+             "aripile stau perfect nemișcate între t=0 și t=2.3");
+  });
+
+  test("scena pornește fără nicio particulă", function () {
+    const s = porneste();
+    adevarat(s.particule, "lipsește sistemul de particule");
+    egal(s.particule.length, 0, "particule la pornire");
+  });
+
+  test("când pierde, scoate foc pe bot", function () {
+    const s = porneste();
+    const d = s.personaj("Draconianul");
+    s.trimiteEveniment(d, "pierdere");
+    adevarat(s.particule.length > 0, "nu a ieșit nicio particulă de foc");
+  });
+
+  test("focul pornește din dreptul botului, nu din mijlocul personajului", function () {
+    const s = porneste();
+    const d = s.personaj("Draconianul");
+    const U = s.U();
+    adevarat(typeof d.guraX === "number" && typeof d.guraY === "number",
+             "draconianul trebuie să știe unde îi e botul");
+    adevarat(d.guraY < d.y - d.inaltime * U * 0.6, "botul trebuie să fie sus, pe cap");
+    s.trimiteEveniment(d, "pierdere");
+    for (const f of s.particule) {
+      const dist = Math.hypot(f.x - d.guraX, f.y - d.guraY);
+      adevarat(dist < 5 * U, "particulă pornită la " + (dist / U).toFixed(1) + "U de bot");
+    }
+  });
+
+  test("focul se stinge singur", function () {
+    const s = porneste();
+    s.trimiteEveniment(s.personaj("Draconianul"), "pierdere");
+    adevarat(s.particule.length > 0, "focul nici n-a pornit");
+    for (let i = 0; i < 60 * 4; i++) s.actualizeazaParticule(1 / 60);
+    egal(s.particule.length, 0, "particule rămase după 4 secunde");
+  });
+
+  test("când câștigă nu scoate foc", function () {
+    const s = porneste();
+    s.trimiteEveniment(s.personaj("Draconianul"), "castig");
+    egal(s.particule.length, 0, "particule după câștig");
+  });
+
+  test("sistemul de particule e general: se poate aprinde oriunde", function () {
+    const s = porneste();
+    s.aprindeFoc(100, 200, 0, 12, 1);
+    egal(s.particule.length, 12, "particule cerute");
+    for (const f of s.particule) {
+      adevarat(Math.hypot(f.x - 100, f.y - 200) < 5 * s.U(), "particulă pornită departe de punctul cerut");
+    }
+  });
+
+  test("focul se și desenează", function () {
+    const s = porneste();
+    s.aprindeFoc(100, 200, 0, 10, 1);
+    s.goleste();
+    s.deseneazaParticule();
+    adevarat(s.desene.length >= 10,
+             "am " + s.particule.length + " particule dar doar " + s.desene.length + " forme desenate");
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -610,6 +745,7 @@ function testeClovn() {
   testeUtilitare();
   testeCiclu();
   testeClovn();
+  testeDraconian();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

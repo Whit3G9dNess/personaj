@@ -16,7 +16,7 @@ funcționează deja.
 | 0 | Scheletul: canvas, buclă, utilitare | ✅ gata |
 | 1 | Masa, lumina, cele trei locuri | ✅ gata |
 | 2 | Cărțile și ciclul complet — **felia verticală** | ✅ gata |
-| 3 | Clovnul | ⬜ |
+| 3 | Clovnul | ✅ gata |
 | 4 | Draconianul + focul | ⬜ |
 | 5 | Reptilianul | ⬜ |
 | 6 | Rafinare | ⬜ |
@@ -63,12 +63,18 @@ blocheze sau să se desincronizeze nimic.
 Primul personaj real. Definește contractul respectat apoi de ceilalți doi:
 
 ```js
-{ nume, unghi, culori, deseneaza(ctx, t, stare), reactie(tip) }
+{ nume, unghi, culori, deseneaza(ctx, t), reactie(tip) }
 ```
 
 - Costum cu petice roșu/galben/turcoaz, nas rotund, pantofi mari.
 - Idle: legănat pe scaun, respirație, trage cu ochiul la vecini.
 - Reacții: își ascunde cărțile prea teatral; când pierde, aruncă cărțile în aer.
+
+Clovnul stă cu spatele la privitor, așa că i se vede costumul din spate și
+ceafa. Fața se ghicește doar când întoarce capul spre vecini — atunci nasul
+iese de după obraz. `deseneazaPersonaj` a fost despărțit în două: mișcarea
+comună (respirație, legănat, tresărire) rămâne a scenei, iar desenul propriu-zis
+îl face personajul, dacă are `deseneaza`; altfel se desenează silueta.
 
 **Verificare:** clovnul e desenat, ceilalți doi rămân siluete, scena merge la fel.
 
@@ -105,7 +111,28 @@ Primul personaj real. Definește contractul respectat apoi de ceilalți doi:
 4. **Toate dimensiunile sunt în unități `U`** (a suta parte din latura mică a
    ferestrei). Scena se scalează corect pe orice ecran.
 
-## Rămas de făcut înainte de Faza 3
+## Teste
+
+De la Faza 3 încolo se lucrează cu testul scris întâi. Testele stau în
+[teste.html](teste.html) și nu au nevoie de nimic instalat.
+
+Ele nu copiază codul scenei: citesc `index.html`, îl rulează cu o pânză falsă
+care ține minte ce s-a desenat și unde, apoi întreabă desenul — „există un cerc
+mic, roșu, în dreptul capului?". Așa fișierul testat rămâne exact fișierul
+livrat, iar regula „un singur fișier" nu se strică din cauza testelor.
+
+Fiindcă testele citesc `index.html` cu `fetch`, au nevoie de un server local —
+de pe `file://` nu merg:
+
+```
+python -m http.server 8767 --directory personaj
+```
+
+apoi `http://localhost:8767/teste.html`.
+
+## Rămas de făcut
 
 - Numele afișate deasupra siluetelor sunt un ajutor temporar de dezvoltare;
   dispar pe măsură ce fiecare personaj primește desenul lui real.
+- Brațul dinspre privitor al clovnului e acoperit de cărțile din mână. Se vede
+  când personajul le ridică; de rezolvat, dacă deranjează, la Faza 6.

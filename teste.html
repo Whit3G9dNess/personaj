@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<title>Personaj — teste</title>
+<style>
+  body { margin: 0; padding: 1.5rem 2rem; background: #14110d; color: #e8dcc4;
+         font: 15px/1.55 ui-monospace, "Cascadia Code", Consolas, monospace; }
+  h1 { font-size: 1.1rem; margin: 0 0 1rem; font-weight: 600; }
+  h2 { font-size: 0.95rem; margin: 1.6rem 0 0.5rem; color: #e8a13c; font-weight: 600; }
+  #rezumat { padding: 0.6rem 0.9rem; border-radius: 6px; background: #241c14; margin-bottom: 1rem; }
+  #rezumat.verde { background: #1d3320; color: #b8e6b0; }
+  #rezumat.rosu  { background: #3a1e1c; color: #f0b4ae; }
+  .test { padding: 0.1rem 0; }
+  .trecut { color: #9fd29a; }
+  .cazut  { color: #f08a80; }
+  .motiv  { color: #c9a894; padding-left: 2.1rem; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h1>Personaj — teste</h1>
+<div id="rezumat">se încarcă…</div>
+<div id="lista"></div>
+<script>
+"use strict";
+
+/* ==========================================================================
+   1. MINI-CADRU DE TESTE
+   ========================================================================== */
+
+const lista = document.getElementById("lista");
+let trecute = 0, cazute = 0;
+
+function sectiune(titlu) {
+  const h = document.createElement("h2");
+  h.textContent = titlu;
+  lista.appendChild(h);
+}
+
+function test(nume, corp) {
+  const rand = document.createElement("div");
+  rand.className = "test";
+  try {
+    corp();
+    trecute++;
+    rand.classList.add("trecut");
+    rand.textContent = "✅ " + nume;
+    lista.appendChild(rand);
+  } catch (e) {
+    cazute++;
+    rand.classList.add("cazut");
+    rand.textContent = "❌ " + nume;
+    lista.appendChild(rand);
+    const motiv = document.createElement("div");
+    motiv.className = "motiv";
+    motiv.textContent = e && e.message ? e.message : String(e);
+    lista.appendChild(motiv);
+  }
+}
+
+function cade(mesaj) { throw new Error(mesaj); }
+
+function adevarat(conditie, mesaj) {
+  if (!conditie) cade(mesaj || "așteptam adevărat");
+}
+
+function egal(gasit, asteptat, mesaj) {
+  if (gasit !== asteptat) {
+    cade((mesaj ? mesaj + " — " : "") + "așteptam " + JSON.stringify(asteptat) +
+         ", am găsit " + JSON.stringify(gasit));
+  }
+}
+
+function aproape(gasit, asteptat, toleranta, mesaj) {
+  const tol = toleranta === undefined ? 1e-6 : toleranta;
+  if (!(Math.abs(gasit - asteptat) <= tol)) {
+    cade((mesaj ? mesaj + " — " : "") + "așteptam ~" + asteptat + " (±" + tol +
+         "), am găsit " + gasit);
+  }
+}
+
+/* ==========================================================================
+   2. ALEATOR CONTROLAT
+   ========================================================================== */
+
+/* Scena folosește Math.random în mai multe locuri. Îl înlocuim cu un generator
+   cu sămânță, ca toate testele să fie repetabile. */
+
+let samanta = 1;
+Math.random = function () {
+  samanta = (samanta * 1103515245 + 12345) % 2147483648;
+  return samanta / 2147483648;
+};
+function reseteazaAleatorul(s) { samanta = s || 1; }
+
+/* ==========================================================================
+   3. PÂNZA FALSĂ — ÎNREGISTREAZĂ DESENUL ÎN LOC SĂ-L AFIȘEZE
+   ========================================================================== */
+
+/* Contextul fals ține minte transformarea curentă, așa că fiecare formă e
+   înregistrată în coordonatele scenei, nu în cele locale ale personajului.
+   Astfel un test poate întreba „unde a ajuns nasul pe ecran". */
+
+function inmulteste(A, B) {
+  return [
+    A[0] * B[0] + A[2] * B[1],
+    A[1] * B[0] + A[3] * B[1],
+    A[0] * B[2] + A[2] * B[3],
+    A[1] * B[2] + A[3] * B[3],
+    A[0] * B[4] + A[2] * B[5] + A[4],
+    A[1] * B[4] + A[3] * B[5] + A[5]
+  ];
+}
+
+function creeazaPanza() {
+  const desene = [];
+  let m = [1, 0, 0, 1, 0, 0];
+  const stiva = [];
+  let puncte = [];
+  let cercuri = [];
+
+  function pct(x, y) {
+    return { x: m[0] * x + m[2] * y + m[4], y: m[1] * x + m[3] * y + m[5] };
+  }
+  function scara() {
+    return (Math.hypot(m[0], m[1]) + Math.hypot(m[2], m[3])) / 2;
+  }
+  function adauga(x, y) { puncte.push(pct(x, y)); }
+
+  function stil(v) {
+    return (v && v.opriri) ? { gradient: v.opriri.slice() } : v;
+  }
+
+  function inchide(op, culoare) {
+    desene.push({
+      op: op,
+      stil: stil(culoare),
+      puncte: puncte.slice(),
+      cercuri: cercuri.slice(),
+      limite: limite(puncte)
+    });
+  }
+
+  function limite(ps) {
+    if (!ps.length) return null;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const p of ps) {
+      if (p.x < x0) x0 = p.x;
+      if (p.y < y0) y0 = p.y;
+      if (p.x > x1) x1 = p.x;
+      if (p.y > y1) y1 = p.y;
+    }
+    return { x0: x0, y0: y0, x1: x1, y1: y1, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
+  }
+
+  function gradient() {
+    return { opriri: [], addColorStop: function (p, c) { this.opriri.push(c); } };
+  }
+
+  const ctx = {
+    fillStyle: "#000", strokeStyle: "#000", lineWidth: 1,
+    font: "", textAlign: "", lineCap: "", lineJoin: "", globalAlpha: 1,
+
+    save: function () {
+      stiva.push({
+        m: m.slice(), fillStyle: ctx.fillStyle, strokeStyle: ctx.strokeStyle,
+        lineWidth: ctx.lineWidth, font: ctx.font, textAlign: ctx.textAlign,
+        globalAlpha: ctx.globalAlpha
+      });
+    },
+    restore: function () {
+      const s = stiva.pop();
+      if (!s) return;
+      m = s.m;
+      ctx.fillStyle = s.fillStyle; ctx.strokeStyle = s.strokeStyle;
+      ctx.lineWidth = s.lineWidth; ctx.font = s.font;
+      ctx.textAlign = s.textAlign; ctx.globalAlpha = s.globalAlpha;
+    },
+    setTransform: function (a, b, c, d, e, f) { m = [a, b, c, d, e, f]; },
+    translate: function (x, y) { m = inmulteste(m, [1, 0, 0, 1, x, y]); },
+    rotate: function (a) {
+      m = inmulteste(m, [Math.cos(a), Math.sin(a), -Math.sin(a), Math.cos(a), 0, 0]);
+    },
+    scale: function (sx, sy) { m = inmulteste(m, [sx, 0, 0, sy, 0, 0]); },
+
+    beginPath: function () { puncte = []; cercuri = []; },
+    closePath: function () {},
+    moveTo: function (x, y) { adauga(x, y); },
+    lineTo: function (x, y) { adauga(x, y); },
+    arcTo: function (x1, y1, x2, y2) { adauga(x1, y1); adauga(x2, y2); },
+    quadraticCurveTo: function (x1, y1, x2, y2) { adauga(x1, y1); adauga(x2, y2); },
+    bezierCurveTo: function (x1, y1, x2, y2, x3, y3) {
+      adauga(x1, y1); adauga(x2, y2); adauga(x3, y3);
+    },
+    rect: function (x, y, l, i) {
+      adauga(x, y); adauga(x + l, y); adauga(x + l, y + i); adauga(x, y + i);
+    },
+    arc: function (x, y, r) {
+      const c = pct(x, y);
+      cercuri.push({ x: c.x, y: c.y, r: r * scara() });
+      adauga(x - r, y - r); adauga(x + r, y + r);
+    },
+    ellipse: function (x, y, rx, ry) {
+      const c = pct(x, y);
+      cercuri.push({ x: c.x, y: c.y, r: rx * scara(), rx: rx * scara(), ry: ry * scara() });
+      adauga(x - rx, y - ry); adauga(x + rx, y + ry);
+    },
+
+    fill: function () { inchide("fill", ctx.fillStyle); },
+    stroke: function () { inchide("stroke", ctx.strokeStyle); },
+    fillRect: function (x, y, l, i) {
+      puncte = []; cercuri = [];
+      adauga(x, y); adauga(x + l, y); adauga(x + l, y + i); adauga(x, y + i);
+      inchide("fill", ctx.fillStyle);
+    },
+    clearRect: function () {},
+    fillText: function (text, x, y) {
+      const p = pct(x, y);
+      desene.push({ op: "text", text: String(text), stil: stil(ctx.fillStyle),
+                    puncte: [p], cercuri: [], limite: limite([p]) });
+    },
+    strokeText: function () {},
+    measureText: function (s) { return { width: String(s).length * 6 }; },
+    clip: function () {},
+    createLinearGradient: gradient,
+    createRadialGradient: gradient,
+    createPattern: function () { return null; }
+  };
+
+  return {
+    ctx: ctx,
+    desene: desene,
+    goleste: function () { desene.length = 0; }
+  };
+}
+
+/* ==========================================================================
+   4. ÎNCĂRCAREA SCENEI DIN index.html
+   ========================================================================== */
+
+/* Nu copiem codul scenei aici: îl citim din index.html și îl rulăm cu o pânză
+   falsă. Așa fișierul testat rămâne exact fișierul livrat — regula „un singur
+   fișier" din SPEC nu se strică din cauza testelor.
+
+   Simbolurile din fazele nescrise încă sunt exportate cu `typeof`, ca lipsa
+   lor să pice un singur test, nu toată încărcarea. */
+
+const EXPORTURI = `
+return {
+  usor: usor, interpoleaza: interpoleaza, normalizeazaUnghi: normalizeazaUnghi,
+  personaje: personaje, carti: carti, cartiPeMasa: cartiPeMasa,
+  creeazaCarte: creeazaCarte, mutaCarte: mutaCarte, actualizeazaCarte: actualizeazaCarte,
+  deseneazaPersonaj: deseneazaPersonaj, actualizeazaPersonaj: actualizeazaPersonaj,
+  trimiteEveniment: trimiteEveniment,
+  actualizeazaJocul: actualizeazaJocul, schimbaStarea: schimbaStarea,
+  redimensioneaza: redimensioneaza,
+  stare: function () { return stare; },
+  castigator: function () { return castigator; },
+  startator: function () { return startator; },
+  U: function () { return U; },
+  cx: function () { return cx; },
+  cy: function () { return cy; },
+  CLOVN: typeof CLOVN !== "undefined" ? CLOVN : null
+};`;
+
+let sursaScenei = null;
+
+async function citesteSursa() {
+  const raspuns = await fetch("index.html?t=" + Date.now());
+  if (!raspuns.ok) throw new Error("nu pot citi index.html: " + raspuns.status);
+  const html = await raspuns.text();
+  const potrivire = html.match(/<script>([\s\S]*)<\/script>/);
+  if (!potrivire) throw new Error("nu am găsit blocul <script> din index.html");
+  return potrivire[1];
+}
+
+// Pornește o scenă nouă, izolată: fiecare test primește starea lui.
+function porneste(optiuni) {
+  const o = optiuni || {};
+  reseteazaAleatorul(o.samanta || 1);
+
+  const panza = creeazaPanza();
+  const element = {
+    width: 0, height: 0, style: {},
+    getContext: function () { return panza.ctx; }
+  };
+  const doc = { getElementById: function () { return element; } };
+  const fereastra = {
+    innerWidth: o.latime || 1200,
+    innerHeight: o.inaltime || 800,
+    devicePixelRatio: 1,
+    addEventListener: function () {}
+  };
+
+  const fabrica = new Function("document", "window", "requestAnimationFrame",
+                               sursaScenei + "\n" + EXPORTURI);
+  const scena = fabrica(doc, fereastra, function () {});
+  scena.panza = panza;
+  scena.desene = panza.desene;
+  scena.goleste = panza.goleste;
+
+  // Avansează simularea cu pași fixi, ca într-un cadru real.
+  scena.avanseaza = function (secunde, pas) {
+    const p = pas || 1 / 60;
+    let ramas = secunde;
+    while (ramas > 0) {
+      const dt = Math.min(p, ramas);
+      scena.actualizeazaJocul(dt);
+      for (const pers of scena.personaje) scena.actualizeazaPersonaj(pers, dt);
+      for (const c of scena.carti) scena.actualizeazaCarte(c, dt);
+      ramas -= dt;
+    }
+  };
+
+  // Avansează până când scena ajunge într-o stare anume (sau pică testul).
+  scena.panaLaStarea = function (numeStare, maxim) {
+    const limita = maxim || 40;
+    let scurs = 0;
+    while (scena.stare() !== numeStare) {
+      scena.avanseaza(1 / 60);
+      scurs += 1 / 60;
+      if (scurs > limita) cade("scena nu a ajuns în starea „" + numeStare +
+                               "” în " + limita + "s (a rămas în „" + scena.stare() + "”)");
+    }
+  };
+
+  // Desenează un singur personaj și întoarce doar formele lui.
+  scena.deseneaza = function (p, t) {
+    panza.goleste();
+    scena.deseneazaPersonaj(p, t || 0);
+    return panza.desene.slice();
+  };
+
+  scena.personaj = function (nume) {
+    const p = scena.personaje.find(function (x) { return x.nume === nume; });
+    if (!p) cade("nu există personajul „" + nume + "”");
+    return p;
+  };
+
+  return scena;
+}
+
+/* ==========================================================================
+   5. AJUTOARE DE INTEROGARE A DESENULUI
+   ========================================================================== */
+
+// Toate culorile atinse, inclusiv opririle de gradient.
+function culori(desene) {
+  const set = new Set();
+  for (const d of desene) {
+    if (typeof d.stil === "string") set.add(d.stil.toLowerCase());
+    else if (d.stil && d.stil.gradient) {
+      for (const c of d.stil.gradient) set.add(String(c).toLowerCase());
+    }
+  }
+  return set;
+}
+
+// Formele umplute cu o anumită culoare.
+function formeDeCuloare(desene, culoare) {
+  const c = String(culoare).toLowerCase();
+  return desene.filter(function (d) {
+    return d.op === "fill" && typeof d.stil === "string" && d.stil.toLowerCase() === c;
+  });
+}
+
+// Cercurile umplute cu o anumită culoare.
+function cercuriDeCuloare(desene, culoare) {
+  const rezultat = [];
+  for (const d of formeDeCuloare(desene, culoare)) {
+    for (const c of d.cercuri) rezultat.push(c);
+  }
+  return rezultat;
+}
+
+function texte(desene) {
+  return desene.filter(function (d) { return d.op === "text"; })
+               .map(function (d) { return d.text; });
+}
+
+/* ==========================================================================
+   6. TESTELE
+   ========================================================================== */
+
+/* --- 6.1 Utilitare de calcul ----------------------------------------------- */
+
+function testeUtilitare() {
+  sectiune("6.1 Utilitare de calcul");
+
+  test("ușurarea pornește la 0, se termină la 1 și e simetrică la mijloc", function () {
+    const s = porneste();
+    aproape(s.usor(0), 0);
+    aproape(s.usor(1), 1);
+    aproape(s.usor(0.5), 0.5);
+  });
+
+  test("interpolarea liniară nimerește punctul cerut", function () {
+    const s = porneste();
+    aproape(s.interpoleaza(0, 10, 0.25), 2.5);
+    aproape(s.interpoleaza(-4, 4, 0.5), 0);
+  });
+
+  test("normalizarea unghiului îl aduce în (-π, π]", function () {
+    const s = porneste();
+    aproape(s.normalizeazaUnghi(3 * Math.PI / 2), -Math.PI / 2, 1e-9);
+    aproape(s.normalizeazaUnghi(-3 * Math.PI), Math.PI, 1e-9);
+  });
+
+  test("unitatea U e a suta parte din latura mică a ferestrei", function () {
+    const s = porneste({ latime: 1200, inaltime: 800 });
+    aproape(s.U(), 8);
+    const mic = porneste({ latime: 500, inaltime: 900 });
+    aproape(mic.U(), 5);
+  });
+
+  test("cele trei locuri sunt la 120° unul de altul", function () {
+    const s = porneste();
+    const u = s.personaje.map(function (p) { return p.unghi; });
+    aproape(s.normalizeazaUnghi(u[1] - u[0]), 2 * Math.PI / 3, 1e-9);
+    aproape(s.normalizeazaUnghi(u[2] - u[1]), 2 * Math.PI / 3, 1e-9);
+  });
+}
+
+/* --- 6.2 Ciclul unei mâini ------------------------------------------------- */
+
+function testeCiclu() {
+  sectiune("6.2 Ciclul unei mâini");
+
+  test("după împărțire fiecare personaj are trei cărți", function () {
+    const s = porneste();
+    s.panaLaStarea("gandire");
+    for (const p of s.personaje) {
+      egal(p.mana.length, 3, "mâna lui " + p.nume);
+    }
+  });
+
+  test("fiecare pune exact o carte pe masă", function () {
+    const s = porneste();
+    s.panaLaStarea("castigator");
+    egal(s.cartiPeMasa.length, 3, "cărți pe masă");
+    for (const p of s.personaje) egal(p.mana.length, 2, "mâna lui " + p.nume);
+  });
+
+  test("ciclul trece prin toate stările și se reia", function () {
+    const s = porneste();
+    const vazute = [];
+    let anterioara = "";
+    for (let i = 0; i < 60 * 40; i++) {
+      s.avanseaza(1 / 60);
+      if (s.stare() !== anterioara) { vazute.push(s.stare()); anterioara = s.stare(); }
+      if (vazute.length >= 7) break;
+    }
+    egal(vazute.join(" → "),
+         "impartire → gandire → jucare → castigator → reactie → pauza → impartire",
+         "ordinea stărilor");
+  });
+
+  test("câștigătorul mâinii împarte mâna următoare", function () {
+    const s = porneste();
+    s.panaLaStarea("reactie");
+    const c = s.castigator();
+    adevarat(c, "nu a fost ales niciun câștigător");
+    s.panaLaStarea("impartire");
+    egal(s.personaje[s.startator()].nume, c.nume, "startatorul mâinii următoare");
+  });
+
+  test("cărțile nu sar: se interpolează spre țintă", function () {
+    const s = porneste();
+    const c = s.creeazaCarte(0, 0, 0);
+    s.mutaCarte(c, 100, 0, 0, 1, 0);
+    egal(c.x, 0, "cartea nu se mișcă înainte de actualizare");
+    s.actualizeazaCarte(c, 0.5);
+    adevarat(c.x > 0 && c.x < 100, "la jumătatea drumului cartea e între capete, e la " + c.x);
+    s.actualizeazaCarte(c, 0.6);
+    aproape(c.x, 100, 1e-9, "la final cartea e exact în țintă");
+  });
+}
+
+/* --- 6.3 Faza 3: clovnul --------------------------------------------------- */
+
+/* Paleta cerută de SPEC §2.1: petice roșu / galben / turcoaz, nas rotund,
+   pantofi mari. Testele fixează valorile; implementarea le respectă. */
+
+const ROSU    = "#c9483f";
+const GALBEN  = "#e8a13c";
+const TURCOAZ = "#2f9d95";
+const NAS     = "#e4453a";
+const PANTOF  = "#3a2b3f";
+
+function testeClovn() {
+  sectiune("6.3 Faza 3 — Clovnul");
+
+  test("clovnul respectă contractul: deseneaza(ctx, t) și reactie(tip)", function () {
+    const s = porneste();
+    const clovn = s.personaj("Clovnul");
+    egal(typeof clovn.deseneaza, "function", "clovn.deseneaza");
+    egal(typeof clovn.reactie, "function", "clovn.reactie");
+  });
+
+  test("ceilalți doi rămân siluete până la fazele lor", function () {
+    const s = porneste();
+    egal(typeof s.personaj("Draconianul").deseneaza, "undefined", "draconianul");
+    egal(typeof s.personaj("Reptilianul").deseneaza, "undefined", "reptilianul");
+  });
+
+  test("costumul are petice în cele trei culori din spec", function () {
+    const s = porneste();
+    const c = culori(s.deseneaza(s.personaj("Clovnul"), 0));
+    adevarat(c.has(ROSU),    "lipsește roșul " + ROSU);
+    adevarat(c.has(GALBEN),  "lipsește galbenul " + GALBEN);
+    adevarat(c.has(TURCOAZ), "lipsește turcoazul " + TURCOAZ);
+  });
+
+  test("are un nas rotund, mic, în zona capului", function () {
+    const s = porneste();
+    const clovn = s.personaj("Clovnul");
+    const nasuri = cercuriDeCuloare(s.deseneaza(clovn, 0), NAS);
+    egal(nasuri.length, 1, "cercuri de culoarea nasului");
+    const nas = nasuri[0];
+    const U = s.U();
+    adevarat(nas.y < clovn.y - clovn.inaltime * U * 0.7,
+             "nasul trebuie să fie sus, în dreptul capului (y=" + Math.round(nas.y) +
+             ", baza personajului y=" + Math.round(clovn.y) + ")");
+    adevarat(nas.r < clovn.latime * U * 0.25,
+             "nasul e prea mare: rază " + Math.round(nas.r) + "px");
+    // Clovnul stă cu spatele la privitor, așa că nasul se vede pe lângă obraz,
+    // nu în mijloc — dar rămâne pe cap, nu undeva în scenă.
+    adevarat(Math.abs(nas.x - clovn.x) < clovn.latime * U * 0.5,
+             "nasul trebuie să rămână pe cap");
+  });
+
+  test("are doi pantofi mari, la bază, de o parte și de alta", function () {
+    const s = porneste();
+    const clovn = s.personaj("Clovnul");
+    const U = s.U();
+    const pantofi = formeDeCuloare(s.deseneaza(clovn, 0), PANTOF)
+      .filter(function (d) { return d.limite && Math.abs(d.limite.cy - clovn.y) < 4 * U; });
+    adevarat(pantofi.length >= 2, "am găsit " + pantofi.length + " forme de pantof la bază");
+    const stanga = pantofi.some(function (d) { return d.limite.cx < clovn.x; });
+    const dreapta = pantofi.some(function (d) { return d.limite.cx > clovn.x; });
+    adevarat(stanga && dreapta, "pantofii trebuie să fie de o parte și de alta");
+    const lat = Math.max.apply(null, pantofi.map(function (d) {
+      return d.limite.x1 - d.limite.x0;
+    }));
+    adevarat(lat > 2.4 * U, "pantofii sunt mari: lățime " + (lat / U).toFixed(1) + "U");
+  });
+
+  test("clovnul desenat nu mai are numele scris deasupra", function () {
+    const s = porneste();
+    egal(texte(s.deseneaza(s.personaj("Clovnul"), 0)).length, 0, "texte pe clovn");
+    adevarat(texte(s.deseneaza(s.personaj("Draconianul"), 0)).indexOf("Draconianul") >= 0,
+             "silueta draconianului încă își poartă numele");
+  });
+
+  test("idle: se leagănă — desenul diferă de la un moment la altul", function () {
+    const s = porneste();
+    const clovn = s.personaj("Clovnul");
+    const a = cercuriDeCuloare(s.deseneaza(clovn, 0), NAS)[0];
+    const b = cercuriDeCuloare(s.deseneaza(clovn, 1.1), NAS)[0];
+    adevarat(a && b, "nasul trebuie desenat la ambele momente");
+    adevarat(Math.abs(a.x - b.x) + Math.abs(a.y - b.y) > 0.05,
+             "nasul stă perfect nemișcat între t=0 și t=1.1");
+  });
+
+  test("reacția la joc: se ridică (își ascunde cărțile teatral)", function () {
+    const s = porneste();
+    const clovn = s.personaj("Clovnul");
+    const inainte = cercuriDeCuloare(s.deseneaza(clovn, 0), NAS)[0];
+    s.trimiteEveniment(clovn, "joaca");
+    const dupa = cercuriDeCuloare(s.deseneaza(clovn, 0), NAS)[0];
+    adevarat(Math.abs(inainte.y - dupa.y) > 0.5,
+             "reacția „joaca” nu schimbă cu nimic desenul");
+  });
+
+  test("când pierde, aruncă în aer cărțile rămase în mână", function () {
+    const s = porneste();
+    const clovn = s.personaj("Clovnul");
+    s.panaLaStarea("castigator");
+    // Forțăm clovnul să fie cel care pierde.
+    if (s.castigator() === clovn) {
+      cade("sămânța a făcut clovnul câștigător — testul are nevoie de altă mână");
+    }
+    adevarat(clovn.mana.length > 0, "clovnul trebuie să mai aibă cărți în mână");
+    const inaltimiInainte = clovn.mana.map(function (c) { return c.y; });
+    s.schimbaStarea("reactie");
+    for (let i = 0; i < clovn.mana.length; i++) {
+      const c = clovn.mana[i];
+      adevarat(c.y1 < inaltimiInainte[i] - 2 * s.U(),
+               "cartea " + i + " trebuie aruncată în sus (țintă y=" + Math.round(c.y1) +
+               ", pornire y=" + Math.round(inaltimiInainte[i]) + ")");
+    }
+  });
+}
+
+/* ==========================================================================
+   7. RULAREA
+   ========================================================================== */
+
+(async function () {
+  const rezumat = document.getElementById("rezumat");
+  try {
+    sursaScenei = await citesteSursa();
+  } catch (e) {
+    rezumat.className = "rosu";
+    rezumat.textContent = "REZULTAT: nu am putut încărca scena — " + e.message +
+      "  (testele au nevoie de un server local, nu de file://)";
+    return;
+  }
+
+  testeUtilitare();
+  testeCiclu();
+  testeClovn();
+
+  rezumat.className = cazute === 0 ? "verde" : "rosu";
+  rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +
+                        (cazute === 0 ? " — tot verde" : "");
+})();
+</script>
+</body>
+</html>

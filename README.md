@@ -25,14 +25,28 @@ nicio imagine în proiect. Codul și comentariile sunt în română.
 |-----------------|---------------------------------------------------|
 | `index.html`    | Scena întreagă: personaje, masă, animații         |
 | `personaje.json`| Configurarea celor trei personaje, într-un loc    |
+| `teste.html`    | Testele scenei, deschise tot în browser           |
 | `SPEC.md`       | Descrierea personajelor, a scenei și etapele      |
 | `PLAN.md`       | Planul de implementare pe faze și stadiul lui     |
+
+## Teste
+
+Testele se deschid în browser, ca și scena, dar au nevoie de un server local
+fiindcă citesc `index.html`:
+
+```
+python -m http.server 8767 --directory personaj
+```
+
+apoi `http://localhost:8767/teste.html`. Pagina scrie sus câte au trecut și
+câte au căzut.
 
 ## Stadiu
 
 În lucru. Masa, lumina și ciclul complet al unei mâini funcționează — se împart
 cărțile, fiecare joacă, unul câștigă și strânge cărțile, apoi se reia.
 
-Personajele sunt deocamdată siluete colorate cu numele scris deasupra. Urmează
-să fie desenate pe rând: clovnul, draconianul cu focul lui, apoi reptilianul.
-Vezi [PLAN.md](PLAN.md).
+Clovnul e desenat: costum cârpit, guler cu volane, pălărie strâmbă, pantofi
+mari. Stă cu spatele la privitor și tot întoarce capul spre vecini; când pierde
+mâna, își aruncă în aer cărțile rămase. Draconianul și reptilianul sunt încă
+siluete colorate, cu numele scris deasupra. Vezi [PLAN.md](PLAN.md).

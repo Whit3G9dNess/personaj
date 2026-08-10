@@ -260,6 +260,12 @@ return {
   U: function () { return U; },
   cx: function () { return cx; },
   cy: function () { return cy; },
+  W: function () { return W; },
+  H: function () { return H; },
+  masa: masa,
+  bar: typeof bar !== "undefined" ? bar : null,
+  masa2: typeof masa2 !== "undefined" ? masa2 : null,
+  deseneazaTot: typeof deseneazaTot !== "undefined" ? deseneazaTot : null,
   deseneazaCarte: deseneazaCarte,
   timpDeGandire: typeof timpDeGandire !== "undefined" ? timpDeGandire : null,
   palpaitLumina: typeof palpaitLumina !== "undefined" ? palpaitLumina : null,
@@ -998,6 +1004,174 @@ function testeRafinare() {
   });
 }
 
+/* --- 6.7 Faza 7: localul --------------------------------------------------- */
+
+const TEJGHEA     = "#5e3a22";
+const SCAUN       = "#5a3a22";
+const MUCHIE_MASA = "#3a2312";
+const PICIOR_MASA = "#2b1a0d";
+const BLAT_MASA2  = "#4a2f1a";
+
+// Un cadru întreg, așa cum îl vede privitorul, cu tot ce se desenează în el.
+function cadruIntreg(s) {
+  s.goleste();
+  s.deseneazaTot();
+  return s.desene;
+}
+
+// La al câtelea desen apare prima formă de culoarea dată. -1 dacă nu apare.
+function candApare(desene, culoare) {
+  const c = String(culoare).toLowerCase();
+  for (let i = 0; i < desene.length; i++) {
+    const d = desene[i];
+    if (d.op === "fill" && typeof d.stil === "string" && d.stil.toLowerCase() === c) return i;
+  }
+  return -1;
+}
+
+function candDispare(desene, culoare) {
+  const c = String(culoare).toLowerCase();
+  for (let i = desene.length - 1; i >= 0; i--) {
+    const d = desene[i];
+    if (d.op === "fill" && typeof d.stil === "string" && d.stil.toLowerCase() === c) return i;
+  }
+  return -1;
+}
+
+function testeLocalul() {
+  sectiune("6.7 Faza 7 — Localul");
+
+  test("barul stă în fundal, în spatele mesei, de-a latul scenei", function () {
+    const s = porneste();
+    adevarat(s.bar, "lipsește barul");
+    adevarat(s.bar.y < s.cy() - s.masa.ry,
+             "tejgheaua trebuie să fie mai sus decât masa (bar la y=" +
+             Math.round(s.bar.y) + ", masa sus la " + Math.round(s.cy() - s.masa.ry) + ")");
+    adevarat((s.bar.x1 - s.bar.x0) > s.W() * 0.5,
+             "barul e prea îngust: " + Math.round(s.bar.x1 - s.bar.x0) + "px din " + s.W());
+  });
+
+  test("barul are sticle colorate pe raft", function () {
+    const s = porneste();
+    const desene = cadruIntreg(s);
+    // Doar formele înguste de pe raft: sticlele, nu peretele din spatele lor.
+    const sticle = desene.filter(function (d) {
+      return d.op === "fill" && typeof d.stil === "string" && d.limite &&
+             d.limite.cy < s.bar.y && (d.limite.x1 - d.limite.x0) < 5 * s.U();
+    });
+    adevarat(sticle.length >= 8, "am găsit doar " + sticle.length + " sticle pe raft");
+    const culoriSticle = culori(sticle);
+    adevarat(culoriSticle.size >= 5,
+             "sticlele au doar " + culoriSticle.size + " culori");
+  });
+
+  test("a doua masă e în stânga mesei noastre și mai departe", function () {
+    const s = porneste();
+    adevarat(s.masa2, "lipsește a doua masă");
+    adevarat(s.masa2.x < s.cx() - s.masa.rx,
+             "a doua masă trebuie să fie la stânga, dincolo de marginea mesei noastre");
+    adevarat(s.masa2.y < s.cy(), "a doua masă trebuie să fie mai în spate");
+    adevarat(s.masa2.rx < s.masa.rx * 0.7,
+             "fiind mai departe, trebuie să fie și vizibil mai mică");
+  });
+
+  test("fundalul se desenează înaintea mesei celor trei", function () {
+    const s = porneste();
+    const d = cadruIntreg(s);
+    const tejghea = candApare(d, TEJGHEA);
+    const masa2 = candApare(d, BLAT_MASA2);
+    const masa = candApare(d, MUCHIE_MASA);
+    adevarat(tejghea >= 0, "tejgheaua nu se desenează");
+    adevarat(masa2 >= 0, "a doua masă nu se desenează");
+    adevarat(masa >= 0, "masa noastră nu se desenează");
+    adevarat(tejghea < masa && masa2 < masa,
+             "ordinea e greșită: tejghea " + tejghea + ", masa2 " + masa2 + ", masa " + masa);
+  });
+
+  test("masa are blat gros și picior", function () {
+    const s = porneste();
+    const d = cadruIntreg(s);
+    const muchie = formeDeCuloare(d, MUCHIE_MASA);
+    // Piciorul mesei noastre, nu al mesei din stânga: îl căutăm sub centru.
+    const picior = formeDeCuloare(d, PICIOR_MASA).filter(function (f) {
+      return Math.abs(f.limite.cx - s.cx()) < s.masa.rx * 0.5 && f.limite.cy > s.cy();
+    });
+    adevarat(muchie.length >= 1, "blatul n-are grosime");
+    adevarat(picior.length >= 1, "masa n-are picior sub blat");
+    adevarat(muchie[0].limite.cy > s.cy(), "grosimea trebuie să iasă pe sub blat");
+  });
+
+  test("cei trei stau la masă, nu în picioare pe lângă ea", function () {
+    const s = porneste();
+    for (const p of s.personaje) {
+      const d = Math.hypot((p.x - s.cx()) / s.masa.rx, (p.y - s.cy()) / s.masa.ry);
+      adevarat(d < 1.25, p.nume + " stă la " + d.toFixed(2) +
+                         " raze de centru — prea departe ca să ajungă la masă");
+    }
+  });
+
+  test("celor din spate le intră poalele sub blat, cel din față stă în fața mesei", function () {
+    const s = porneste();
+    const U = s.U();
+    for (const p of s.personaje) {
+      if (Math.sin(p.unghi) < 0) {
+        // Blatul e o elipsă: la x-ul lui, marginea de sus e mai jos decât la mijloc.
+        const k = (p.x - s.cx()) / s.masa.rx;
+        adevarat(Math.abs(k) < 1, p.nume + " stă în afara blatului, la " + k.toFixed(2) + " raze");
+        const sus = s.cy() - s.masa.ry * Math.sqrt(1 - k * k);
+        adevarat(p.y > sus + 4 * U,
+                 p.nume + " abia atinge blatul: baza la y=" + Math.round(p.y) +
+                 ", marginea blatului la " + Math.round(sus));
+      } else {
+        adevarat(p.y > s.cy() + s.masa.ry,
+                 p.nume + " ar trebui să stea în fața marginii mesei, nu peste blat");
+      }
+    }
+  });
+
+  test("fiecare are scaunul lui, sub el", function () {
+    const s = porneste();
+    const d = cadruIntreg(s);
+    const scaune = formeDeCuloare(d, SCAUN);
+    adevarat(scaune.length >= 3, "am găsit doar " + scaune.length + " forme de scaun");
+    for (const p of s.personaje) {
+      const alLui = scaune.filter(function (f) {
+        return Math.abs(f.limite.cx - p.x) < p.latime * s.U() &&
+               Math.abs(f.limite.cy - p.y) < 14 * s.U();
+      });
+      adevarat(alLui.length >= 1, p.nume + " n-are scaun sub el");
+    }
+  });
+
+  test("masa acoperă picioarele celor din spate", function () {
+    const s = porneste();
+    const d = cadruIntreg(s);
+    adevarat(candApare(d, ARIPA) < candApare(d, MUCHIE_MASA),
+             "draconianul trebuie desenat înaintea mesei, ca să-l acopere");
+  });
+
+  test("clovnul stă în fața mesei, cu spătarul scaunului peste el", function () {
+    const s = porneste();
+    const d = cadruIntreg(s);
+    const masa = candApare(d, MUCHIE_MASA);
+    const clovn = candApare(d, NAS);
+    const spatar = candDispare(d, SCAUN);
+    adevarat(masa < clovn, "clovnul trebuie desenat după masă (e mai aproape de noi)");
+    adevarat(clovn < spatar,
+             "spătarul scaunului trebuie desenat peste el, altfel pare că stă în picioare");
+  });
+
+  test("partida merge mai departe după mutarea mesei", function () {
+    const s = porneste();
+    s.panaLaStarea("castigator");
+    egal(s.cartiPeMasa.length, 3, "cărți pe masă");
+    for (const p of s.personaje) {
+      const d = Math.hypot(p.manaX - s.cx(), p.manaY - s.cy());
+      adevarat(d < s.masa.rx, p.nume + " își ține cărțile pe lângă masă, nu pe ea");
+    }
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -1019,6 +1193,7 @@ function testeRafinare() {
   testeDraconian();
   testeReptilian();
   testeRafinare();
+  testeLocalul();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

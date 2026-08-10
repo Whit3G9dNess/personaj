@@ -36,9 +36,12 @@ Cei trei joacă la o masă dintr-un bar.
   de deasupra. Cei trei stau pe scaune, la masă.
 - Sunt așezați la 120° unul de altul; camera fixă.
 - În centru: teancul de cărți și mâna jucată curent.
-- În jur, în penumbră: barul cu sticle de sucuri, o a doua masă cu doi clienți
-  și un chelner care îi servește. Nu se desenează pereți — barul și masa a doua
-  ies din întuneric doar cât să se înțeleagă unde suntem.
+- În fundal, de-a latul scenei: tejgheaua barului, cu raftul de sticle deasupra
+  și un barman care se plimbă în spatele ei.
+- În stânga, mai departe și mai mică: a doua masă, cu doi clienți. Printre ele
+  umblă un chelner cu tava, care trece și pe la masa noastră din când în când.
+- Nu se desenează pereți — barul și masa a doua ies din întuneric doar cât să se
+  înțeleagă unde suntem.
 - Masa celor trei rămâne singura complet luminată. Tot ce e în jur e mai
   întunecat, mai mic și mai puțin detaliat, ca să nu fure atenția.
 
@@ -56,7 +59,7 @@ Bucla merge la nesfârșit, fără input din partea privitorului.
 ## 4b. Comanda de la bar
 
 Singura interacțiune din scenă. Comanzi pentru oricare dintre cei trei — suc,
-bere sau vin. Chelnerul se duce la bar, se aude cum se toarnă, aduce paharul și
+bere, vin, sau nimic, dacă nu vrei. Chelnerul se duce la bar, se aude cum se toarnă, aduce paharul și
 îl pune pe masă; după aceea se bea din el din când în când, fiecare cum îi e
 felul. Partida merge înainte tot timpul. Detaliile, în [PLAN.md](PLAN.md),
 Faza 9.

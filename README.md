@@ -60,7 +60,11 @@ cărțile au grosime, iar când cineva ia mâna ceilalți doi află: clovnul se
 răsucește să-i vadă mutra, draconianul mârâie un fum pe nări, reptilianul nu
 face nimic.
 
-A mai rămas barul din jur, în trei bucăți: localul (masa cu scaune, tejgheaua cu
-sucuri, a doua masă), lumea din el (doi clienți și un chelner care face naveta)
-și comanda — dai o comandă pentru oricare dintre cei trei și o auzi turnată la
-bar. Vezi [PLAN.md](PLAN.md).
+Localul e gata: cei trei stau pe scaune la o masă cu picior și blat gros, în
+spate e tejgheaua barului cu raftul de sticle, iar în stânga, mai departe, a
+doua masă — deocamdată goală.
+
+A mai rămas lumea din local (doi clienți la masa a doua, un chelner care se
+plimbă cu tava și un barman în spatele tejghelei) și comanda: ceri ceva de băut
+pentru oricare dintre cei trei — sau refuzi — și, dacă ceri, auzi cum se toarnă
+la bar. Vezi [PLAN.md](PLAN.md).

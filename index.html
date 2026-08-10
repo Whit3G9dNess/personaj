@@ -32,10 +32,11 @@ let U = 0;
 // Centrul mesei.
 let cx = 0, cy = 0;
 
-// Geometria mesei și a locurilor, recalculată la fiecare redimensionare.
+// Geometria localului, recalculată la fiecare redimensionare.
 const masa  = { rx: 0, ry: 0 };   // razele elipsei mesei
-const locuri = { rx: 0, ry: 0 };  // razele cercului pe care stau personajele
 const teanc = { x: 0, y: 0 };     // unde stă teancul de cărți
+const bar = { x0: 0, x1: 0, y: 0, inalt: 0, raft: 0 };   // tejgheaua din fundal
+const masa2 = { x: 0, y: 0, rx: 0, ry: 0 };              // a doua masă, în stânga
 let latCarte = 0, inaltCarte = 0;
 
 function redimensioneaza() {
@@ -50,26 +51,38 @@ function redimensioneaza() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   U  = Math.min(W, H) / 100;
-  cx = W / 2;
-  cy = H * 0.55;
+
+  // Masa noastră nu stă în mijlocul ecranului: e trasă spre dreapta, ca să
+  // rămână loc în stânga pentru a doua masă.
+  cx = W * 0.56;
+  cy = H * 0.62;
 
   calculeazaGeometria();
 }
 
 function calculeazaGeometria() {
   // Masa: elipsă turtită, ca și cum am privi-o ușor de sus.
-  masa.rx = Math.min(W * 0.30, H * 0.46);
+  masa.rx = Math.min(W * 0.26, H * 0.40);
   masa.ry = masa.rx * 0.42;
-
-  // Personajele stau puțin în afara marginii mesei.
-  locuri.rx = masa.rx * 1.34;
-  locuri.ry = masa.ry * 1.34;
 
   latCarte   = 4.4 * U;
   inaltCarte = 6.4 * U;
 
   teanc.x = cx - masa.rx * 0.34;
   teanc.y = cy + masa.ry * 0.06;
+
+  // Barul: o tejghea de-a latul fundalului, cu raftul de sticle deasupra.
+  bar.x0 = W * 0.03;
+  bar.x1 = W * 0.97;
+  bar.y = H * 0.21;
+  bar.inalt = 9 * U;
+  bar.raft = bar.y - 13 * U;
+
+  // A doua masă: în stânga și mai departe, deci mai mică.
+  masa2.rx = masa.rx * 0.55;
+  masa2.ry = masa2.rx * 0.42;
+  masa2.x = cx - masa.rx * 1.72;
+  masa2.y = cy - masa.ry * 1.45;
 
   for (const p of personaje) aseazaPersonaj(p);
 }
@@ -125,6 +138,137 @@ function deseneazaFundal() {
   ctx.fillRect(0, 0, W, H);
 }
 
+/* Culorile localului: lemnul mesei, al scaunelor și al tejghelei. */
+const LOCAL = {
+  muchieMasa:   "#3a2312",
+  piciorMasa:   "#2b1a0d",
+  scaun:        "#5a3a22",
+  scaunUmbra:   "#3a2415",
+  scaunDeparte: "#40291a",
+  tejghea:      "#5e3a22",
+  tejgheaSus:   "#7a4e2c",
+  raft:         "#241710",
+  blatMasa2:    "#4a2f1a",
+  muchieMasa2:  "#2e1d10"
+};
+
+// Sticlele de pe raft nu se rearanjează la fiecare cadru și nici la
+// redimensionare: poziția și culoarea lor ies dintr-un număr, nu din Math.random.
+function pseudo(i) {
+  const x = Math.sin(i * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+function deseneazaBar() {
+  // Peretele din spatele barului: doar cu o idee mai deschis decât negrul.
+  const perete = ctx.createLinearGradient(0, 0, 0, bar.y + bar.inalt);
+  perete.addColorStop(0, "#100b07");
+  perete.addColorStop(1, "#1e150e");
+  ctx.fillStyle = perete;
+  ctx.fillRect(0, 0, W, bar.y + bar.inalt);
+
+  // Lumina barului: mai rece și mai slabă decât lampa de deasupra mesei.
+  const lumina = ctx.createRadialGradient(W * 0.5, bar.raft, 0, W * 0.5, bar.y, W * 0.6);
+  lumina.addColorStop(0, "rgba(150, 190, 220, 0.11)");
+  lumina.addColorStop(1, "rgba(120, 170, 210, 0)");
+  ctx.fillStyle = lumina;
+  ctx.fillRect(0, 0, W, bar.y + bar.inalt);
+
+  // Raftul, apoi sticlele care stau pe el.
+  ctx.fillStyle = LOCAL.raft;
+  ctx.fillRect(bar.x0, bar.raft, bar.x1 - bar.x0, 1.1 * U);
+  deseneazaSticle();
+
+  // Tejgheaua: fața ei, apoi muchia de sus, unde bate lumina.
+  ctx.fillStyle = LOCAL.tejghea;
+  ctx.fillRect(bar.x0, bar.y, bar.x1 - bar.x0, bar.inalt);
+  ctx.fillStyle = LOCAL.tejgheaSus;
+  ctx.fillRect(bar.x0, bar.y, bar.x1 - bar.x0, 1.5 * U);
+}
+
+function deseneazaSticle() {
+  const culoriSticle = ["#c2612b", "#a83630", "#5c7a34", "#c19a27",
+                        "#6b3f7a", "#2f7a6b", "#8a4a22", "#9c9a5e"];
+  const cate = 24;
+  for (let i = 0; i < cate; i++) {
+    const x = bar.x0 + (i + 0.5) * (bar.x1 - bar.x0) / cate + (pseudo(i) - 0.5) * 1.6 * U;
+    const inalt = (4.2 + pseudo(i + 40) * 2.6) * U;
+    const lat = (1.7 + pseudo(i + 80) * 0.7) * U;
+    const jos = bar.raft;
+
+    ctx.fillStyle = culoriSticle[Math.floor(pseudo(i + 7) * culoriSticle.length)];
+    dreptunghiRotunjit(x - lat / 2, jos - inalt, lat, inalt, lat * 0.35);
+    ctx.fill();
+    // Gâtul sticlei.
+    dreptunghiRotunjit(x - lat * 0.17, jos - inalt - 1.7 * U, lat * 0.34, 1.9 * U, lat * 0.15);
+    ctx.fill();
+  }
+}
+
+function deseneazaMasa2() {
+  // Aceleași forme ca la masa noastră, dar mai mici și mai stinse: e departe.
+  ctx.fillStyle = LOCAL.piciorMasa;
+  dreptunghiRotunjit(masa2.x - 1.5 * U, masa2.y, 3 * U, masa2.ry * 1.5, 0.8 * U);
+  ctx.fill();
+  elipsa(masa2.x, masa2.y + masa2.ry * 1.5, 4.5 * U, 1.7 * U);
+  ctx.fill();
+
+  // Cele două scaune, deocamdată goale. Clienții vin la Faza 8.
+  ctx.fillStyle = LOCAL.scaunDeparte;
+  for (let s = -1; s <= 1; s += 2) {
+    elipsa(masa2.x + s * masa2.rx * 1.25, masa2.y + masa2.ry * 0.3, masa2.rx * 0.24, masa2.rx * 0.09);
+    ctx.fill();
+    dreptunghiRotunjit(masa2.x + s * masa2.rx * 1.25 - masa2.rx * 0.20,
+                       masa2.y - masa2.ry * 1.5, masa2.rx * 0.40, masa2.ry * 1.6, 0.6 * U);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = LOCAL.muchieMasa2;
+  elipsa(masa2.x, masa2.y + 1.5 * U, masa2.rx, masa2.ry);
+  ctx.fill();
+  ctx.fillStyle = LOCAL.blatMasa2;
+  elipsa(masa2.x, masa2.y, masa2.rx, masa2.ry);
+  ctx.fill();
+}
+
+/* Scaunul e desenat în două bucăți, fiindcă personajul stă între ele: șezutul
+   și picioarele rămân dedesubt, spătarul trece peste el dacă îl vedem din
+   spate. De aici vine tot efectul de „stă pe scaun". */
+
+function deseneazaScaun(p) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.scale(p.scara, p.scara);
+  const l = p.latime * U * 0.9;
+
+  ctx.fillStyle = LOCAL.scaunUmbra;
+  for (let s = -1; s <= 1; s += 2) {
+    dreptunghiRotunjit(s * l * 0.34 - 0.35 * U, -3.2 * U, 0.7 * U, 3.4 * U, 0.3 * U);
+    ctx.fill();
+  }
+  ctx.fillStyle = LOCAL.scaun;
+  elipsa(0, -3.4 * U, l * 0.46, l * 0.16);
+  ctx.fill();
+  ctx.restore();
+}
+
+function deseneazaSpatar(p) {
+  ctx.save();
+  ctx.translate(p.x + Math.cos(p.unghi) * 2.4 * U, p.y + Math.sin(p.unghi) * 1.5 * U);
+  ctx.scale(p.scara, p.scara);
+  const l = p.latime * U * 0.9;
+
+  ctx.fillStyle = LOCAL.scaun;
+  dreptunghiRotunjit(-l * 0.40, -11.5 * U, l * 0.80, 8.6 * U, 0.9 * U);
+  ctx.fill();
+  ctx.fillStyle = LOCAL.scaunUmbra;
+  for (let i = 0; i < 2; i++) {
+    dreptunghiRotunjit(-l * 0.33, -10.2 * U + i * 3.1 * U, l * 0.66, 1.1 * U, 0.4 * U);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
 function deseneazaMasa() {
   // Umbra difuză de sub masă, care o desprinde de întuneric.
   const umbra = ctx.createRadialGradient(cx, cy, masa.rx * 0.2, cx, cy, masa.rx * 1.9);
@@ -134,9 +278,16 @@ function deseneazaMasa() {
   elipsa(cx, cy + masa.ry * 0.25, masa.rx * 1.9, masa.ry * 2.1);
   ctx.fill();
 
-  // Grosimea mesei: aceeași elipsă, coborâtă și întunecată.
-  ctx.fillStyle = "#2a1a0e";
-  elipsa(cx, cy + 2.2 * U, masa.rx, masa.ry);
+  // Piciorul mesei: o coloană până la talpă, amândouă în umbră.
+  ctx.fillStyle = LOCAL.piciorMasa;
+  dreptunghiRotunjit(cx - 2.4 * U, cy, 4.8 * U, masa.ry * 1.5, 1.2 * U);
+  ctx.fill();
+  elipsa(cx, cy + masa.ry * 1.5, 8 * U, 3 * U);
+  ctx.fill();
+
+  // Grosimea blatului: aceeași elipsă, coborâtă și întunecată.
+  ctx.fillStyle = LOCAL.muchieMasa;
+  elipsa(cx, cy + 2.6 * U, masa.rx, masa.ry);
   ctx.fill();
 
   // Blatul, luminat din centru-sus de lampa de deasupra.
@@ -420,8 +571,13 @@ for (const p of personaje) {
 function aseazaPersonaj(p) {
   const c = Math.cos(p.unghi), s = Math.sin(p.unghi);
 
-  p.x = cx + locuri.rx * c;
-  p.y = cy + locuri.ry * s;
+  /* Locurile nu stau pe un cerc: privim masa de sus, sub un unghi mic, și cele
+     două părți nu se văd la fel. Cei din spate sunt trași înăuntru, ca blatul
+     să le acopere poalele — de asta par așezați. Cel din față stă dincolo de
+     marginea dinspre noi, cu spătarul scaunului peste picioare. */
+  const inFata = s >= 0;
+  p.x = cx + masa.rx * (inFata ? 1.00 : 0.86) * c;
+  p.y = cy + masa.ry * (inFata ? 1.18 : 0.55) * s;
 
   // Personajele din față sunt mai aproape de privitor, deci mai mari.
   p.scara = 0.80 + 0.30 * (0.5 + 0.5 * s);
@@ -1169,30 +1325,37 @@ function actualizeazaJocul(dt) {
 let ultimulTimp = 0;
 let t = 0;   // timpul total, folosit de animațiile de idle
 
-function cadru(acum) {
-  // dt în secunde, limitat ca scena să nu sară după ce revii într-un tab uitat.
-  let dt = (acum - ultimulTimp) / 1000;
-  ultimulTimp = acum;
-  if (!isFinite(dt) || dt < 0) dt = 0;
-  dt = Math.min(dt, 0.05);
-  t += dt;
-
+function actualizeazaTot(dt) {
   actualizeazaJocul(dt);
   for (const p of personaje) actualizeazaPersonaj(p, dt);
   for (const c of carti) actualizeazaCarte(c, dt);
   actualizeazaParticule(dt);
+}
 
-  // Ordinea de desenare ține loc de adâncime: cine e mai aproape, mai târziu.
+/* Ordinea de desenare ține loc de adâncime: cine e mai aproape, mai târziu.
+   Tot ea îi așază pe scaune — pe cei din spate îi acoperă masa de la brâu în
+   jos, iar celui din față îi trece spătarul scaunului peste picioare. */
+function deseneazaTot() {
   deseneazaFundal();
+  deseneazaBar();
+  deseneazaMasa2();
 
   for (const p of personaje) {
-    if (Math.sin(p.unghi) < 0) deseneazaPersonaj(p, t);   // cei din spate
+    if (Math.sin(p.unghi) < 0) {          // cei din spate
+      deseneazaScaun(p);
+      deseneazaSpatar(p);
+      deseneazaPersonaj(p, t);
+    }
   }
 
   deseneazaMasa();
 
   for (const p of personaje) {
-    if (Math.sin(p.unghi) >= 0) deseneazaPersonaj(p, t);  // cel din față
+    if (Math.sin(p.unghi) >= 0) {         // cel din față
+      deseneazaScaun(p);
+      deseneazaPersonaj(p, t);
+      deseneazaSpatar(p);
+    }
   }
 
   deseneazaTeanc();
@@ -1201,6 +1364,18 @@ function cadru(acum) {
 
   deseneazaLumina();
   deseneazaVigneta();
+}
+
+function cadru(acum) {
+  // dt în secunde, limitat ca scena să nu sară după ce revii într-un tab uitat.
+  let dt = (acum - ultimulTimp) / 1000;
+  ultimulTimp = acum;
+  if (!isFinite(dt) || dt < 0) dt = 0;
+  dt = Math.min(dt, 0.05);
+  t += dt;
+
+  actualizeazaTot(dt);
+  deseneazaTot();
 
   requestAnimationFrame(cadru);
 }

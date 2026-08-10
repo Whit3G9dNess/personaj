@@ -20,8 +20,8 @@ funcționează deja.
 | 4 | Draconianul + focul | ✅ gata |
 | 5 | Reptilianul | ✅ gata |
 | 6 | Rafinare | ✅ gata |
-| 7 | Localul: masa cu scaune, barul, masa a doua | ⬜ |
-| 8 | Lumea din local: cei doi clienți și chelnerul | ⬜ |
+| 7 | Localul: masa cu scaune, barul, masa a doua | ✅ gata |
+| 8 | Lumea din local: clienții, chelnerul, barmanul | ⬜ |
 | 9 | Comanda și sunetul | ⬜ |
 
 ---
@@ -159,6 +159,19 @@ E singura fază care umblă la ceva ce merge deja: `deseneazaMasa` și locurile 
 la masă. Restul, până acum, doar s-a adăugat. De asta vine singură, înaintea a
 tot ce e viu în local.
 
+**Cum stau pe scaun.** Nu din desen, ci din ordinea desenării și din unde sunt
+puse locurile. Cei din spate sunt trași înăuntru, până le intră poalele sub
+blat, iar masa se desenează după ei și îi acoperă de la brâu în jos. Cel din
+față stă dincolo de marginea dinspre noi, se desenează după masă, iar peste
+picioarele lui trece spătarul scaunului. Pantofii rămân la vedere pe sub el.
+
+Locurile nu mai stau pe un cerc. Privim masa de sus, sub un unghi mic, așa că
+partea dinspre noi și cea din fund nu se văd la fel: cei din spate sunt la 0,86
+din raza mesei pe orizontală și la 0,55 pe verticală, cel din față la 1,18.
+Trei teste țin asta pe loc — unul chiar calculează unde e marginea blatului la
+x-ul fiecăruia și cere ca baza lui să fie sub ea. Prima variantă trecea toate
+testele și arăta tot a oameni în picioare; testul ăsta a lipsit exact atât.
+
 **Verificare:** scena arată a bar gol, iar partida merge exact ca înainte — cei
 trei stau acum pe scaune, cu umbrele pe blat.
 
@@ -169,10 +182,13 @@ cărți, au ciclul lor.
 
 - **Doi clienți** la masa a doua, care stau de vorbă: idle lent, gesturi rare,
   unul se apleacă spre celălalt când „vorbește". Fără reguli, fără cărți.
-- **Chelnerul**, care merge de la bar la masa a doua și înapoi, pe un drum fix,
-  cu o tavă. Se oprește, servește, pleacă, se întoarce. Un ciclu propriu,
-  independent de al mesei principale — dacă te uiți destul, îl vezi făcând
-  aceeași tură.
+- **Chelnerul**, care se plimbă prin local cu tava: pe la bar, pe la masa a
+  doua, și pe la masa noastră din când în când. Nu așteaptă să fie chemat —
+  face turul lui oricum. Se oprește puțin la fiecare popas, apoi merge mai
+  departe. Un ciclu propriu, independent de al mesei principale.
+- **Barmanul**, care se plimbă în spatele tejghelei: șterge un pahar, se mută la
+  celălalt capăt, se apleacă după o sticlă. Nu iese niciodată din spatele
+  barului.
 
 Contractul e cel de la masa mare (`deseneaza`, `actualizeaza`, `reactie`), ca să
 nu apară un al doilea fel de a face un personaj. Diferența e doar că pe ăștia
@@ -189,9 +205,14 @@ ca să pună paharul pe ea.
 
 Comanzi pentru oricare dintre cei trei, iar restul se întâmplă singur:
 
-1. **Alegi** — întâi pentru cine, apoi ce: suc, bere sau vin. Meniul stă mic și
-   discret lângă personajul ales, iar până nu-l atingi, scena merge exact ca
-   până acum. Fiecare dintre cei trei poate avea paharul lui pe masă.
+1. **Alegi** — întâi pentru cine, apoi ce: suc, bere, vin sau **nimic**. Meniul
+   stă mic și discret lângă personajul ales, iar până nu-l atingi, scena merge
+   exact ca până acum. Fiecare dintre cei trei poate avea paharul lui pe masă.
+
+   Refuzul e o opțiune la fel de bună ca celelalte, nu o ieșire de avarie: dacă
+   alegi „nimic, mulțumesc", chelnerul dă din cap și își vede de tura lui. La
+   fel se întâmplă și dacă închizi meniul fără să alegi. Scena trebuie să fie
+   la fel de bună neatinsă — asta e starea ei normală, la urma urmei.
 2. **Chelnerul se duce la bar** și toarnă. Se **aude turnatul**, altfel pentru
    fiecare băutură: sucul scurt și subțire, berea cu spumă care sfârâie după,
    vinul mai gros și mai grav. Sunetul urcă în înălțime pe măsură ce paharul
@@ -239,11 +260,11 @@ care ai comandat are un pahar din care soarbe. Partida n-a stat nicio clipă.
 
 ## Ce rămâne de hotărât la fazele 7–9
 
-- Ce fel de creaturi sunt cei doi clienți și chelnerul.
-- Dacă barul are un barman în spatele tejghelei sau doar sticle.
+- Ce fel de creaturi sunt cei doi clienți, chelnerul și barmanul.
 - Cum arată meniul de comandă: pahare desenate lângă personaj, sau un rând de
   cuvinte jos.
-- Dacă se văd scaunele întregi sau doar spătarele, la cei din spate.
+- Cum ceri meniul: clic pe personaj, sau apare singur când trece chelnerul pe
+  la masa noastră.
 
 ---
 

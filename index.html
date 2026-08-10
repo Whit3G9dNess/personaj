@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Personaj — Partida de cărți</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="scena"></canvas>
+<script>
+"use strict";
+
+/* ==========================================================================
+   1. CANVAS, DIMENSIUNI ȘI GEOMETRIE
+   ========================================================================== */
+
+const cv  = document.getElementById("scena");
+const ctx = cv.getContext("2d");
+
+// Lățimea și înălțimea logică a scenei (în pixeli CSS, nu fizici).
+let W = 0, H = 0;
+
+// Unitatea de măsură a scenei: a suta parte din latura mică a ferestrei.
+// Toate dimensiunile din cod sunt exprimate în U, ca scena să arate la fel
+// pe orice ecran.
+let U = 0;
+
+// Centrul mesei.
+let cx = 0, cy = 0;
+
+// Geometria mesei și a locurilor, recalculată la fiecare redimensionare.
+const masa  = { rx: 0, ry: 0 };   // razele elipsei mesei
+const locuri = { rx: 0, ry: 0 };  // razele cercului pe care stau personajele
+const teanc = { x: 0, y: 0 };     // unde stă teancul de cărți
+let latCarte = 0, inaltCarte = 0;
+
+function redimensioneaza() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth;
+  H = window.innerHeight;
+
+  cv.width  = Math.round(W * dpr);
+  cv.height = Math.round(H * dpr);
+  cv.style.width  = W + "px";
+  cv.style.height = H + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  U  = Math.min(W, H) / 100;
+  cx = W / 2;
+  cy = H * 0.55;
+
+  calculeazaGeometria();
+}
+
+function calculeazaGeometria() {
+  // Masa: elipsă turtită, ca și cum am privi-o ușor de sus.
+  masa.rx = Math.min(W * 0.30, H * 0.46);
+  masa.ry = masa.rx * 0.42;
+
+  // Personajele stau puțin în afara marginii mesei.
+  locuri.rx = masa.rx * 1.34;
+  locuri.ry = masa.ry * 1.34;
+
+  latCarte   = 4.4 * U;
+  inaltCarte = 6.4 * U;
+
+  teanc.x = cx - masa.rx * 0.34;
+  teanc.y = cy + masa.ry * 0.06;
+
+  for (const p of personaje) aseazaPersonaj(p);
+}
+
+/* ==========================================================================
+   2. UTILITARE DE DESEN ȘI DE CALCUL
+   ========================================================================== */
+
+function interpoleaza(a, b, t) { return a + (b - a) * t; }
+
+// Ușurare lină la capete: pornirea și oprirea nu sunt bruște.
+function usor(t) {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+// Aduce un unghi în intervalul (-PI, PI].
+function normalizeazaUnghi(a) {
+  while (a >  Math.PI) a -= 2 * Math.PI;
+  while (a <= -Math.PI) a += 2 * Math.PI;
+  return a;
+}
+
+function intreg(min, max) { return min + Math.random() * (max - min); }
+
+function elipsa(x, y, rx, ry) {
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+}
+
+// Dreptunghi cu colțuri rotunjite, desenat manual ca să nu depindem de
+// roundRect (care nu există în browsere mai vechi).
+function dreptunghiRotunjit(x, y, lat, inalt, raza) {
+  const r = Math.min(raza, lat / 2, inalt / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + lat - r, y);
+  ctx.arcTo(x + lat, y, x + lat, y + r, r);
+  ctx.lineTo(x + lat, y + inalt - r);
+  ctx.arcTo(x + lat, y + inalt, x + lat - r, y + inalt, r);
+  ctx.lineTo(x + r, y + inalt);
+  ctx.arcTo(x, y + inalt, x, y + inalt - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+/* ==========================================================================
+   3. SCENA: MASA ȘI LUMINA
+   ========================================================================== */
+
+function deseneazaFundal() {
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, W, H);
+}
+
+function deseneazaMasa() {
+  // Umbra difuză de sub masă, care o desprinde de întuneric.
+  const umbra = ctx.createRadialGradient(cx, cy, masa.rx * 0.2, cx, cy, masa.rx * 1.9);
+  umbra.addColorStop(0, "rgba(40, 22, 8, 0.85)");
+  umbra.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = umbra;
+  elipsa(cx, cy + masa.ry * 0.25, masa.rx * 1.9, masa.ry * 2.1);
+  ctx.fill();
+
+  // Grosimea mesei: aceeași elipsă, coborâtă și întunecată.
+  ctx.fillStyle = "#2a1a0e";
+  elipsa(cx, cy + 2.2 * U, masa.rx, masa.ry);
+  ctx.fill();
+
+  // Blatul, luminat din centru-sus de lampa de deasupra.
+  const blat = ctx.createRadialGradient(
+    cx, cy - masa.ry * 0.35, masa.rx * 0.05,
+    cx, cy - masa.ry * 0.10, masa.rx * 1.15
+  );
+  blat.addColorStop(0.0, "#8a5c33");
+  blat.addColorStop(0.45, "#5f3d21");
+  blat.addColorStop(1.0, "#2b1a0d");
+  ctx.fillStyle = blat;
+  elipsa(cx, cy, masa.rx, masa.ry);
+  ctx.fill();
+
+  // Muchia lucioasă de sus, unde cade lumina direct.
+  ctx.strokeStyle = "rgba(255, 205, 140, 0.16)";
+  ctx.lineWidth = 0.45 * U;
+  elipsa(cx, cy, masa.rx * 0.995, masa.ry * 0.99);
+  ctx.stroke();
+}
+
+function deseneazaLumina() {
+  // Conul cald de lumină care cade de deasupra mesei.
+  const con = ctx.createRadialGradient(
+    cx, cy - masa.ry * 1.4, 0,
+    cx, cy - masa.ry * 0.6, masa.rx * 1.7
+  );
+  con.addColorStop(0.0, "rgba(255, 196, 120, 0.16)");
+  con.addColorStop(0.5, "rgba(255, 170, 90, 0.06)");
+  con.addColorStop(1.0, "rgba(255, 150, 60, 0)");
+  ctx.fillStyle = con;
+  ctx.fillRect(0, 0, W, H);
+}
+
+function deseneazaVigneta() {
+  const v = ctx.createRadialGradient(
+    cx, cy, masa.rx * 0.7,
+    cx, cy, Math.max(W, H) * 0.78
+  );
+  v.addColorStop(0, "rgba(0, 0, 0, 0)");
+  v.addColorStop(1, "rgba(0, 0, 0, 0.92)");
+  ctx.fillStyle = v;
+  ctx.fillRect(0, 0, W, H);
+}
+
+/* ==========================================================================
+   4. CĂRȚILE
+   ========================================================================== */
+
+// O carte e un obiect care își știe poziția curentă și ținta spre care se
+// duce. Nimic nu sare dintr-un loc în altul: totul se interpolează.
+const carti = [];
+
+function creeazaCarte(x, y, rot) {
+  return {
+    x: x, y: y, rot: rot,
+    x0: x, y0: y, rot0: rot,
+    x1: x, y1: y, rot1: rot,
+    t: 1, durata: 1,
+    fataInSus: false,
+    proprietar: null
+  };
+}
+
+function mutaCarte(c, x, y, rot, durata, intarziere) {
+  c.x0 = c.x; c.y0 = c.y; c.rot0 = c.rot;
+  c.x1 = x;   c.y1 = y;   c.rot1 = rot;
+  c.durata = durata;
+  c.t = -(intarziere || 0) / durata;
+}
+
+function actualizeazaCarte(c, dt) {
+  if (c.t >= 1) return;
+  c.t += dt / c.durata;
+  const t = Math.max(0, Math.min(1, c.t));
+  const e = usor(t);
+  c.x   = interpoleaza(c.x0, c.x1, e);
+  c.y   = interpoleaza(c.y0, c.y1, e);
+  c.rot = interpoleaza(c.rot0, c.rot1, e);
+}
+
+function deseneazaCarte(c) {
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate(c.rot);
+
+  const l = latCarte, i = inaltCarte;
+
+  // Umbra cărții pe masă.
+  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+  dreptunghiRotunjit(-l / 2 + 0.4 * U, -i / 2 + 0.6 * U, l, i, 0.7 * U);
+  ctx.fill();
+
+  if (c.fataInSus) {
+    ctx.fillStyle = "#f2e6d0";
+    dreptunghiRotunjit(-l / 2, -i / 2, l, i, 0.7 * U);
+    ctx.fill();
+    // Un semn simplu în mijloc — cărțile nu au valori reale.
+    ctx.fillStyle = "#8a2f2a";
+    elipsa(0, 0, l * 0.17, l * 0.17);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(120, 90, 60, 0.5)";
+    ctx.lineWidth = 0.18 * U;
+    dreptunghiRotunjit(-l / 2 + 0.5 * U, -i / 2 + 0.5 * U, l - U, i - U, 0.4 * U);
+    ctx.stroke();
+  } else {
+    // Spatele cărții: bordură deschisă, mijloc bordo.
+    ctx.fillStyle = "#e8dcc4";
+    dreptunghiRotunjit(-l / 2, -i / 2, l, i, 0.7 * U);
+    ctx.fill();
+    ctx.fillStyle = "#7c2b33";
+    dreptunghiRotunjit(-l / 2 + 0.5 * U, -i / 2 + 0.5 * U, l - U, i - U, 0.4 * U);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(230, 200, 150, 0.35)";
+    ctx.lineWidth = 0.18 * U;
+    dreptunghiRotunjit(-l / 2 + 1.1 * U, -i / 2 + 1.1 * U, l - 2.2 * U, i - 2.2 * U, 0.3 * U);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function deseneazaTeanc() {
+  // Teancul din care se împarte: câteva cărți suprapuse, fixe.
+  for (let i = 0; i < 5; i++) {
+    ctx.save();
+    ctx.translate(teanc.x, teanc.y - i * 0.28 * U);
+    ctx.rotate(-0.12 + i * 0.012);
+    ctx.fillStyle = i === 4 ? "#e8dcc4" : "rgba(90, 70, 50, 0.9)";
+    dreptunghiRotunjit(-latCarte / 2, -inaltCarte / 2, latCarte, inaltCarte, 0.7 * U);
+    ctx.fill();
+    if (i === 4) {
+      ctx.fillStyle = "#7c2b33";
+      dreptunghiRotunjit(-latCarte / 2 + 0.5 * U, -inaltCarte / 2 + 0.5 * U,
+                         latCarte - U, inaltCarte - U, 0.4 * U);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+/* ==========================================================================
+   5. PERSONAJELE
+   ========================================================================== */
+
+/* Fiecare personaj respectă același contract:
+     - unghi         : locul lui la masă
+     - deseneaza(t)  : cum arată la momentul t
+     - reactie(tip)  : ce face când primește un eveniment de la mașina de stări
+   Deocamdată toate trei sunt siluete-placeholder. La Fazele 3-5, fiecare
+   primește desenul lui adevărat, fără să se schimbe nimic în restul codului. */
+
+const personaje = [
+  {
+    nume: "Clovnul",
+    unghi: Math.PI / 2,                        // în față, cu spatele la privitor
+    culoare: "#c9483f", culoareSus: "#e8a13c",
+    ritm: 1.9, latime: 11, inaltime: 20,
+    gandire: 0.9                               // gândește repede și haotic
+  },
+  {
+    nume: "Draconianul",
+    unghi: Math.PI / 2 + (2 * Math.PI) / 3,    // stânga-spate
+    culoare: "#4a6b3a", culoareSus: "#86a85c",
+    ritm: 0.9, latime: 15, inaltime: 24,
+    gandire: 1.6                               // masiv și lent
+  },
+  {
+    nume: "Reptilianul",
+    unghi: Math.PI / 2 + (4 * Math.PI) / 3,    // dreapta-spate
+    culoare: "#3d6357", culoareSus: "#6f9a86",
+    ritm: 1.2, latime: 10.5, inaltime: 21,
+    gandire: 1.3                               // constant, niciodată grăbit
+  }
+];
+
+// Fiecare personaj primește starea lui internă de animație.
+for (const p of personaje) {
+  p.faza = Math.random() * Math.PI * 2;
+  p.mana = [];
+  p.reactieTimp = 0;
+  p.reactieDurata = 1;
+  p.reactieAmpl = 0;
+  p.reactieFrecventa = 10;
+}
+
+// Calculează, pentru un personaj, toate punctele de care are nevoie scena:
+// unde stă, unde își ține cărțile, unde pune cartea pe masă.
+function aseazaPersonaj(p) {
+  const c = Math.cos(p.unghi), s = Math.sin(p.unghi);
+
+  p.x = cx + locuri.rx * c;
+  p.y = cy + locuri.ry * s;
+
+  // Personajele din față sunt mai aproape de privitor, deci mai mari.
+  p.scara = 0.80 + 0.30 * (0.5 + 0.5 * s);
+
+  // Punctul unde își ține mâna de cărți și unde pune cartea jucată.
+  p.manaX = cx + masa.rx * 0.78 * c;
+  p.manaY = cy + masa.ry * 0.78 * s;
+  p.masaX = cx + masa.rx * 0.32 * c;
+  p.masaY = cy + masa.ry * 0.32 * s;
+
+  // Cărțile lui sunt rotite spre el, dar atenuat — privim masa de sus, dar
+  // sub un unghi mic, așa că o rotire completă ar arăta fals.
+  p.rotCarte = normalizeazaUnghi(p.unghi - Math.PI / 2) * 0.45;
+}
+
+// Așază în evantai cărțile din mână. Se recalculează de fiecare dată când
+// personajul primește sau joacă o carte.
+function rearanjeazaMana(p, durata) {
+  const n = p.mana.length;
+  for (let i = 0; i < n; i++) {
+    const d = i - (n - 1) / 2;
+    const unghiCarte = p.rotCarte + d * 0.16;
+    const x = p.manaX + Math.cos(p.rotCarte) * d * latCarte * 0.5;
+    const y = p.manaY + Math.sin(p.rotCarte) * d * latCarte * 0.5 - Math.abs(d) * 0.3 * U;
+    mutaCarte(p.mana[i], x, y, unghiCarte, durata || 0.35, 0);
+  }
+}
+
+// Evenimentele primite de la mașina de stări. Personajul nu știe regulile
+// jocului — știe doar cum să reacționeze.
+function trimiteEveniment(p, tip) {
+  if (tip === "joaca")        { p.reactieAmpl =  0.7; p.reactieDurata = 0.5; p.reactieFrecventa = 9; }
+  else if (tip === "castig")  { p.reactieAmpl =  2.6; p.reactieDurata = 1.3; p.reactieFrecventa = 11; }
+  else if (tip === "pierdere"){ p.reactieAmpl = -1.4; p.reactieDurata = 1.2; p.reactieFrecventa = 2.4; }
+  else if (tip === "gandeste"){ p.reactieAmpl =  0.35; p.reactieDurata = 0.8; p.reactieFrecventa = 4; }
+  p.reactieTimp = p.reactieDurata;
+}
+
+function actualizeazaPersonaj(p, dt) {
+  if (p.reactieTimp > 0) p.reactieTimp = Math.max(0, p.reactieTimp - dt);
+}
+
+// Silueta-placeholder: un corp-capsulă și un cap. Respiră, se leagănă ușor și
+// tresaltă la reacții. Atât cât să se vadă că ciclul jocului funcționează.
+function deseneazaPersonaj(p, t) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.scale(p.scara, p.scara);
+
+  const lat = p.latime * U;
+  const inalt = p.inaltime * U;
+  const razaCap = lat * 0.42;
+
+  // Respirația și legănatul: fiecare cu ritmul lui.
+  const respiratie = 1 + 0.022 * Math.sin(t * p.ritm + p.faza);
+  const leganare = 0.02 * Math.sin(t * p.ritm * 0.6 + p.faza * 1.7);
+
+  // Reacția: o oscilație care se stinge.
+  let salt = 0;
+  if (p.reactieTimp > 0) {
+    const k = p.reactieTimp / p.reactieDurata;
+    salt = Math.sin(p.reactieTimp * p.reactieFrecventa) * p.reactieAmpl * k * U;
+  }
+
+  ctx.translate(0, -salt);
+  ctx.rotate(leganare);
+
+  // Umbra de la baza siluetei.
+  ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+  elipsa(0, 0, lat * 0.62, lat * 0.20);
+  ctx.fill();
+
+  ctx.scale(1, respiratie);
+
+  // Corpul: capsulă, luminată de sus.
+  const grad = ctx.createLinearGradient(0, -inalt - razaCap * 2, 0, 0);
+  grad.addColorStop(0, p.culoareSus);
+  grad.addColorStop(1, p.culoare);
+  ctx.fillStyle = grad;
+  dreptunghiRotunjit(-lat / 2, -inalt, lat, inalt, lat / 2);
+  ctx.fill();
+
+  // Capul.
+  ctx.beginPath();
+  ctx.arc(0, -inalt - razaCap * 0.55, razaCap, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Marginea dinspre lumină.
+  ctx.strokeStyle = "rgba(255, 210, 150, 0.22)";
+  ctx.lineWidth = 0.3 * U;
+  ctx.stroke();
+
+  // Nume: ajutor temporar de dezvoltare, dispare la Fazele 3-5.
+  ctx.fillStyle = "rgba(255, 225, 190, 0.20)";
+  ctx.font = 2.8 * U + "px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(p.nume, 0, -inalt - razaCap * 2.2);
+
+  ctx.restore();
+}
+
+/* ==========================================================================
+   6. MAȘINA DE STĂRI A UNEI MÂINI
+   ========================================================================== */
+
+/* Ciclul, la nesfârșit:
+     impartire → gandire → jucare → castigator → reactie → pauza → impartire  */
+
+const CARTI_IN_MANA = 3;
+
+let stare = "";
+let tStare = 0;        // de cât timp durează starea curentă
+let cronometru = 0;    // pentru pașii dinăuntrul unei stări
+let impartite = 0;
+let jucate = 0;
+let startator = 0;     // cine primește prima carte și joacă primul
+let castigator = null;
+const cartiPeMasa = [];
+
+function schimbaStarea(noua) {
+  stare = noua;
+  tStare = 0;
+
+  if (noua === "impartire") {
+    impartite = 0;
+    cronometru = 0.25;
+  }
+  else if (noua === "gandire") {
+    for (const p of personaje) trimiteEveniment(p, "gandeste");
+  }
+  else if (noua === "jucare") {
+    jucate = 0;
+    cronometru = 0.2;
+  }
+  else if (noua === "castigator") {
+    castigator = alegeCastigator();
+    // Cărțile de pe masă se strâng spre câștigător.
+    for (let i = 0; i < cartiPeMasa.length; i++) {
+      const c = cartiPeMasa[i];
+      c.fataInSus = false;
+      mutaCarte(c, castigator.manaX, castigator.manaY, castigator.rotCarte, 0.55, i * 0.06);
+    }
+  }
+  else if (noua === "reactie") {
+    for (const p of personaje) {
+      trimiteEveniment(p, p === castigator ? "castig" : "pierdere");
+    }
+  }
+  else if (noua === "pauza") {
+    // Tot ce a rămas se întoarce la teanc.
+    for (const c of carti) {
+      c.fataInSus = false;
+      mutaCarte(c, teanc.x, teanc.y, -0.12, 0.5, Math.random() * 0.12);
+    }
+  }
+}
+
+// Reptilianul e cel mai bun jucător dintre cei trei, și se vede.
+function alegeCastigator() {
+  const sanse = [0.24, 0.30, 0.46];
+  let r = Math.random(), acum = 0;
+  for (let i = 0; i < personaje.length; i++) {
+    acum += sanse[i];
+    if (r <= acum) return personaje[i];
+  }
+  return personaje[personaje.length - 1];
+}
+
+function actualizeazaJocul(dt) {
+  tStare += dt;
+  cronometru -= dt;
+
+  if (stare === "impartire") {
+    if (cronometru <= 0 && impartite < CARTI_IN_MANA * personaje.length) {
+      const p = personaje[(startator + impartite) % personaje.length];
+      const c = creeazaCarte(teanc.x, teanc.y, -0.12);
+      c.proprietar = p;
+      carti.push(c);
+      p.mana.push(c);
+      rearanjeazaMana(p, 0.42);
+      impartite++;
+      cronometru = 0.17;
+    }
+    if (impartite >= CARTI_IN_MANA * personaje.length && cronometru <= -0.45) {
+      schimbaStarea("gandire");
+    }
+  }
+
+  else if (stare === "gandire") {
+    if (tStare > 1.5) schimbaStarea("jucare");
+  }
+
+  else if (stare === "jucare") {
+    if (cronometru <= 0 && jucate < personaje.length) {
+      const p = personaje[(startator + jucate) % personaje.length];
+      const c = p.mana.pop();
+      c.fataInSus = true;
+      // Cartea aterizează puțin dezordonat — nimeni nu pune perfect drept.
+      mutaCarte(c,
+        p.masaX + intreg(-0.8, 0.8) * U,
+        p.masaY + intreg(-0.8, 0.8) * U,
+        p.rotCarte + intreg(-0.14, 0.14),
+        0.45, 0);
+      cartiPeMasa.push(c);
+      rearanjeazaMana(p, 0.3);
+      trimiteEveniment(p, "joaca");
+      jucate++;
+      // Fiecare se gândește cât îi e felul înainte să pună cartea.
+      const urmator = personaje[(startator + jucate) % personaje.length];
+      cronometru = 0.45 + urmator.gandire * 0.5;
+    }
+    if (jucate >= personaje.length && cronometru <= -0.5) {
+      schimbaStarea("castigator");
+    }
+  }
+
+  else if (stare === "castigator") {
+    if (tStare > 0.85) schimbaStarea("reactie");
+  }
+
+  else if (stare === "reactie") {
+    if (tStare > 1.5) schimbaStarea("pauza");
+  }
+
+  else if (stare === "pauza") {
+    if (tStare > 0.9) {
+      // Masa se golește și mâna următoare începe de la câștigător.
+      carti.length = 0;
+      cartiPeMasa.length = 0;
+      for (const p of personaje) p.mana.length = 0;
+      startator = personaje.indexOf(castigator);
+      if (startator < 0) startator = 0;
+      schimbaStarea("impartire");
+    }
+  }
+}
+
+/* ==========================================================================
+   7. BUCLA PRINCIPALĂ
+   ========================================================================== */
+
+let ultimulTimp = 0;
+let t = 0;   // timpul total, folosit de animațiile de idle
+
+function cadru(acum) {
+  // dt în secunde, limitat ca scena să nu sară după ce revii într-un tab uitat.
+  let dt = (acum - ultimulTimp) / 1000;
+  ultimulTimp = acum;
+  if (!isFinite(dt) || dt < 0) dt = 0;
+  dt = Math.min(dt, 0.05);
+  t += dt;
+
+  actualizeazaJocul(dt);
+  for (const p of personaje) actualizeazaPersonaj(p, dt);
+  for (const c of carti) actualizeazaCarte(c, dt);
+
+  // Ordinea de desenare ține loc de adâncime: cine e mai aproape, mai târziu.
+  deseneazaFundal();
+
+  for (const p of personaje) {
+    if (Math.sin(p.unghi) < 0) deseneazaPersonaj(p, t);   // cei din spate
+  }
+
+  deseneazaMasa();
+
+  for (const p of personaje) {
+    if (Math.sin(p.unghi) >= 0) deseneazaPersonaj(p, t);  // cel din față
+  }
+
+  deseneazaTeanc();
+  for (const c of carti) deseneazaCarte(c);
+
+  deseneazaLumina();
+  deseneazaVigneta();
+
+  requestAnimationFrame(cadru);
+}
+
+window.addEventListener("resize", redimensioneaza);
+redimensioneaza();
+schimbaStarea("impartire");
+requestAnimationFrame(function (acum) {
+  ultimulTimp = acum;
+  requestAnimationFrame(cadru);
+});
+</script>
+</body>
+</html>

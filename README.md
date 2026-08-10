@@ -21,12 +21,17 @@ nicio imagine în proiect. Codul și comentariile sunt în română.
 
 ## Fișiere
 
-| Fișier      | Ce conține                                  |
-|-------------|---------------------------------------------|
-| `index.html`| Scena întreagă: personaje, masă, animații   |
-| `SPEC.md`   | Descrierea personajelor, a scenei și etapele|
+| Fișier      | Ce conține                                   |
+|-------------|----------------------------------------------|
+| `index.html`| Scena întreagă: personaje, masă, animații    |
+| `SPEC.md`   | Descrierea personajelor, a scenei și etapele |
+| `PLAN.md`   | Planul de implementare pe faze și stadiul lui|
 
 ## Stadiu
 
-În lucru. Vezi etapele din [SPEC.md](SPEC.md) — deocamdată se construiește masa
-și cele trei locuri.
+În lucru. Masa, lumina și ciclul complet al unei mâini funcționează — se împart
+cărțile, fiecare joacă, unul câștigă și strânge cărțile, apoi se reia.
+
+Personajele sunt deocamdată siluete colorate cu numele scris deasupra. Urmează
+să fie desenate pe rând: clovnul, draconianul cu focul lui, apoi reptilianul.
+Vezi [PLAN.md](PLAN.md).

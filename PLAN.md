@@ -18,9 +18,11 @@ funcționează deja.
 | 2 | Cărțile și ciclul complet — **felia verticală** | ✅ gata |
 | 3 | Clovnul | ✅ gata |
 | 4 | Draconianul + focul | ✅ gata |
-| 5 | Reptilianul | ⬜ |
-| 6 | Rafinare | ⬜ |
-| 7 | Barul din jur | ⬜ |
+| 5 | Reptilianul | ✅ gata |
+| 6 | Rafinare | ✅ gata |
+| 7 | Localul: masa cu scaune, barul, masa a doua | ⬜ |
+| 8 | Lumea din local: cei doi clienți și chelnerul | ⬜ |
+| 9 | Comanda și sunetul | ⬜ |
 
 ---
 
@@ -101,6 +103,15 @@ Draconianul a adăugat două lucruri la contractul comun, amândouă opționale:
 - Idle minimal: aproape nemișcat, clipit rar cu pleoapa laterală.
 - Când câștigă nu arată nimic — doar trage cărțile. Contrastul e tot efectul.
 
+„Nu arată nimic" e implementat ca refuz, nu ca uitare: `reactie` îi anulează și
+tresărirea comună, pe care o primesc toți de la mașina de stări. Două teste țin
+asta pe loc — desenul lui trebuie să iasă identic după câștig și după pierdere,
+în timp ce al clovnului trebuie să se schimbe.
+
+Odată desenați toți trei, silueta-placeholder a dispărut din cod, împreună cu
+numele scrise deasupra și cu culorile care o hrăneau. Fiecare personaj își ține
+acum paleta lui (`CLOVN`, `DRACON`, `REPT`).
+
 ## Faza 6 — Rafinare
 
 - Timp de gândire caracteristic fiecăruia (clovnul rapid și haotic, draconianul
@@ -108,45 +119,131 @@ Draconianul a adăugat două lucruri la contractul comun, amândouă opționale:
 - Umbre proiectate pe masă, cărți cu grosime, tremur ușor de lumină.
 - Reacții încrucișate: clovnul trage cu ochiul, draconianul mârâie.
 
-## Faza 7 — Barul din jur
+Timpul de gândire a devenit `timpDeGandire(p)`, din două numere: `gandire`, cât
+îi trebuie de obicei, și `haos`, cât de mult sare de la o dată la alta. Clovnul
+e cel mai rapid dar cel mai imprevizibil, reptilianul face de fiecare dată cam
+la fel. Testele verifică și media, și împrăștierea — altfel „caracteristic" ar
+fi rămas doar trei numere diferite.
+
+Reacțiile încrucișate au adus un al cincilea eveniment, `vecinCastiga`, singurul
+despre altcineva. Nu zguduie pe nimeni, doar spune cine a luat mâna: clovnul se
+răsucește spre el, draconianul mârâie (un fum scurt pe nări, din același sistem
+de particule ca focul), reptilianul nu face nimic.
+
+Umbrele cad dinspre centrul mesei spre exterior, fiindcă lampa e deasupra
+centrului. Deocamdată se văd prost: personajele stau în afara blatului, așa că
+umbra lor cade pe podeaua neagră. Se vor vedea când vor sta pe scaune, la masă,
+la Faza 7.
+
+## Faza 7 — Localul
 
 Până aici scena e o masă suspendată în întuneric. Faza asta îi dă un loc:
 suntem într-un bar, iar masa celor trei e doar una dintre mese.
 
-Vine după Faza 6 fiindcă e fundal: se adaugă în spatele a ceva care merge deja,
-și nimic din ea nu atinge ciclul jocului.
+Toată faza e decor: nu se mișcă nimic în ea și nu atinge ciclul jocului.
 
 **Ce se adaugă**
 
+- **Masa și scaunele**, făcute ca lumea. Până acum masa e o elipsă cu un
+  gradient, iar cei trei stau în picioare pe lângă ea. Acum: blat cu grosime și
+  muchie, picior de masă, și trei scaune pe care personajele chiar stau —
+  așezate, nu plutind. De aici încolo umbrele lor cad pe blat, unde se și văd
+  (vezi Faza 6), iar brațele ajung la cărți fiindcă sunt la distanța potrivită.
 - **Tejgheaua barului**, în spate, cu sticle de sucuri colorate pe raft și o
   lumină proprie, mai rece decât cea de deasupra mesei.
-- **A doua masă**, în lateral, mai departe și mai mică — perspectiva se face din
-  scară și din cât de întunecat e desenul, camera rămâne fixă.
-- **Doi clienți** la masa aceea, care stau de vorbă: idle lent, fără reguli,
-  fără cărți. Nu joacă nimic, doar populează localul.
-- **Chelnerul**, care merge de la bar la masa a doua și înapoi, pe un drum fix,
-  cu o tavă. Se oprește, servește, pleacă. Un ciclu propriu, independent de al
-  mesei principale.
+- **A doua masă**, deocamdată goală: în lateral, mai departe și mai mică —
+  perspectiva se face din scară și din cât de întunecat e desenul, camera rămâne
+  fixă.
 
-**Reguli**
+E singura fază care umblă la ceva ce merge deja: `deseneazaMasa` și locurile de
+la masă. Restul, până acum, doar s-a adăugat. De asta vine singură, înaintea a
+tot ce e viu în local.
+
+**Verificare:** scena arată a bar gol, iar partida merge exact ca înainte — cei
+trei stau acum pe scaune, cu umbrele pe blat.
+
+## Faza 8 — Lumea din local
+
+Localul capătă oameni. Amândoi de aici sunt de fundal: nu joacă, nu știu de
+cărți, au ciclul lor.
+
+- **Doi clienți** la masa a doua, care stau de vorbă: idle lent, gesturi rare,
+  unul se apleacă spre celălalt când „vorbește". Fără reguli, fără cărți.
+- **Chelnerul**, care merge de la bar la masa a doua și înapoi, pe un drum fix,
+  cu o tavă. Se oprește, servește, pleacă, se întoarce. Un ciclu propriu,
+  independent de al mesei principale — dacă te uiți destul, îl vezi făcând
+  aceeași tură.
+
+Contractul e cel de la masa mare (`deseneaza`, `actualizeaza`, `reactie`), ca să
+nu apară un al doilea fel de a face un personaj. Diferența e doar că pe ăștia
+nu-i cheamă nimeni: nu primesc evenimente de la mașina de stări a jocului.
+
+**Verificare:** localul e viu, dar dacă te uiți la masa celor trei, nimic din ce
+se întâmplă în spate nu te trage cu ochiul.
+
+## Faza 9 — Comanda și sunetul
+
+Aici scena capătă singurul ei buton, și primul sunet. Vine ultima fiindcă are
+nevoie de tot ce e înainte: de chelner ca să aducă, de bar ca să toarne, de masă
+ca să pună paharul pe ea.
+
+Comanzi pentru oricare dintre cei trei, iar restul se întâmplă singur:
+
+1. **Alegi** — întâi pentru cine, apoi ce: suc, bere sau vin. Meniul stă mic și
+   discret lângă personajul ales, iar până nu-l atingi, scena merge exact ca
+   până acum. Fiecare dintre cei trei poate avea paharul lui pe masă.
+2. **Chelnerul se duce la bar** și toarnă. Se **aude turnatul**, altfel pentru
+   fiecare băutură: sucul scurt și subțire, berea cu spumă care sfârâie după,
+   vinul mai gros și mai grav. Sunetul urcă în înălțime pe măsură ce paharul
+   se umple — de asta se aude că e un pahar, nu un zgomot oarecare.
+3. **Aduce paharul** la masa celor trei și îl pune lângă cel care a comandat, cu
+   un „poc" scurt de sticlă pe lemn.
+4. **Se bea din când în când**, fiecare cum îi e felul: clovnul ridică paharul
+   teatral și soarbe zgomotos, draconianul îl dă pe gât dintr-o dată,
+   reptilianul ia o înghițitură mică și-l pune la loc exact unde era. Nivelul
+   scade de fiecare dată. Când s-a golit, paharul rămâne pe masă — poți comanda
+   din nou.
+
+Comanda nu oprește partida: cărțile se împart și se joacă mai departe cât timp
+chelnerul e pe drum. Dacă mâna se termină între timp, cu atât mai bine — se
+suprapun.
+
+### Sunetul
+
+Sunetele se fac în cod, cu WebAudio, exact cum se fac și personajele: din forme
+simple, fără niciun fișier. Zgomot filtrat pentru turnat, un filtru care urcă
+pentru paharul care se umple, click-uri scurte pentru bule și pentru pahar.
+
+Un browser nu lasă sunetul să pornească nechemat, deci contextul audio se
+deschide la primul clic — care e chiar clicul de comandă. Până atunci, scena e
+mută, așa cum e și acum.
+
+**Verificare:** comanzi o bere, o auzi turnată și, peste puțin timp, cel pentru
+care ai comandat are un pahar din care soarbe. Partida n-a stat nicio clipă.
+
+---
+
+## Reguli pentru fazele 7–9
 
 1. Fundalul nu are voie să fure atenția: mai mic, mai întunecat, mai puțin
    detaliat, fără culori la fel de tari ca la cei trei.
 2. Fundalul nu știe de ciclul jocului și nici jocul de el. Două bucle separate,
    care nu se așteaptă una pe alta.
-3. Personajele de fundal respectă același contract (`deseneaza`, `actualizeaza`),
-   ca să nu apară un al doilea fel de a face un personaj.
+3. Personajele de fundal respectă același contract ca cei trei, ca să nu apară
+   un al doilea fel de a face un personaj.
 4. Chelnerul se mișcă pe un drum dat în unități U, ca tot restul, ca să se
    scaleze corect pe orice ecran.
+5. Sunetul e un adaos, nu o condiție: cu boxele închise nu se pierde nimic din
+   ce se vede.
+6. Comanda e singura interacțiune din toată scena. Nu se adaugă a doua.
 
-**Ce rămâne de hotărât** (discutăm când ajungem acolo)
+## Ce rămâne de hotărât la fazele 7–9
 
 - Ce fel de creaturi sunt cei doi clienți și chelnerul.
 - Dacă barul are un barman în spatele tejghelei sau doar sticle.
-- Dacă se aud lucruri — deocamdată SPEC §5 zice fără sunet.
-
-**Verificare:** scena arată a bar, dar dacă te uiți la masa celor trei, nimic
-din ce se întâmplă în spate nu te trage cu ochiul.
+- Cum arată meniul de comandă: pahare desenate lângă personaj, sau un rând de
+  cuvinte jos.
+- Dacă se văd scaunele întregi sau doar spătarele, la cei din spate.
 
 ---
 

@@ -158,14 +158,23 @@ function deseneazaMasa() {
   ctx.stroke();
 }
 
+/* Becul de deasupra mesei nu e perfect: pâlpâie foarte puțin. Valoarea stă
+   mereu în jurul lui 1, cât să se simtă că e o lampă adevărată, nu atât cât
+   să distragă. */
+function palpaitLumina(t) {
+  return 1 + 0.04 * Math.sin(t * 2.1) * Math.sin(t * 0.63 + 1.3);
+}
+
 function deseneazaLumina() {
+  const k = palpaitLumina(t);
+
   // Conul cald de lumină care cade de deasupra mesei.
   const con = ctx.createRadialGradient(
     cx, cy - masa.ry * 1.4, 0,
     cx, cy - masa.ry * 0.6, masa.rx * 1.7
   );
-  con.addColorStop(0.0, "rgba(255, 196, 120, 0.16)");
-  con.addColorStop(0.5, "rgba(255, 170, 90, 0.06)");
+  con.addColorStop(0.0, "rgba(255, 196, 120, " + (0.16 * k) + ")");
+  con.addColorStop(0.5, "rgba(255, 170, 90, " + (0.06 * k) + ")");
   con.addColorStop(1.0, "rgba(255, 150, 60, 0)");
   ctx.fillStyle = con;
   ctx.fillRect(0, 0, W, H);
@@ -228,6 +237,11 @@ function deseneazaCarte(c) {
   // Umbra cărții pe masă.
   ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
   dreptunghiRotunjit(-l / 2 + 0.4 * U, -i / 2 + 0.6 * U, l, i, 0.7 * U);
+  ctx.fill();
+
+  // Muchia: o carte are grosime, se vede o dungă pe sub ea.
+  ctx.fillStyle = "#b0a084";
+  dreptunghiRotunjit(-l / 2, -i / 2 + 0.45 * U, l, i, 0.7 * U);
   ctx.fill();
 
   if (c.fataInSus) {
@@ -305,6 +319,22 @@ function aprindeFoc(x, y, unghi, cate, putere) {
   }
 }
 
+// Fum: același sistem, dar rece. Iese încet și se lățește.
+function aprindeFum(x, y, cate) {
+  for (let i = 0; i < cate; i++) {
+    particule.push({
+      x: x + intreg(-0.8, 0.8) * U,
+      y: y + intreg(-0.8, 0.8) * U,
+      vx: intreg(-3, 3) * U,
+      vy: intreg(-7, -3) * U,
+      raza: intreg(0.8, 1.8) * U,
+      viata: 0,
+      durata: intreg(0.8, 1.5),
+      fum: true
+    });
+  }
+}
+
 function actualizeazaParticule(dt) {
   for (let i = particule.length - 1; i >= 0; i--) {
     const f = particule[i];
@@ -312,8 +342,8 @@ function actualizeazaParticule(dt) {
     if (f.viata >= f.durata) { particule.splice(i, 1); continue; }
     f.x += f.vx * dt;
     f.y += f.vy * dt;
-    f.vy -= 30 * U * dt;   // căldura ridică flacăra
-    f.vx *= 0.93;          // și o încetinește
+    f.vy -= (f.fum ? 6 : 30) * U * dt;   // căldura ridică flacăra; fumul plutește
+    f.vx *= 0.93;                        // și o încetinește
     f.vy *= 0.95;
   }
 }
@@ -323,12 +353,19 @@ function deseneazaParticule() {
     // k merge de la 0 (abia aprinsă) la 1 (stinsă): întâi alb-gălbui, apoi
     // portocaliu, la urmă un pic de fum.
     const k = f.viata / f.durata;
-    const raza = f.raza * (0.6 + k * 0.9);   // flacăra se lățește pe măsură ce se răcește
-    ctx.fillStyle =
-      k < 0.16 ? "rgba(255, 246, 214, 0.95)" :
-      k < 0.40 ? "rgba(255, 186, 60, "  + (1.0 - k * 0.5) + ")" :
-      k < 0.72 ? "rgba(232, 96, 32, "   + (1.0 - k * 0.7) + ")" :
-                 "rgba(90, 52, 40, "    + (0.5 * (1 - k)) + ")";
+    let raza, culoare;
+    if (f.fum) {
+      raza = f.raza * (0.7 + k * 1.5);
+      culoare = "rgba(150, 148, 138, " + (0.32 * (1 - k)) + ")";
+    } else {
+      raza = f.raza * (0.6 + k * 0.9);   // flacăra se lățește pe măsură ce se răcește
+      culoare =
+        k < 0.16 ? "rgba(255, 246, 214, 0.95)" :
+        k < 0.40 ? "rgba(255, 186, 60, "  + (1.0 - k * 0.5) + ")" :
+        k < 0.72 ? "rgba(232, 96, 32, "   + (1.0 - k * 0.7) + ")" :
+                   "rgba(90, 52, 40, "    + (0.5 * (1 - k)) + ")";
+    }
+    ctx.fillStyle = culoare;
     elipsa(f.x, f.y, raza, raza);
     ctx.fill();
   }
@@ -339,33 +376,32 @@ function deseneazaParticule() {
    ========================================================================== */
 
 /* Fiecare personaj respectă același contract:
-     - unghi         : locul lui la masă
-     - deseneaza(t)  : cum arată la momentul t
-     - reactie(tip)  : ce face când primește un eveniment de la mașina de stări
-   Deocamdată toate trei sunt siluete-placeholder. La Fazele 3-5, fiecare
-   primește desenul lui adevărat, fără să se schimbe nimic în restul codului. */
+     - unghi              : locul lui la masă
+     - deseneaza(ctx, t)  : cum arată la momentul t, cu baza în (0, 0)
+     - reactie(tip)       : ce face când primește un eveniment de la mașina de stări
+   Opțional, un personaj mai poate avea:
+     - actualizeaza(dt)   : dacă are ceva de întreținut în timp
+     - gura, ...          : puncte de pe corp în unități U, mutate odată cu scena
+   Desenul propriu-zis al fiecăruia stă mai jos, în secțiunile 5b, 5c și 5d. */
 
 const personaje = [
   {
     nume: "Clovnul",
     unghi: Math.PI / 2,                        // în față, cu spatele la privitor
-    culoare: "#c9483f", culoareSus: "#e8a13c",
     ritm: 1.9, latime: 11, inaltime: 20,
-    gandire: 0.9                               // gândește repede și haotic
+    gandire: 0.9, haos: 0.75                   // repede, dar niciodată la fel
   },
   {
     nume: "Draconianul",
     unghi: Math.PI / 2 + (2 * Math.PI) / 3,    // stânga-spate
-    culoare: "#4a6b3a", culoareSus: "#86a85c",
     ritm: 0.9, latime: 15, inaltime: 24,
-    gandire: 1.6                               // masiv și lent
+    gandire: 1.6, haos: 0.25                   // masiv și lent
   },
   {
     nume: "Reptilianul",
     unghi: Math.PI / 2 + (4 * Math.PI) / 3,    // dreapta-spate
-    culoare: "#3d6357", culoareSus: "#6f9a86",
     ritm: 1.2, latime: 10.5, inaltime: 21,
-    gandire: 1.3                               // constant, niciodată grăbit
+    gandire: 1.3, haos: 0.04                   // constant, niciodată grăbit
   }
 ];
 
@@ -423,15 +459,27 @@ function rearanjeazaMana(p, durata) {
 
 // Evenimentele primite de la mașina de stări. Personajul nu știe regulile
 // jocului — știe doar cum să reacționeze.
-function trimiteEveniment(p, tip) {
+/* Evenimentele care i se întâmplă lui: „gandeste", „joaca", „castig",
+   „pierdere". Peste ele, unul singur despre altcineva — „vecinCastiga" —, care
+   nu-l zguduie, doar îl anunță cine a luat mâna. */
+function trimiteEveniment(p, tip, cine) {
   if (tip === "joaca")        { p.reactieAmpl =  0.7; p.reactieDurata = 0.5; p.reactieFrecventa = 9; }
   else if (tip === "castig")  { p.reactieAmpl =  2.6; p.reactieDurata = 1.3; p.reactieFrecventa = 11; }
   else if (tip === "pierdere"){ p.reactieAmpl = -1.4; p.reactieDurata = 1.2; p.reactieFrecventa = 2.4; }
   else if (tip === "gandeste"){ p.reactieAmpl =  0.35; p.reactieDurata = 0.8; p.reactieFrecventa = 4; }
-  p.reactieTimp = p.reactieDurata;
+
+  if (tip === "vecinCastiga") p.ultimulVecinCastigator = cine ? cine.nume : null;
+  else p.reactieTimp = p.reactieDurata;
 
   // Peste tresărirea comună, personajul poate avea reacția lui proprie.
-  if (p.reactie) p.reactie(tip);
+  if (p.reactie) p.reactie(tip, cine);
+}
+
+/* Cât se gândește un personaj înainte să pună cartea. Nu e o constantă: e
+   felul lui de a fi. Clovnul e cel mai rapid, dar sare de la o extremă la
+   alta; draconianul e lent; reptilianul face de fiecare dată cam la fel. */
+function timpDeGandire(p) {
+  return 0.30 + p.gandire * intreg(1 - p.haos, 1 + p.haos) * 0.75;
 }
 
 function actualizeazaPersonaj(p, dt) {
@@ -461,50 +509,19 @@ function deseneazaPersonaj(p, t) {
   ctx.translate(0, -salt);
   ctx.rotate(leganare);
 
-  // Umbra de la bază. E a podelei, nu a personajului: nu respiră odată cu el.
+  // Umbra. Lampa e deasupra centrului mesei, deci umbra nu cade drept sub
+  // personaj, ci dinspre centru spre exterior. E a podelei, nu a personajului:
+  // nu respiră odată cu el.
   ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-  elipsa(0, 0, p.latime * U * 0.62, p.latime * U * 0.20);
+  elipsa(Math.cos(p.unghi) * 2.6 * U, Math.sin(p.unghi) * 1.6 * U,
+         p.latime * U * 0.66, p.latime * U * 0.19);
   ctx.fill();
 
   ctx.scale(1, respiratie);
 
-  if (p.deseneaza) p.deseneaza(ctx, t);
-  else deseneazaSilueta(p, t);
+  p.deseneaza(ctx, t);
 
   ctx.restore();
-}
-
-// Silueta-placeholder: un corp-capsulă și un cap, cu numele scris deasupra.
-// Ține locul personajelor care încă nu și-au primit desenul (Fazele 4-5).
-function deseneazaSilueta(p, t) {
-  const lat = p.latime * U;
-  const inalt = p.inaltime * U;
-  const razaCap = lat * 0.42;
-
-  // Corpul: capsulă, luminată de sus.
-  const grad = ctx.createLinearGradient(0, -inalt - razaCap * 2, 0, 0);
-  grad.addColorStop(0, p.culoareSus);
-  grad.addColorStop(1, p.culoare);
-  ctx.fillStyle = grad;
-  dreptunghiRotunjit(-lat / 2, -inalt, lat, inalt, lat / 2);
-  ctx.fill();
-
-  // Capul.
-  ctx.beginPath();
-  ctx.arc(0, -inalt - razaCap * 0.55, razaCap, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Marginea dinspre lumină.
-  ctx.strokeStyle = "rgba(255, 210, 150, 0.22)";
-  ctx.lineWidth = 0.3 * U;
-  ctx.stroke();
-
-  // Nume: ajutor temporar de dezvoltare, dispare pe măsură ce fiecare personaj
-  // își primește desenul lui.
-  ctx.fillStyle = "rgba(255, 225, 190, 0.20)";
-  ctx.font = 2.8 * U + "px system-ui, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText(p.nume, 0, -inalt - razaCap * 2.2);
 }
 
 /* ==========================================================================
@@ -532,8 +549,12 @@ function deseneazaClovn(p, ctx, t) {
   const razaCap = lat * 0.42;
 
   // Cât de întors e capul spre vecini. Nu ajunge niciodată la zero: clovnul
-  // nu stă drept nici când n-are ce trage cu ochiul.
-  const intoarcere = 0.675 + 0.325 * Math.sin(t * p.ritm * 0.45 + p.faza);
+  // nu stă drept nici când n-are ce trage cu ochiul. Iar dacă tocmai a câștigat
+  // cineva, se uită fix la el.
+  let intoarcere = 0.675 + 0.325 * Math.sin(t * p.ritm * 0.45 + p.faza);
+  if (p.privesteTimp > 0) {
+    intoarcere = p.privesteSpre * (0.78 + 0.12 * Math.sin(t * 6 + p.faza));
+  }
 
   // --- Pantofii: mari, ieșiți mult în lateral.
   ctx.fillStyle = CLOVN.pantof;
@@ -659,8 +680,16 @@ function aruncaCartileInAer(p) {
 // Clovnul își ia în primire contractul: desenul lui și reacțiile lui.
 const clovnul = personaje[0];
 clovnul.deseneaza = function (context, t) { deseneazaClovn(this, context, t); };
-clovnul.reactie = function (tip) {
+clovnul.reactie = function (tip, cine) {
   if (tip === "pierdere") aruncaCartileInAer(this);
+  else if (tip === "vecinCastiga" && cine) {
+    // Se răsucește spre cel care a luat mâna, ca să-i vadă mutra.
+    this.privesteSpre = cine.x < this.x ? -1 : 1;
+    this.privesteTimp = 2.2;
+  }
+};
+clovnul.actualizeaza = function (dt) {
+  if (this.privesteTimp > 0) this.privesteTimp = Math.max(0, this.privesteTimp - dt);
 };
 
 /* ==========================================================================
@@ -831,11 +860,161 @@ draconianul.deseneaza = function (context, t) { deseneazaDraconian(this, context
 draconianul.reactie = function (tip) {
   // E nervos des: pierderea îi aprinde botul pentru o clipă.
   if (tip === "pierdere") { this.focTimp = 0.9; sufleFoc(this, 18); }
+  // Când câștigă altcineva, mârâie: doar un fum scurt pe nări.
+  else if (tip === "vecinCastiga") aprindeFum(this.guraX, this.guraY, 9);
 };
 draconianul.actualizeaza = function (dt) {
   if (!this.focTimp) return;
   this.focTimp = Math.max(0, this.focTimp - dt);
   if (this.focTimp > 0) sufleFoc(this, Math.max(1, Math.round(dt * 110)));
+};
+
+/* ==========================================================================
+   5d. REPTILIANUL
+   ========================================================================== */
+
+/* Stă în spate-dreapta, întors spre masă. Singurul îmbrăcat ca lumea și
+   singurul care nu face nimic: nu tresare, nu sărbătorește, nu se supără.
+   Toată prezența lui e că e nemișcat lângă ceilalți doi. */
+
+const REPT = {
+  solzi:    "#3d6357",
+  solziSus: "#587f70",
+  solziJos: "#33544a",
+  burta:    "#c3c9a4",
+  haina:    "#2c3b52",
+  camasa:   "#e6e2d3",
+  cravata:  "#8a3b3b",
+  ochi:     "#d8c76a",
+  pupila:   "#161b18",
+  gheara:   "#e8e4d2"
+};
+
+// Clipitul: rar și scurt, cu pleoapa care trece lateral peste ochi.
+// Întoarce 0 (ochi deschis) … 1 (ochi acoperit).
+function clipire(p, t) {
+  const perioada = 5.5;
+  const x = ((t + p.faza) % perioada) / perioada;
+  const cat = 0.035;                       // ține sub 0,2 s dintr-un ciclu de 5,5 s
+  return x < cat ? Math.sin((x / cat) * Math.PI) : 0;
+}
+
+function deseneazaReptilian(p, ctx, t) {
+  const lat = p.latime * U;
+  const inalt = p.inaltime * U;
+
+  // --- Coada, ieșită într-o parte pe după scaun.
+  ctx.fillStyle = REPT.solziJos;
+  ctx.beginPath();
+  ctx.moveTo(lat * 0.20, -inalt * 0.10);
+  ctx.quadraticCurveTo(lat * 0.95, -inalt * 0.06, lat * 1.15, -inalt * 0.24);
+  ctx.quadraticCurveTo(lat * 0.85, inalt * 0.04, lat * 0.20, -0.4 * U);
+  ctx.closePath();
+  ctx.fill();
+
+  // --- Picioarele, în pantaloni, cu gheare afară.
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.fillStyle = REPT.haina;
+    dreptunghiRotunjit(s * lat * 0.22 - lat * 0.14, -inalt * 0.40,
+                       lat * 0.28, inalt * 0.38, lat * 0.10);
+    ctx.fill();
+    ctx.fillStyle = REPT.gheara;
+    for (let i = -1; i <= 1; i++) {
+      elipsa(s * lat * 0.22 + i * lat * 0.08, -0.5 * U, lat * 0.035, lat * 0.03);
+      ctx.fill();
+    }
+  }
+
+  // --- Trupul: solzi, peste ei cămașa și haina închisă la culoare.
+  ctx.fillStyle = REPT.solzi;
+  dreptunghiRotunjit(-lat * 0.34, -inalt, lat * 0.68, inalt * 0.68, lat * 0.24);
+  ctx.fill();
+
+  ctx.fillStyle = REPT.camasa;
+  dreptunghiRotunjit(-lat * 0.13, -inalt * 0.98, lat * 0.26, inalt * 0.52, lat * 0.05);
+  ctx.fill();
+  ctx.fillStyle = REPT.cravata;
+  ctx.beginPath();
+  ctx.moveTo(-lat * 0.045, -inalt * 0.95);
+  ctx.lineTo(lat * 0.045, -inalt * 0.95);
+  ctx.lineTo(lat * 0.02, -inalt * 0.52);
+  ctx.lineTo(-lat * 0.02, -inalt * 0.52);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = REPT.haina;                    // cele două clape ale hainei
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.beginPath();
+    ctx.moveTo(s * lat * 0.34, -inalt);
+    ctx.lineTo(s * lat * 0.09, -inalt * 0.97);
+    ctx.lineTo(s * lat * 0.17, -inalt * 0.40);
+    ctx.lineTo(s * lat * 0.34, -inalt * 0.40);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // --- Brațele, cu mâneci și gheare, sprijinite pe masă.
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.save();
+    ctx.translate(s * lat * 0.31, -inalt * 0.90);
+    ctx.rotate(s * 0.42);
+    ctx.fillStyle = REPT.haina;
+    dreptunghiRotunjit(-lat * 0.09, 0, lat * 0.18, inalt * 0.40, lat * 0.09);
+    ctx.fill();
+    ctx.fillStyle = REPT.gheara;
+    elipsa(0, inalt * 0.42, lat * 0.10, lat * 0.085);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // --- Capul: craniu turtit și bot lung, întors spre centrul mesei.
+  const capY = -inalt - lat * 0.17;
+  ctx.fillStyle = REPT.solzi;
+  elipsa(lat * 0.06, capY, lat * 0.30, lat * 0.22);
+  ctx.fill();
+
+  // Botul: mai lat decât înalt, întins spre masă.
+  ctx.fillStyle = REPT.solzi;
+  dreptunghiRotunjit(-lat * 0.66, capY - lat * 0.06, lat * 0.62, lat * 0.17, lat * 0.06);
+  ctx.fill();
+  ctx.fillStyle = REPT.solziJos;                 // falca de jos
+  dreptunghiRotunjit(-lat * 0.62, capY + lat * 0.08, lat * 0.56, lat * 0.08, lat * 0.03);
+  ctx.fill();
+
+  ctx.fillStyle = REPT.burta;                    // linia dinților, abia ghicită
+  for (let i = 0; i < 5; i++) {
+    elipsa(-lat * (0.58 - i * 0.11), capY + lat * 0.08, lat * 0.018, lat * 0.022);
+    ctx.fill();
+  }
+  ctx.fillStyle = REPT.pupila;                   // nara
+  elipsa(-lat * 0.60, capY - lat * 0.01, lat * 0.02, lat * 0.016);
+  ctx.fill();
+
+  // --- Ochii, sus pe craniu. Pleoapa trece lateral peste ei.
+  const c = clipire(p, t);
+  const ochi = [[-lat * 0.10, capY - lat * 0.13], [lat * 0.10, capY - lat * 0.15]];
+  for (const o of ochi) {
+    ctx.fillStyle = REPT.solziJos;               // orbita
+    elipsa(o[0], o[1], lat * 0.085, lat * 0.075);
+    ctx.fill();
+    ctx.fillStyle = REPT.ochi;
+    elipsa(o[0], o[1], lat * 0.062 * (1 - 0.92 * c), lat * 0.055);
+    ctx.fill();
+    if (c < 0.5) {
+      ctx.fillStyle = REPT.pupila;
+      elipsa(o[0], o[1], lat * 0.014 * (1 - 2 * c), lat * 0.042);
+      ctx.fill();
+    }
+  }
+}
+
+const reptilianul = personaje[2];
+reptilianul.deseneaza = function (context, t) { deseneazaReptilian(this, context, t); };
+reptilianul.reactie = function () {
+  // Nu arată nimic, orice ar primi. Anulează și tresărirea comună — contrastul
+  // cu ceilalți doi e tot efectul lui.
+  this.reactieAmpl = 0;
+  this.reactieTimp = 0;
 };
 
 /* ==========================================================================
@@ -854,6 +1033,7 @@ let impartite = 0;
 let jucate = 0;
 let startator = 0;     // cine primește prima carte și joacă primul
 let castigator = null;
+let durataGandire = 1.5;
 const cartiPeMasa = [];
 
 function schimbaStarea(noua) {
@@ -866,6 +1046,9 @@ function schimbaStarea(noua) {
   }
   else if (noua === "gandire") {
     for (const p of personaje) trimiteEveniment(p, "gandeste");
+    // Masa așteaptă cât are nevoie cel mai lent dintre ei.
+    durataGandire = 0.6;
+    for (const p of personaje) durataGandire = Math.max(durataGandire, timpDeGandire(p) * 0.9);
   }
   else if (noua === "jucare") {
     jucate = 0;
@@ -883,6 +1066,11 @@ function schimbaStarea(noua) {
   else if (noua === "reactie") {
     for (const p of personaje) {
       trimiteEveniment(p, p === castigator ? "castig" : "pierdere");
+    }
+    // Și, separat, ce s-a întâmplat la masă: cine a luat mâna. Fiecare face ce
+    // vrea cu informația asta — sau nimic, ca reptilianul.
+    for (const p of personaje) {
+      if (p !== castigator) trimiteEveniment(p, "vecinCastiga", castigator);
     }
   }
   else if (noua === "pauza") {
@@ -926,7 +1114,7 @@ function actualizeazaJocul(dt) {
   }
 
   else if (stare === "gandire") {
-    if (tStare > 1.5) schimbaStarea("jucare");
+    if (tStare > durataGandire) schimbaStarea("jucare");
   }
 
   else if (stare === "jucare") {
@@ -946,7 +1134,7 @@ function actualizeazaJocul(dt) {
       jucate++;
       // Fiecare se gândește cât îi e felul înainte să pună cartea.
       const urmator = personaje[(startator + jucate) % personaje.length];
-      cronometru = 0.45 + urmator.gandire * 0.5;
+      cronometru = 0.25 + timpDeGandire(urmator) * 0.5;
     }
     if (jucate >= personaje.length && cronometru <= -0.5) {
       schimbaStarea("castigator");

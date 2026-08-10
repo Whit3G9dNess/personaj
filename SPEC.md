@@ -4,8 +4,9 @@ Spec minimal. Trei personaje stau la o masă și joacă cărți.
 
 ## 1. Ce este
 
-O scenă animată, într-un singur fișier `index.html`, desenată în canvas 2D.
-Fără biblioteci, fără build, fără fișiere externe: se deschide direct în browser.
+O scenă animată, într-un singur fișier `index.html`, desenată în canvas 2D și
+sonorizată în WebAudio. Fără biblioteci, fără build, fără fișiere externe — nici
+imagini, nici sunete: se deschide direct în browser.
 
 Cărțile se împart și se joacă *decorativ* — ritmul e credibil, dar nu există reguli
 reale de joc. Interesul e în personaje și în cum reacționează unele la altele.
@@ -31,8 +32,9 @@ clipește rar, cu pleoapa laterală. Când câștigă, nu arată nimic.
 
 Cei trei joacă la o masă dintr-un bar.
 
-- Masă rotundă, văzută ușor de sus, într-o lumină caldă de deasupra.
-- Cei trei sunt așezați la 120° unul de altul; camera fixă.
+- Masă rotundă cu blat gros și picior, văzută ușor de sus, într-o lumină caldă
+  de deasupra. Cei trei stau pe scaune, la masă.
+- Sunt așezați la 120° unul de altul; camera fixă.
 - În centru: teancul de cărți și mâna jucată curent.
 - În jur, în penumbră: barul cu sticle de sucuri, o a doua masă cu doi clienți
   și un chelner care îi servește. Nu se desenează pereți — barul și masa a doua
@@ -51,13 +53,23 @@ Cei trei joacă la o masă dintr-un bar.
 
 Bucla merge la nesfârșit, fără input din partea privitorului.
 
+## 4b. Comanda de la bar
+
+Singura interacțiune din scenă. Comanzi pentru oricare dintre cei trei — suc,
+bere sau vin. Chelnerul se duce la bar, se aude cum se toarnă, aduce paharul și
+îl pune pe masă; după aceea se bea din el din când în când, fiecare cum îi e
+felul. Partida merge înainte tot timpul. Detaliile, în [PLAN.md](PLAN.md),
+Faza 9.
+
 ## 5. Reguli de implementare
 
 - Un singur fișier: `index.html` (HTML + CSS + JS inline).
 - Canvas 2D, personaje desenate din forme geometrice în cod — fără imagini.
 - Cod și comentarii în română, pe secțiuni numerotate.
 - Canvas-ul ocupă tot ecranul și se redimensionează cu fereastra.
-- Fără sunet în prima versiune.
+- Sunetul se sintetizează în cod cu WebAudio, ca și desenul: fără fișiere audio.
+  Pornește la primul clic, fiindcă browserele nu lasă altfel, și rămâne un
+  adaos — scena se înțelege și fără el.
 
 ## 6. Etape
 
@@ -66,12 +78,14 @@ Bucla merge la nesfârșit, fără input din partea privitorului.
 3. Animații de idle (respirație, legănat, clipit).
 4. Ciclul de împărțit și jucat cărțile.
 5. Reacțiile la câștig/pierdere, inclusiv focul draconianului.
-6. Barul din jur: tejgheaua cu sucuri, masa a doua cu doi clienți, chelnerul.
+6. Localul: masa cu scaune, tejgheaua cu sucuri, masa a doua.
+7. Lumea din local: cei doi clienți și chelnerul.
+8. Comanda de la bar, cu sunet.
 
 Ordinea de lucru efectivă e cea din [PLAN.md](PLAN.md).
 
 ## 7. În afara scopului
 
 - Reguli reale de joc și scor.
-- Interacțiune cu privitorul.
-- Sunet, meniuri, salvare.
+- Orice altă interacțiune în afară de comanda de la bar (§4b).
+- Meniuri, setări, salvare.

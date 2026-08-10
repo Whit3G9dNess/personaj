@@ -52,7 +52,15 @@ mâna, își aruncă în aer cărțile rămase.
 
 Draconianul la fel: cap de dinozaur cu dinți și ochi galbeni, aripi pliate pe
 spate, gheare. Stă aproape nemișcat până pierde o mână — atunci scoate foc pe
-bot. Reptilianul e încă o siluetă colorată, cu numele scris deasupra.
+bot. Reptilianul e în costum, cu cravată și coadă; clipește rar, cu pleoapa
+laterală, și nu reacționează la nimic — nici când câștigă.
 
-Urmează reptilianul, apoi rafinarea, apoi barul din jur — tejgheaua cu sucuri,
-a doua masă cu doi clienți și chelnerul care îi servește. Vezi [PLAN.md](PLAN.md).
+Fiecare se gândește cât îi e felul înainte să pună cartea, lumina pâlpâie ușor,
+cărțile au grosime, iar când cineva ia mâna ceilalți doi află: clovnul se
+răsucește să-i vadă mutra, draconianul mârâie un fum pe nări, reptilianul nu
+face nimic.
+
+A mai rămas barul din jur, în trei bucăți: localul (masa cu scaune, tejgheaua cu
+sucuri, a doua masă), lumea din el (doi clienți și un chelner care face naveta)
+și comanda — dai o comandă pentru oricare dintre cei trei și o auzi turnată la
+bar. Vezi [PLAN.md](PLAN.md).

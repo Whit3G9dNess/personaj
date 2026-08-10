@@ -260,6 +260,10 @@ return {
   U: function () { return U; },
   cx: function () { return cx; },
   cy: function () { return cy; },
+  deseneazaCarte: deseneazaCarte,
+  timpDeGandire: typeof timpDeGandire !== "undefined" ? timpDeGandire : null,
+  palpaitLumina: typeof palpaitLumina !== "undefined" ? palpaitLumina : null,
+  aprindeFum: typeof aprindeFum !== "undefined" ? aprindeFum : null,
   CLOVN: typeof CLOVN !== "undefined" ? CLOVN : null,
   DRACON: typeof DRACON !== "undefined" ? DRACON : null,
   particule: typeof particule !== "undefined" ? particule : null,
@@ -503,11 +507,6 @@ function testeClovn() {
     egal(typeof clovn.reactie, "function", "clovn.reactie");
   });
 
-  test("reptilianul rămâne siluetă până la faza lui", function () {
-    const s = porneste();
-    egal(typeof s.personaj("Reptilianul").deseneaza, "undefined", "reptilianul");
-  });
-
   test("costumul are petice în cele trei culori din spec", function () {
     const s = porneste();
     const c = culori(s.deseneaza(s.personaj("Clovnul"), 0));
@@ -553,8 +552,6 @@ function testeClovn() {
   test("clovnul desenat nu mai are numele scris deasupra", function () {
     const s = porneste();
     egal(texte(s.deseneaza(s.personaj("Clovnul"), 0)).length, 0, "texte pe clovn");
-    adevarat(texte(s.deseneaza(s.personaj("Reptilianul"), 0)).indexOf("Reptilianul") >= 0,
-             "silueta reptilianului încă își poartă numele");
   });
 
   test("idle: se leagănă — desenul diferă de la un moment la altul", function () {
@@ -727,6 +724,280 @@ function testeDraconian() {
   });
 }
 
+/* --- 6.5 Faza 5: reptilianul ----------------------------------------------- */
+
+/* SPEC §2.3: umanoid-crocodil, bot lung, solzi verzi-măslinii, îmbrăcat, calm.
+   Clipește rar, cu pleoapa laterală. Când câștigă, nu arată nimic. */
+
+const SOLZI_R = "#3d6357";
+const HAINA   = "#2c3b52";
+const OCHI_R  = "#d8c76a";
+
+// Raza pe orizontală a ochiului la un moment dat — cu cât e mai mică, cu atât
+// pleoapa a acoperit mai mult din ochi.
+function deschidereaOchiului(s, t) {
+  const ochi = cercuriDeCuloare(s.deseneaza(s.personaj("Reptilianul"), t), OCHI_R);
+  if (!ochi.length) cade("reptilianul n-are ochi la t=" + t);
+  return Math.max.apply(null, ochi.map(function (o) { return o.rx; }));
+}
+
+function testeReptilian() {
+  sectiune("6.5 Faza 5 — Reptilianul");
+
+  test("reptilianul respectă contractul: deseneaza(ctx, t) și reactie(tip)", function () {
+    const s = porneste();
+    const r = s.personaj("Reptilianul");
+    egal(typeof r.deseneaza, "function", "rept.deseneaza");
+    egal(typeof r.reactie, "function", "rept.reactie");
+  });
+
+  test("niciun personaj nu mai are numele scris deasupra", function () {
+    const s = porneste();
+    for (const p of s.personaje) {
+      egal(texte(s.deseneaza(p, 0)).length, 0, "texte pe " + p.nume);
+    }
+  });
+
+  test("are solzi verzi-măslinii și e îmbrăcat", function () {
+    const s = porneste();
+    const c = culori(s.deseneaza(s.personaj("Reptilianul"), 0));
+    adevarat(c.has(SOLZI_R), "lipsesc solzii " + SOLZI_R);
+    adevarat(c.has(HAINA), "lipsesc hainele " + HAINA);
+  });
+
+  test("are botul lung, întins spre masă", function () {
+    const s = porneste();
+    const r = s.personaj("Reptilianul");
+    const U = s.U();
+    const bot = formeDeCuloare(s.deseneaza(r, 0), SOLZI_R).filter(function (f) {
+      const l = f.limite;
+      return l && l.cy < r.y - r.inaltime * U * 0.6 &&
+             (l.x1 - l.x0) > 1.7 * (l.y1 - l.y0);
+    });
+    adevarat(bot.length >= 1, "n-am găsit nicio formă lungă și joasă în dreptul capului");
+    adevarat(bot.some(function (f) { return f.limite.cx < r.x; }),
+             "botul trebuie să fie întors spre centrul mesei");
+  });
+
+  test("clipește", function () {
+    const s = porneste();
+    const deschis = deschidereaOchiului(s, 0);
+    let inchisMinim = deschis;
+    for (let t = 0; t < 14; t += 0.02) {
+      inchisMinim = Math.min(inchisMinim, deschidereaOchiului(s, t));
+    }
+    adevarat(inchisMinim < deschis * 0.5,
+             "ochiul nu s-a închis niciodată în 14 secunde (minim " +
+             inchisMinim.toFixed(2) + " din " + deschis.toFixed(2) + ")");
+  });
+
+  test("clipește rar", function () {
+    const s = porneste();
+    const deschis = deschidereaOchiului(s, 0);
+    let inchis = 0, total = 0;
+    for (let t = 0; t < 14; t += 0.02) {
+      if (deschidereaOchiului(s, t) < deschis * 0.7) inchis++;
+      total++;
+    }
+    adevarat(inchis / total < 0.10,
+             "stă cu ochii închiși " + Math.round(100 * inchis / total) + "% din timp");
+  });
+
+  test("stă mai nemișcat decât clovnul", function () {
+    const s = porneste();
+    function miscare(nume, culoare) {
+      const p = s.personaj(nume);
+      const a = s.deseneaza(p, 0);
+      const b = s.deseneaza(p, 1.1);
+      const ca = cercuriDeCuloare(a, culoare)[0], cb = cercuriDeCuloare(b, culoare)[0];
+      adevarat(ca && cb, "lipsește reperul de pe " + nume);
+      return Math.hypot(ca.x - cb.x, ca.y - cb.y);
+    }
+    const clovn = miscare("Clovnul", NAS);
+    const rept = miscare("Reptilianul", OCHI_R);
+    adevarat(rept < clovn, "reptilianul se mișcă " + rept.toFixed(2) +
+                           ", clovnul " + clovn.toFixed(2));
+  });
+
+  test("când câștigă nu arată nimic", function () {
+    const s = porneste();
+    const r = s.personaj("Reptilianul");
+    const inainte = JSON.stringify(cercuriDeCuloare(s.deseneaza(r, 0), OCHI_R));
+    s.trimiteEveniment(r, "castig");
+    const dupa = JSON.stringify(cercuriDeCuloare(s.deseneaza(r, 0), OCHI_R));
+    egal(dupa, inainte, "desenul s-a schimbat după câștig");
+  });
+
+  test("nici când pierde nu arată nimic", function () {
+    const s = porneste();
+    const r = s.personaj("Reptilianul");
+    const inainte = JSON.stringify(cercuriDeCuloare(s.deseneaza(r, 0), OCHI_R));
+    s.trimiteEveniment(r, "pierdere");
+    const dupa = JSON.stringify(cercuriDeCuloare(s.deseneaza(r, 0), OCHI_R));
+    egal(dupa, inainte, "desenul s-a schimbat după pierdere");
+  });
+
+  test("ceilalți doi reacționează în continuare", function () {
+    const s = porneste();
+    const clovn = s.personaj("Clovnul");
+    const inainte = cercuriDeCuloare(s.deseneaza(clovn, 0), NAS)[0];
+    s.trimiteEveniment(clovn, "castig");
+    const dupa = cercuriDeCuloare(s.deseneaza(clovn, 0), NAS)[0];
+    adevarat(Math.abs(inainte.y - dupa.y) > 0.5, "clovnul a devenit și el de piatră");
+  });
+}
+
+/* --- 6.6 Faza 6: rafinare -------------------------------------------------- */
+
+const UMBRA = "rgba(0, 0, 0, 0.45)";
+const MUCHIE_CARTE = "#b0a084";
+const SPATE_CARTE  = "#e8dcc4";
+
+// Media și întinderea unui șir de valori.
+function medie(v) {
+  let s = 0;
+  for (const x of v) s += x;
+  return s / v.length;
+}
+function intindere(v) {
+  return Math.max.apply(null, v) - Math.min.apply(null, v);
+}
+function esantioaneGandire(s, nume, cate) {
+  const p = s.personaj(nume);
+  const v = [];
+  for (let i = 0; i < cate; i++) v.push(s.timpDeGandire(p));
+  return v;
+}
+
+function testeRafinare() {
+  sectiune("6.6 Faza 6 — Rafinare");
+
+  test("fiecare are timpul lui de gândire", function () {
+    const s = porneste();
+    adevarat(s.timpDeGandire, "lipsește timpDeGandire");
+    const clovn = medie(esantioaneGandire(s, "Clovnul", 400));
+    const dracon = medie(esantioaneGandire(s, "Draconianul", 400));
+    const rept = medie(esantioaneGandire(s, "Reptilianul", 400));
+    adevarat(clovn < rept && rept < dracon,
+             "așteptam clovn < reptilian < draconian, am " +
+             clovn.toFixed(2) + " / " + rept.toFixed(2) + " / " + dracon.toFixed(2));
+  });
+
+  test("clovnul e haotic: nu se gândește niciodată la fel", function () {
+    const s = porneste();
+    const clovn = esantioaneGandire(s, "Clovnul", 400);
+    const rept = esantioaneGandire(s, "Reptilianul", 400);
+    adevarat(intindere(clovn) > 4 * intindere(rept),
+             "clovnul variază " + intindere(clovn).toFixed(2) +
+             ", reptilianul " + intindere(rept).toFixed(2));
+  });
+
+  test("reptilianul e constant: mereu cam același timp", function () {
+    const s = porneste();
+    const v = esantioaneGandire(s, "Reptilianul", 400);
+    adevarat(intindere(v) < 0.15 * medie(v),
+             "variază cu " + Math.round(100 * intindere(v) / medie(v)) + "% din medie");
+  });
+
+  test("toate timpurile de gândire rămân rezonabile", function () {
+    const s = porneste();
+    for (const nume of ["Clovnul", "Draconianul", "Reptilianul"]) {
+      for (const x of esantioaneGandire(s, nume, 200)) {
+        adevarat(x > 0.2 && x < 4, nume + " s-a gândit " + x.toFixed(2) + "s");
+      }
+    }
+  });
+
+  test("fiecare personaj își aruncă umbra pe masă, spre exterior", function () {
+    const s = porneste();
+    for (const p of s.personaje) {
+      const umbre = formeDeCuloare(s.deseneaza(p, 0), UMBRA);
+      adevarat(umbre.length >= 1, p.nume + " n-are umbră");
+      const u = umbre[0].limite;
+      // Lumina e deasupra centrului mesei, deci umbra cade dinspre centru în afară.
+      const spreExterior = (u.cx - p.x) * Math.cos(p.unghi) + (u.cy - p.y) * Math.sin(p.unghi);
+      adevarat(spreExterior > 0, "umbra lui " + p.nume + " nu cade spre exterior");
+    }
+  });
+
+  test("umbrele sunt turtite, ca proiectate pe blat", function () {
+    const s = porneste();
+    const u = formeDeCuloare(s.deseneaza(s.personaj("Clovnul"), 0), UMBRA)[0].limite;
+    adevarat((u.x1 - u.x0) > 2 * (u.y1 - u.y0),
+             "umbra e prea înaltă: " + Math.round(u.x1 - u.x0) + "x" + Math.round(u.y1 - u.y0));
+  });
+
+  test("cărțile au grosime", function () {
+    const s = porneste();
+    const c = s.creeazaCarte(300, 300, 0);
+    s.goleste();
+    s.deseneazaCarte(c);
+    const muchie = formeDeCuloare(s.desene, MUCHIE_CARTE);
+    const fata = formeDeCuloare(s.desene, SPATE_CARTE);
+    adevarat(muchie.length >= 1, "cartea n-are muchie");
+    adevarat(fata.length >= 1, "cartea n-are față");
+    adevarat(muchie[0].limite.cy > fata[0].limite.cy,
+             "muchia trebuie să iasă pe sub carte, nu deasupra ei");
+  });
+
+  test("lumina tremură ușor", function () {
+    const s = porneste();
+    adevarat(s.palpaitLumina, "lipsește palpaitLumina");
+    const v = [];
+    for (let t = 0; t < 30; t += 0.05) v.push(s.palpaitLumina(t));
+    adevarat(intindere(v) > 0.01, "lumina stă perfect nemișcată");
+    for (const x of v) {
+      adevarat(x > 0.9 && x < 1.1, "lumina a sărit la " + x.toFixed(3) + " — prea mult");
+    }
+  });
+
+  test("clovnul se uită spre cine a câștigat", function () {
+    const s = porneste();
+    const clovn = s.personaj("Clovnul");
+    const dracon = s.personaj("Draconianul");   // stânga-spate
+    const rept = s.personaj("Reptilianul");     // dreapta-spate
+    adevarat(dracon.x < clovn.x && rept.x > clovn.x, "locurile nu sunt cele așteptate");
+
+    s.trimiteEveniment(clovn, "vecinCastiga", dracon);
+    const spreStanga = cercuriDeCuloare(s.deseneaza(clovn, 0), NAS)[0];
+    adevarat(spreStanga.x < clovn.x, "nu s-a întors spre draconian");
+
+    s.trimiteEveniment(clovn, "vecinCastiga", rept);
+    const spreDreapta = cercuriDeCuloare(s.deseneaza(clovn, 0), NAS)[0];
+    adevarat(spreDreapta.x > clovn.x, "nu s-a întors spre reptilian");
+  });
+
+  test("draconianul mârâie: scoate un fum pe nări", function () {
+    const s = porneste();
+    const dracon = s.personaj("Draconianul");
+    s.trimiteEveniment(dracon, "vecinCastiga", s.personaj("Reptilianul"));
+    adevarat(s.particule.length > 0, "n-a ieșit nimic pe nări");
+    for (const f of s.particule) {
+      adevarat(f.fum === true, "e foc, nu fum — mârâitul nu trebuie să ardă nimic");
+    }
+  });
+
+  test("reptilianul nu se uită la nimeni", function () {
+    const s = porneste();
+    const rept = s.personaj("Reptilianul");
+    const inainte = JSON.stringify(cercuriDeCuloare(s.deseneaza(rept, 0), OCHI_R));
+    s.trimiteEveniment(rept, "vecinCastiga", s.personaj("Clovnul"));
+    const dupa = JSON.stringify(cercuriDeCuloare(s.deseneaza(rept, 0), OCHI_R));
+    egal(dupa, inainte, "s-a mișcat");
+    egal(s.particule.length, 0, "a scos ceva pe nas");
+  });
+
+  test("mâna terminată îi anunță pe ceilalți cine a câștigat", function () {
+    const s = porneste();
+    s.panaLaStarea("reactie");
+    const c = s.castigator();
+    for (const p of s.personaje) {
+      if (p === c) continue;
+      egal(p.ultimulVecinCastigator, c.nume, p.nume + " n-a fost anunțat");
+    }
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -746,6 +1017,8 @@ function testeDraconian() {
   testeCiclu();
   testeClovn();
   testeDraconian();
+  testeReptilian();
+  testeRafinare();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

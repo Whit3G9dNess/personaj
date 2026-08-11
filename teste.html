@@ -1214,6 +1214,7 @@ function testeLocalul() {
 /* --- 6.8 Faza 8: lumea din local ------------------------------------------- */
 
 const AUR_CORP       = "#d4a12a";
+const ARGINT_CORP    = "#c9ced6";
 const PIELE_OM       = "#d8a883";
 const CAMASA_CHELNER = "#f0efea";
 const MUSTATA        = "#181410";
@@ -1259,7 +1260,7 @@ function testeLumeaDinLocal() {
 
   test("cei doi stau la masa a doua, față în față", function () {
     const s = porneste();
-    const a = dinFundal(s, "Omul cu mâna de aur");
+    const a = dinFundal(s, "Omul cu mâna de argint");
     const b = dinFundal(s, "Omul de aur");
     for (const p of [a, b]) {
       adevarat(Math.abs(p.x - s.masa2.x) < s.masa2.rx * 1.3 &&
@@ -1270,19 +1271,40 @@ function testeLumeaDinLocal() {
              "trebuie să stea de o parte și de alta a mesei");
   });
 
-  test("unul e om în carne și oase, cu o mână de aur", function () {
+  test("unul e om în carne și oase, cu o mână de argint", function () {
     const s = porneste();
-    const c = culori(deseneazaDinFundal(s, dinFundal(s, "Omul cu mâna de aur"), 0));
+    const om = dinFundal(s, "Omul cu mâna de argint");
+    const d = deseneazaDinFundal(s, om, 0);
+    const c = culori(d);
     adevarat(c.has(PIELE_OM), "n-are piele — atunci nu mai e om");
-    adevarat(c.has(AUR_CORP), "n-are nimic de aur");
+    adevarat(c.has(ARGINT_CORP), "n-are nimic de argint");
+    adevarat(!c.has(AUR_CORP), "n-are ce căuta aur pe el, ăla e celălalt");
+
+    // O singură mână e de argint; cealaltă e de om.
+    const argintii = formeDeCuloare(d, ARGINT_CORP);
+    egal(argintii.length, 1, "forme de argint");
+    adevarat(Math.abs(argintii[0].limite.cy - om.y) < om.inaltime * s.U(),
+             "mâna de argint trebuie să fie pe el, nu deasupra lui");
   });
 
-  test("celălalt e făcut tot din aur", function () {
+  test("celălalt e făcut tot din aur, dintr-o bucată", function () {
     const s = porneste();
-    const d = deseneazaDinFundal(s, dinFundal(s, "Omul de aur"), 0);
+    const om = dinFundal(s, "Omul de aur");
+    const d = deseneazaDinFundal(s, om, 0);
     adevarat(!culori(d).has(PIELE_OM), "omul de aur n-are voie să aibă piele");
     adevarat(formeDeCuloare(d, AUR_CORP).length >= 5,
              "prea puțin aur pe el: " + formeDeCuloare(d, AUR_CORP).length + " forme");
+
+    // Nimic răzleț pe el: fiecare formă trebuie să fie pe trupul lui.
+    const lat = om.latime * s.U() * om.scara, inalt = om.inaltime * s.U() * om.scara;
+    for (const f of d) {
+      if (!f.limite) continue;
+      adevarat(Math.abs(f.limite.cx - om.x) < lat * 0.9,
+               "are ceva răzleț lângă el, la " +
+               Math.round(Math.abs(f.limite.cx - om.x) / s.U()) + "U în lateral");
+      adevarat(f.limite.cy > om.y - inalt * 1.3 && f.limite.cy < om.y + 3 * s.U(),
+               "are ceva răzleț deasupra sau sub el");
+    }
   });
 
   test("între ei e o tablă de șah", function () {
@@ -1414,7 +1436,7 @@ function testeReglaje() {
     const s = porneste();
     const d = cadruIntreg(s);
     const scaune = formeDeCuloare(d, SCAUN_MASA2);
-    for (const p of [dinFundal(s, "Omul cu mâna de aur"), dinFundal(s, "Omul de aur")]) {
+    for (const p of [dinFundal(s, "Omul cu mâna de argint"), dinFundal(s, "Omul de aur")]) {
       const alLui = scaune.filter(function (f) {
         return Math.abs(f.limite.cx - p.x) < p.latime * s.U() * 0.7;
       });
@@ -1539,30 +1561,47 @@ function testeComanda() {
              "chelnerul a fost trimis aiurea, nu la masa noastră");
   });
 
-  test("când ajunge, deschide meniul cu cele cinci opțiuni", function () {
+  test("când ajunge, deschide meniul cu toate felurile", function () {
     const s = porneste();
     cheamaChelnerul(s, "Clovnul");
-    egal(s.meniu.randuri.length, 5, "opțiuni în meniu");
     const nume = s.meniu.randuri.map(function (r) { return r.optiune.id; });
-    for (const id of ["suc", "bere", "vin", "mici", "nimic"]) {
-      adevarat(nume.indexOf(id) >= 0, "lipsește opțiunea „" + id + "”");
+    for (const id of ["mici", "ciorba", "cartofi", "papanasi", "inghetata",
+                      "suc", "bere", "vin", "nimic"]) {
+      adevarat(nume.indexOf(id) >= 0, "lipsește din meniu: " + id);
+    }
+    egal(s.meniu.randuri.length, 9, "rânduri pe care se poate apăsa");
+  });
+
+  test("meniul e scris ca la restaurant: fel, cantitate, preț", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    const scrise = texte(cadruIntreg(s));
+
+    for (const cap of ["Mâncare", "Deserturi", "De băut"]) {
+      adevarat(scrise.indexOf(cap) >= 0, "lipsește capul de listă „" + cap + "”");
+    }
+    for (const fel of ["ciorbă de burtă", "cartofi prăjiți", "papanași",
+                       "înghețată", "Prigat"]) {
+      adevarat(scrise.indexOf(fel) >= 0, "lipsește din meniu: " + fel);
+    }
+    for (const r of s.meniu.randuri) {
+      const o = r.optiune;
+      if (o.fel === "nimic") continue;
+      adevarat(scrise.indexOf(o.cantitate) >= 0, o.nume + " n-are cantitatea scrisă");
+      adevarat(scrise.indexOf(o.pret) >= 0, o.nume + " n-are prețul scris");
+      if (o.fel === "baut") {
+        adevarat(/\bl$/.test(o.cantitate), o.nume + " ar trebui măsurat în litri, nu " + o.cantitate);
+      } else {
+        adevarat(/\b(g|ml)$/.test(o.cantitate), o.nume + " ar trebui măsurat în grame sau ml");
+      }
     }
   });
 
-  test("în meniu scrisul e mare, iar desenele sunt mici", function () {
+  test("meniul e numai scris, fără desene", function () {
     const s = porneste();
     cheamaChelnerul(s, "Clovnul");
-    const d = cadruIntreg(s);
-    const texte = d.filter(function (x) { return x.op === "text"; });
-    adevarat(texte.length >= 5, "meniul n-are toate numele scrise");
-    for (const x of texte) {
-      adevarat(x.marime >= 3 * s.U(),
-               "scrisul „" + x.text + "” e mic: " + (x.marime / s.U()).toFixed(1) + "U");
-    }
     for (const r of s.meniu.randuri) {
-      adevarat(r.desen <= 3.5 * s.U(),
-               "desenul de lângă „" + r.optiune.id + "” e mare: " +
-               (r.desen / s.U()).toFixed(1) + "U");
+      egal(r.desen, undefined, "rândul „" + r.optiune.id + "” încă are desen");
     }
   });
 
@@ -1828,6 +1867,86 @@ function testeComentarii() {
   });
 }
 
+/* --- 6.12b Musafiri diferiți, serviți ca lumea ----------------------------- */
+
+function testeMusafiri() {
+  sectiune("6.12b Musafirii");
+
+  test("nu vin de fiecare dată aceiași doi", function () {
+    const s = porneste();
+    const infatisari = new Set();
+
+    for (let vizite = 0; vizite < 4; vizite++) {
+      let paza = 0;
+      while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+      adevarat(s.vizita.stare === "asezati", "n-au mai venit după " + vizite + " vizite");
+
+      infatisari.add(s.vizita.musafiri.map(function (m) {
+        return m.paleta.camasa + m.paleta.par + m.semn;
+      }).join("|"));
+
+      paza = 0;
+      while (s.vizita.stare !== "gol" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+    }
+
+    adevarat(infatisari.size >= 2,
+             "au venit de patru ori aceiași doi oameni (o singură înfățișare)");
+  });
+
+  test("când se așază, masa lor e goală: paharele vin după", function () {
+    const s = porneste();
+    let paza = 0;
+    while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+    egal(s.vizita.serviti, false, "le-au apărut paharele din senin, chiar când s-au așezat");
+  });
+
+  test("chelnerul trece și pe la ei, și abia atunci apar paharele", function () {
+    const s = porneste();
+    let paza = 0;
+    while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+    paza = 0;
+    while (!s.vizita.serviti && s.vizita.stare === "asezati" && paza++ < 60 * 120) {
+      s.avanseaza(1 / 60);
+    }
+    egal(s.vizita.serviti, true, "n-a trecut nimeni pe la masa lor cât au stat");
+
+    const ch = dinFundal(s, "Chelnerul");
+    adevarat(ch.drum.some(function (o) {
+      return Math.hypot(o.x - s.masa3.x, o.y - s.masa3.y) < s.masa3.rx * 2.5;
+    }), "chelnerul n-are drum pe la masa a treia");
+  });
+
+  test("conversația poate veni de la model, dacă răspunde", function () {
+    const s = porneste();
+    s.AI.activ = true;
+    s.AI.discuta = function (istoric, gata) { gata(["Ce zi lungă.", "Da, obositoare."]); };
+
+    let paza = 0;
+    while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+    const auzite = new Set();
+    for (let i = 0; i < 60 * 40 && s.vizita.stare === "asezati"; i++) {
+      s.avanseaza(1 / 60);
+      if (s.vizita.vorbeste >= 0) auzite.add(s.vizita.replica);
+    }
+    adevarat(auzite.has("Ce zi lungă.") || auzite.has("Da, obositoare."),
+             "n-au spus ce le-a scris modelul: " + Array.from(auzite).join(" / "));
+  });
+
+  test("dacă modelul tace, tot au ce să-și spună", function () {
+    const s = porneste();
+    s.AI.activ = true;
+    s.AI.discuta = function () {};              // nu răspunde niciodată
+    let paza = 0;
+    while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+    const auzite = new Set();
+    for (let i = 0; i < 60 * 40 && s.vizita.stare === "asezati"; i++) {
+      s.avanseaza(1 / 60);
+      if (s.vizita.vorbeste >= 0) auzite.add(s.vizita.replica);
+    }
+    adevarat(auzite.size >= 2, "au tăcut toată seara");
+  });
+}
+
 /* --- 6.13 Faza 10: partida adevărată -------------------------------------- */
 
 // Avansează până îți vine rândul să pui o carte.
@@ -2027,6 +2146,7 @@ function testePartida() {
   testeComanda();
   testeMasaATreia();
   testeComentarii();
+  testeMusafiri();
   testePartida();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";

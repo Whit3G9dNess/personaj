@@ -1,4 +1,4 @@
-# Personaj — Partida de cărți
+﻿# Personaj — Partida de cărți
 
 Spec minimal. Trei personaje stau la o masă și joacă cărți.
 
@@ -42,7 +42,7 @@ Cei trei joacă la o masă dintr-un bar.
   luminate cu sticle, lămpi atârnate deasupra, plante, scaune înalte trase la
   tejghea și un barman care se plimbă în spatele ei.
 - În stânga-spate, mai departe și mai mică: a doua masă, la care doi clienți
-  joacă șah — un om cu o mână de aur și unul făcut tot din aur.
+  joacă șah — un om cu o mână de argint și unul făcut tot din aur.
 - În stânga-față: a treia masă, goală mai tot timpul. Din când în când vin doi
   inși, stau de vorbă și pleacă.
 - Printre mese umblă un chelner cu tava, care trece și pe la masa noastră din
@@ -62,15 +62,34 @@ Cei trei joacă la o masă dintr-un bar.
 5. Reacții: clovnul exagerează, draconianul scoate foc, reptilianul tace.
 6. Pauză scurtă, apoi se reia de la 1.
 
-Bucla merge la nesfârșit, fără input din partea privitorului.
+Bucla merge la nesfârșit. Dacă nu atingi nimic, joacă și el în locul tău.
 
 ## 4b. Comanda de la bar
 
-Chemi chelnerul cu un clic și comanzi pentru oricare dintre cei trei — suc,
-bere, vin, mici cu piure, sau nimic, dacă nu vrei. Chelnerul se duce la bar, se aude cum se toarnă, aduce paharul și
-îl pune pe masă; după aceea se bea din el din când în când, fiecare cum îi e
-felul. Partida merge înainte tot timpul. Detaliile, în [PLAN.md](PLAN.md),
-Faza 9.
+Chemi chelnerul cu un clic pe personajul pentru care vrei să comanzi. Meniul e o
+listă scrisă, ca la restaurant — fel, cantitate, preț, pe trei coloane:
+
+- **Mâncare:** mici cu piure, ciorbă de burtă, cartofi prăjiți.
+- **Deserturi:** papanași, înghețată.
+- **De băut:** Prigat, bere, vin — măsurate în litri.
+- Și „nimic, mulțumesc", o opțiune ca oricare alta.
+
+Chelnerul duce comanda la bar; barmanul toarnă sau gătește la aragaz, cu fum și
+sfârâit. Se aude cum se umple paharul. Pe urmă comanda vine pe masă și se
+consumă din ea din când în când, fiecare cum îi e felul. Partida merge înainte
+tot timpul. Detaliile, în [PLAN.md](PLAN.md), Faza 9.
+
+## 4c. Adversarii
+
+Draconianul și reptilianul își aleg singuri cărțile. Dacă pe calculator rulează
+Ollama, sunt întrebați pe el — fiecare cu firea lui, dată de `promptSistem` și
+`temperature` din `personaje.json`. Răspunsul se verifică întotdeauna: dacă nu e
+o carte din mâna lui, se aruncă. Tot de acolo poate veni și conversația
+musafirilor de la masa a treia.
+
+Fără Ollama, sau dacă modelul întârzie ori spune o prostie, se joacă și se
+vorbește după ce e scris în cod. Scena nu se oprește niciodată după un răspuns
+care nu vine, și nu trebuie instalat nimic ca să meargă.
 
 ## 5. Reguli de implementare
 
@@ -94,21 +113,9 @@ Faza 9.
 6. Localul: masa cu scaune, barul, masa a doua.
 7. Lumea din local: cei doi clienți, chelnerul, barmanul.
 8. Comanda, bucătăria și sunetul.
-9. Partida adevărată, jucată de privitor (vezi PLAN.md, Faza 10 — schimbă §1
-   și §7 de mai jos, deci se face numai după ce e hotărât).
+9. Partida adevărată, jucată de privitor.
 
 Ordinea de lucru efectivă e cea din [PLAN.md](PLAN.md).
-
-## 4c. Adversarii
-
-Draconianul și reptilianul își aleg singuri cărțile. Dacă pe calculator rulează
-Ollama, sunt întrebați pe el — fiecare cu firea lui, dată de `promptSistem` și
-`temperature` din `personaje.json`. Răspunsul se verifică întotdeauna: dacă nu e
-o carte din mâna lui, se aruncă.
-
-Fără Ollama, sau dacă modelul întârzie ori spune o prostie, joacă o judecată
-scrisă în cod. Scena nu se oprește niciodată după un răspuns care nu vine, și nu
-trebuie instalat nimic ca să meargă.
 
 ## 7. În afara scopului
 

@@ -1372,6 +1372,7 @@ reptilianul.reactie = function (tip) {
    câștigat mâna, și nici nu-i interesează. */
 
 const AUR = { corp: "#d4a12a", lucios: "#f2d068", umbra: "#8a6415" };
+const ARGINT = { corp: "#c9ced6", lucios: "#eef1f5", umbra: "#7d848d" };
 const OM  = { piele: "#d8a883", par: "#4a3524", haina: "#3a3f4a", camasa: "#cfd4dc" };
 const CHELNER = {
   camasa: "#f0efea", vesta: "#1c1c20", sort: "#141418", papion: "#141418",
@@ -1419,15 +1420,18 @@ function trupDeOm(p, c, t) {
   dreptunghiRotunjit(-lat * 0.34, -inalt, lat * 0.68, inalt * 0.58, lat * 0.20);
   ctx.fill();
 
-  // Brațele, ușor depărtate de corp.
-  ctx.fillStyle = c.maneca || c.camasa;
-  for (let s = -1; s <= 1; s += 2) {
-    ctx.save();
-    ctx.translate(s * lat * 0.31, -inalt * 0.88);
-    ctx.rotate(s * (0.16 + 0.05 * Math.sin(t * 1.3 + p.faza + s)));
-    dreptunghiRotunjit(-lat * 0.10, 0, lat * 0.20, inalt * 0.44, lat * 0.10);
-    ctx.fill();
-    ctx.restore();
+  // Brațele, ușor depărtate de corp. Cine stă la masă și-le desenează singur,
+  // sprijinite pe blat.
+  if (!c.faraBrate) {
+    ctx.fillStyle = c.maneca || c.camasa;
+    for (let s = -1; s <= 1; s += 2) {
+      ctx.save();
+      ctx.translate(s * lat * 0.31, -inalt * 0.88);
+      ctx.rotate(s * (0.16 + 0.05 * Math.sin(t * 1.3 + p.faza + s)));
+      dreptunghiRotunjit(-lat * 0.10, 0, lat * 0.20, inalt * 0.44, lat * 0.10);
+      ctx.fill();
+      ctx.restore();
+    }
   }
 
   // Gâtul și capul.
@@ -1445,15 +1449,21 @@ function trupDeOm(p, c, t) {
   ctx.restore();
 }
 
-/* Mâinile stau sus, pe marginea mesei — altfel blatul le-ar acoperi, iar mâna
-   de aur a unuia dintre ei e tot ce-l deosebește de un om oarecare. */
-function mainileDeOm(p, stangaCuloare, dreaptaCuloare) {
+/* Brațele celor care stau la masă: cad drept din umăr, iar mâinile se odihnesc
+   pe marginea blatului. Mâna de argint a unuia dintre ei e tot ce-l deosebește
+   de un om oarecare, deci trebuie să se vadă — dar prinsă de braț, nu plutind
+   pe lângă el. */
+function braterezemate(p, stangaCuloare, dreaptaCuloare, culoareManeca) {
   const lat = p.latime * U, inalt = p.inaltime * U;
   const culori = [stangaCuloare, dreaptaCuloare];
   let i = 0;
   for (let s = -1; s <= 1; s += 2) {
+    ctx.fillStyle = culoareManeca;
+    dreptunghiRotunjit(s * lat * 0.30 - lat * 0.09, -inalt * 0.84,
+                       lat * 0.18, inalt * 0.28, lat * 0.08);
+    ctx.fill();
     ctx.fillStyle = culori[i++];
-    elipsa(s * lat * 0.40, -inalt * 0.60, lat * 0.14, lat * 0.12);
+    elipsa(s * lat * 0.30, -inalt * 0.57, lat * 0.13, lat * 0.11);
     ctx.fill();
   }
 }
@@ -1461,7 +1471,7 @@ function mainileDeOm(p, stangaCuloare, dreaptaCuloare) {
 /* --- Cei doi de la masa a doua ------------------------------------------- */
 
 const omulCuMana = {
-  nume: "Omul cu mâna de aur",
+  nume: "Omul cu mâna de argint",
   latime: 8, inaltime: 17, scara: 0.95, faza: 0.7, x: 0, y: 0
 };
 omulCuMana.deseneaza = function (context, t) {
@@ -1470,14 +1480,10 @@ omulCuMana.deseneaza = function (context, t) {
   context.scale(this.scara, this.scara);
   trupDeOm(this, {
     pantalon: OM.haina, camasa: OM.camasa, maneca: OM.camasa,
-    piele: OM.piele, par: OM.par
+    piele: OM.piele, par: OM.par, faraBrate: true
   }, t);
-  // Una dintre mâini e de aur. E singurul lucru care sclipește la el.
-  mainileDeOm(this, OM.piele, AUR.corp);
-  ctx.fillStyle = AUR.lucios;
-  elipsa(this.latime * U * 0.37, -this.inaltime * U * 0.62,
-         this.latime * U * 0.05, this.latime * U * 0.04);
-  ctx.fill();
+  // Una dintre mâini e de argint. E singurul lucru care sclipește la el.
+  braterezemate(this, OM.piele, ARGINT.corp, OM.camasa);
   context.restore();
 };
 omulCuMana.actualizeaza = function () {};
@@ -1490,19 +1496,18 @@ omulDeAur.deseneaza = function (context, t) {
   context.save();
   context.translate(this.x, this.y);
   context.scale(this.scara, this.scara);
-  // Tot din aur: haine, piele, păr. Nu se distinge nimic, doar lumina pe el.
+  const lat = this.latime * U, inalt = this.inaltime * U;
+
+  // Tot din aur: haine, piele, păr. Turnat dintr-o bucată, fără nimic pe el.
   trupDeOm(this, {
     pantalon: AUR.corp, camasa: AUR.corp, maneca: AUR.corp,
-    piele: AUR.corp, par: AUR.umbra
+    piele: AUR.corp, par: AUR.umbra, faraBrate: true
   }, t);
-  mainileDeOm(this, AUR.corp, AUR.corp);
-  // Lumina care i se plimbă pe umeri și pe frunte.
+  braterezemate(this, AUR.corp, AUR.corp, AUR.corp);
+
+  // O dungă de lumină pe trup, prinsă în metal — nu un punct răzleț.
   ctx.fillStyle = AUR.lucios;
-  elipsa(-this.latime * U * 0.10, -this.inaltime * U - this.latime * U * 0.40,
-         this.latime * U * 0.10, this.latime * U * 0.07);
-  ctx.fill();
-  elipsa(-this.latime * U * 0.20, -this.inaltime * U * 0.92,
-         this.latime * U * 0.08, this.latime * U * 0.16);
+  dreptunghiRotunjit(-lat * 0.26, -inalt * 0.96, lat * 0.09, inalt * 0.46, lat * 0.045);
   ctx.fill();
   context.restore();
 };
@@ -1653,6 +1658,8 @@ chelnerul.actualizeaza = function (dt) {
     this.x = tinta.x;
     this.y = tinta.y;
     this.asteptare = tinta.pauza;
+    // Dacă a ajuns la masa a treia și sunt musafiri acolo, le-a adus de băut.
+    if (tinta.laMasa3 && vizita.stare === "asezati") vizita.serviti = true;
     this.spre = (this.spre + 1) % this.drum.length;
   } else {
     this.x += (dx / d) * viteza * dt;
@@ -1803,14 +1810,25 @@ barmanul.deseneaza = function (context, t) {
    inși, se așază, schimbă câteva vorbe și pleacă. N-au nicio treabă cu partida
    noastră — nici măcar nu se uită într-acolo. */
 
-const MUSAFIR1 = {
-  pantalon: "#33384a", camasa: "#5c6b8a", maneca: "#5c6b8a",
-  piele: "#d8a883", par: "#3a2a1e", palarie: "#2b2f3d"
-};
-const MUSAFIR2 = {
-  pantalon: "#3d3a35", camasa: "#8a5f52", maneca: "#8a5f52",
-  piele: "#c2906a", par: "#241c16", fular: "#a8493f"
-};
+/* Musafirii nu sunt mereu aceiași: la fiecare vizită intră alți doi. Din listele
+   de mai jos se croiește o înfățișare nouă. */
+const HAINE = [
+  { camasa: "#5c6b8a", pantalon: "#33384a" },
+  { camasa: "#8a5f52", pantalon: "#3d3a35" },
+  { camasa: "#4f6b5a", pantalon: "#2e3a33" },
+  { camasa: "#7a6a8a", pantalon: "#332d3d" },
+  { camasa: "#8a7a4a", pantalon: "#3a3428" },
+  { camasa: "#6b6b6b", pantalon: "#2e2e30" },
+  { camasa: "#a86a4a", pantalon: "#3b2a20" }
+];
+const PIELI = ["#d8a883", "#c2906a", "#e0b894", "#a8724f", "#8f5f3f"];
+const PARURI = ["#3a2a1e", "#241c16", "#6b5340", "#8a7156", "#151313", "#a89070"];
+const ACCESORII = ["palarie", "fular", "ochelari", "nimic", "nimic"];
+const CULORI_ACCESORIU = ["#2b2f3d", "#a8493f", "#3a4a3a", "#6b3f4a", "#2a2a2e"];
+
+function alegeDin(lista) {
+  return lista[Math.floor(intreg(0, lista.length)) % lista.length];
+}
 
 const VORBE = [
   ["Ce liniște e...", "E abia opt."],
@@ -1849,8 +1867,45 @@ const vizita = {
   vorbaTimp: 0,
   schimb: 0,
   pereche: null,       // schimbul de replici pe care îl spun acum
-  deSpus: []           // ce au văzut la masa noastră și n-au apucat să comenteze
+  deSpus: [],          // ce au de spus și n-au apucat încă
+  serviti: false,      // le-a adus chelnerul ceva de băut?
+  asteptVorba: false,  // am întrebat modelul și încă n-a răspuns
+  istoric: []          // ultimele replici, ca modelul să știe unde a rămas
 };
+
+// Îmbracă doi musafiri noi. Nu ies niciodată amândoi la fel.
+function imbracaMusafirii() {
+  for (let i = 0; i < vizita.musafiri.length; i++) {
+    const m = vizita.musafiri[i];
+    const haine = alegeDin(HAINE);
+    m.paleta = {
+      pantalon: haine.pantalon, camasa: haine.camasa, maneca: haine.camasa,
+      piele: alegeDin(PIELI), par: alegeDin(PARURI),
+      accesoriu: alegeDin(CULORI_ACCESORIU)
+    };
+    m.semn = alegeDin(ACCESORII);
+    m.inaltime = 16.5 + intreg(0, 2);
+    m.latime = 8 + intreg(0, 1.2);
+    m.faza = intreg(0, 6);
+  }
+  // Dacă s-a nimerit aceeași cămașă la amândoi, o schimbăm pe a doua.
+  if (vizita.musafiri[0].paleta.camasa === vizita.musafiri[1].paleta.camasa) {
+    const alta = alegeDin(HAINE);
+    vizita.musafiri[1].paleta.camasa = alta.camasa;
+    vizita.musafiri[1].paleta.maneca = alta.camasa;
+    vizita.musafiri[1].paleta.pantalon = alta.pantalon;
+  }
+}
+
+// Cere modelului următoarele două replici. Dacă tace, rămân cele scrise de mână.
+function cereVorbaDeLaModel() {
+  if (!AI.activ || vizita.asteptVorba || vizita.deSpus.length) return;
+  vizita.asteptVorba = true;
+  AI.discuta(vizita.istoric, function (pereche) {
+    vizita.asteptVorba = false;
+    if (pereche && vizita.stare === "asezati") vizita.deSpus.push(pereche);
+  });
+}
 
 /* Au văzut ceva la masa noastră. Dacă sunt acolo și n-au altceva pe limbă,
    comentează la următorul schimb de vorbe. */
@@ -1862,10 +1917,10 @@ vizita.vede = function (subiect) {
   this.deSpus.push(variante[Math.floor(intreg(0, variante.length)) % variante.length]);
 };
 
-function creeazaMusafir(nume, paleta, semn) {
+function creeazaMusafir(nume) {
   const m = {
-    nume: nume, paleta: paleta, semn: semn,
-    latime: 8.5, inaltime: 17.5, scara: 0.92, faza: nume.length * 0.7,
+    nume: nume, paleta: null, semn: "nimic",
+    latime: 8.5, inaltime: 17.5, scara: 0.92, faza: 0,
     x: 0, y: 0, pas: 0, directie: 1, tintaX: 0, tintaY: 0
   };
   m.actualizeaza = function () {};      // de el se ocupă ciclul vizitei
@@ -1877,17 +1932,23 @@ function creeazaMusafir(nume, paleta, semn) {
     trupDeOm(this, this.paleta, t);
 
     const lat = this.latime * U, inalt = this.inaltime * U;
+    ctx.fillStyle = this.paleta.accesoriu;
     if (this.semn === "palarie") {
-      ctx.fillStyle = this.paleta.palarie;
       elipsa(0, -inalt - lat * 0.44, lat * 0.42, lat * 0.09);
       ctx.fill();
       dreptunghiRotunjit(-lat * 0.20, -inalt - lat * 0.76, lat * 0.40, lat * 0.34, lat * 0.06);
       ctx.fill();
-    } else {
-      ctx.fillStyle = this.paleta.fular;
+    } else if (this.semn === "fular") {
       dreptunghiRotunjit(-lat * 0.22, -inalt - lat * 0.06, lat * 0.44, lat * 0.16, lat * 0.06);
       ctx.fill();
       dreptunghiRotunjit(lat * 0.02, -inalt + lat * 0.06, lat * 0.14, lat * 0.34, lat * 0.05);
+      ctx.fill();
+    } else if (this.semn === "ochelari") {
+      for (let s = -1; s <= 1; s += 2) {
+        elipsa(s * lat * 0.11, -inalt - lat * 0.36, lat * 0.09, lat * 0.07);
+        ctx.fill();
+      }
+      dreptunghiRotunjit(-lat * 0.03, -inalt - lat * 0.38, lat * 0.06, lat * 0.03, lat * 0.01);
       ctx.fill();
     }
     context.restore();
@@ -1908,6 +1969,9 @@ function actualizeazaVizita(dt) {
   if (vizita.stare === "gol") {
     if (vizita.cronometru <= 0) {
       vizita.stare = "vin";
+      imbracaMusafirii();          // de fiecare dată intră alți doi
+      vizita.serviti = false;
+      vizita.istoric.length = 0;
       for (let i = 0; i < 2; i++) {
         const m = vizita.musafiri[i];
         m.x = -8 * U - i * 6 * U;                 // intră din stânga, unul după altul
@@ -1933,6 +1997,7 @@ function actualizeazaVizita(dt) {
       vizita.vorbaTimp = intreg(1.5, 3.5);
       vizita.vorbeste = -1;
       vizita.pereche = null;
+      cereVorbaDeLaModel();
     } else {
       vizita.stare = "gol";
       vizita.cronometru = intreg(25, 50);
@@ -1949,6 +2014,7 @@ function actualizeazaVizita(dt) {
       vizita.vorbeste = -1;
       vizita.pereche = null;
       vizita.vorbaTimp = intreg(3, 7);
+      cereVorbaDeLaModel();                       // pregătim ce urmează
     } else {
       if (!vizita.pereche) {
         if (vizita.deSpus.length) {
@@ -1961,6 +2027,8 @@ function actualizeazaVizita(dt) {
       vizita.vorbeste = vizita.vorbeste < 0 ? 0 : 1;
       vizita.replica = vizita.pereche[vizita.vorbeste];
       vizita.vorbaTimp = 2.8;
+      vizita.istoric.push(vizita.replica);
+      if (vizita.istoric.length > 4) vizita.istoric.shift();
     }
   }
 
@@ -2000,8 +2068,8 @@ function deseneazaMasa3Blat() {
   elipsa(masa3.x, masa3.y, masa3.rx, masa3.ry);
   ctx.fill();
 
-  // Două pahare uitate pe masă, cât stau.
-  if (vizita.stare === "asezati") {
+  // Paharele apar abia după ce trece chelnerul pe la ei.
+  if (vizita.stare === "asezati" && vizita.serviti) {
     ctx.fillStyle = "rgba(226, 232, 236, 0.35)";
     for (let s = -1; s <= 1; s += 2) {
       dreptunghiRotunjit(masa3.x + s * masa3.rx * 0.30 - 1.3 * U, masa3.y - 4.4 * U,
@@ -2050,6 +2118,8 @@ function asazaFundalul() {
   chelnerul.drum = [
     { x: W * 0.30, y: bar.y + bar.inalt + 7 * U, pauza: 2.2 },                    // la bar
     { x: masa2.x + masa2.rx * 0.1, y: masa2.y + masa2.ry * 2.4, pauza: 3.0 },     // la masa a doua
+    { x: masa3.x + masa3.rx * 0.9, y: masa3.y - masa3.ry * 1.2, pauza: 3.0,       // la masa a treia
+      laMasa3: true },
     { x: cx - masa.rx * 1.15, y: cy + masa.ry * 0.25, pauza: 2.6 },               // pe la noi
     { x: W * 0.66, y: bar.y + bar.inalt + 7 * U, pauza: 1.6 }                     // înapoi spre bar
   ];
@@ -2068,8 +2138,9 @@ function asazaFundalul() {
   aragaz.y = bar.blat;
 
   if (!vizita.musafiri.length) {
-    vizita.musafiri.push(creeazaMusafir("Musafirul cu pălărie", MUSAFIR1, "palarie"),
-                         creeazaMusafir("Musafirul cu fular", MUSAFIR2, "fular"));
+    vizita.musafiri.push(creeazaMusafir("Musafirul din stânga"),
+                         creeazaMusafir("Musafirul din dreapta"));
+    imbracaMusafirii();
   }
   // Dacă tocmai stau la masă, îi mutăm odată cu masa la redimensionare.
   if (vizita.stare === "asezati") {
@@ -2191,12 +2262,21 @@ const sunet = {
    ce bea sau ce mănâncă — sau nimic —, iar restul se întâmplă singur. Partida nu
    se oprește nicio clipă cât timp chelnerul e pe drum. */
 
+/* Meniul e o listă scrisă, ca la restaurant: felul, cât e porția, cât costă.
+   Fără desene — la câte feluri sunt, ar fi fost cinci pahare la fel. */
 const OPTIUNI = [
-  { id: "suc",   nume: "suc",             fel: "baut",    culoare: "#e07b1f" },
-  { id: "bere",  nume: "bere",            fel: "baut",    culoare: "#d8a52a" },
-  { id: "vin",   nume: "vin",             fel: "baut",    culoare: "#7c2b33" },
-  { id: "mici",  nume: "mici cu piure",   fel: "mancare", culoare: "#8a5a33" },
-  { id: "nimic", nume: "nimic, mulțumesc", fel: "nimic",  culoare: "#9a9088" }
+  { sectiune: "Mâncare" },
+  { id: "mici",      nume: "mici cu piure",   cantitate: "300 g",  pret: "32 lei", fel: "mancare", culoare: "#8a5a33" },
+  { id: "ciorba",    nume: "ciorbă de burtă", cantitate: "400 ml", pret: "24 lei", fel: "mancare", culoare: "#c8a76a" },
+  { id: "cartofi",   nume: "cartofi prăjiți", cantitate: "200 g",  pret: "16 lei", fel: "mancare", culoare: "#d8a52a" },
+  { sectiune: "Deserturi" },
+  { id: "papanasi",  nume: "papanași",        cantitate: "250 g",  pret: "22 lei", fel: "mancare", culoare: "#e8dfc0" },
+  { id: "inghetata", nume: "înghețată",       cantitate: "150 g",  pret: "14 lei", fel: "mancare", culoare: "#efe7ea" },
+  { sectiune: "De băut" },
+  { id: "suc",       nume: "Prigat",          cantitate: "0,5 l",  pret: "9 lei",  fel: "baut",    culoare: "#e07b1f" },
+  { id: "bere",      nume: "bere",            cantitate: "0,5 l",  pret: "12 lei", fel: "baut",    culoare: "#d8a52a" },
+  { id: "vin",       nume: "vin",             cantitate: "0,25 l", pret: "15 lei", fel: "baut",    culoare: "#7c2b33" },
+  { id: "nimic",     nume: "nimic, mulțumesc", fel: "nimic" }
 ];
 
 const meniu = { deschis: false, pentru: null, randuri: [] };
@@ -2260,22 +2340,30 @@ function deschideMeniul(p) {
 
 function asazaMeniul() {
   const p = meniu.pentru;
-  const latRand = 30 * U, inaltRand = 5.6 * U;
+  const latRand = 52 * U, inaltRand = 4.6 * U;
+  const inaltTot = OPTIUNI.length * inaltRand;
 
   let x0 = p.x + p.latime * U * 0.8;
   if (x0 + latRand > W - 2 * U) x0 = p.x - p.latime * U * 0.8 - latRand;
   x0 = Math.max(2 * U, x0);
 
   let y0 = p.y - p.inaltime * U * p.scara - 3 * U;
-  y0 = Math.max(2 * U, Math.min(y0, H - OPTIUNI.length * inaltRand - 2 * U));
+  y0 = Math.max(2 * U, Math.min(y0, H - inaltTot - 2 * U));
 
-  meniu.randuri = OPTIUNI.map(function (o, i) {
-    return {
+  meniu.sus = y0;
+  meniu.jos = y0 + inaltTot;
+  meniu.stanga = x0;
+  meniu.dreapta = x0 + latRand;
+
+  // Capetele de listă nu se apasă: rânduri sunt doar felurile.
+  meniu.randuri = [];
+  OPTIUNI.forEach(function (o, i) {
+    if (o.sectiune) return;
+    meniu.randuri.push({
       optiune: o,
       x0: x0, x1: x0 + latRand,
-      y0: y0 + i * inaltRand, y1: y0 + (i + 1) * inaltRand,
-      desen: 2.6 * U                  // desenele stau mici; scrisul e cel mare
-    };
+      y0: y0 + i * inaltRand, y1: y0 + (i + 1) * inaltRand
+    });
   });
 }
 
@@ -2449,62 +2537,51 @@ function deseneazaPahare() {
   }
 }
 
-// Desenele din meniu stau mici, cât un semn; numele scris de lângă ele e cel
-// care se citește.
-function deseneazaIcoana(o, x, y, marime) {
-  const l = marime;
-  if (o.fel === "nimic") {
-    ctx.strokeStyle = o.culoare;
-    ctx.lineWidth = 0.28 * U;
-    ctx.beginPath();
-    ctx.arc(x, y, l * 0.40, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x - l * 0.28, y + l * 0.28);
-    ctx.lineTo(x + l * 0.28, y - l * 0.28);
-    ctx.stroke();
-    return;
-  }
-  if (o.fel === "mancare") {
-    ctx.fillStyle = "#efe7d6";
-    elipsa(x, y, l * 0.48, l * 0.26);
-    ctx.fill();
-    ctx.fillStyle = o.culoare;
-    for (let i = -1; i <= 1; i++) {
-      elipsa(x + i * l * 0.20, y, l * 0.11, l * 0.07);
-      ctx.fill();
-    }
-    return;
-  }
-  ctx.fillStyle = "rgba(226, 232, 236, 0.35)";
-  dreptunghiRotunjit(x - l * 0.24, y - l * 0.46, l * 0.48, l * 0.92, l * 0.08);
-  ctx.fill();
-  ctx.fillStyle = o.culoare;
-  dreptunghiRotunjit(x - l * 0.18, y - l * 0.28, l * 0.36, l * 0.70, l * 0.06);
-  ctx.fill();
-}
-
 function deseneazaMeniu() {
-  if (!meniu.deschis || !meniu.randuri.length) return;
-  const primul = meniu.randuri[0], ultimul = meniu.randuri[meniu.randuri.length - 1];
+  if (!meniu.deschis) return;
 
-  ctx.fillStyle = "rgba(16, 11, 7, 0.90)";
-  dreptunghiRotunjit(primul.x0 - U, primul.y0 - U,
-                     (primul.x1 - primul.x0) + 2 * U,
-                     (ultimul.y1 - primul.y0) + 2 * U, U);
+  ctx.fillStyle = "rgba(16, 11, 7, 0.92)";
+  dreptunghiRotunjit(meniu.stanga - 1.5 * U, meniu.sus - 1.5 * U,
+                     (meniu.dreapta - meniu.stanga) + 3 * U,
+                     (meniu.jos - meniu.sus) + 3 * U, U);
   ctx.fill();
   ctx.strokeStyle = "rgba(232, 161, 60, 0.45)";
   ctx.lineWidth = 0.22 * U;
   ctx.stroke();
 
-  ctx.textAlign = "left";
-  ctx.font = Math.round(3.4 * U) + "px system-ui, sans-serif";
-  for (const r of meniu.randuri) {
-    const mijloc = (r.y0 + r.y1) / 2;
-    deseneazaIcoana(r.optiune, r.x0 + 2.6 * U, mijloc, r.desen);
-    ctx.fillStyle = "#f2e7d3";
-    ctx.fillText(r.optiune.nume, r.x0 + 6.5 * U, mijloc + 1.2 * U);
-  }
+  const inaltRand = (meniu.jos - meniu.sus) / OPTIUNI.length;
+  OPTIUNI.forEach(function (o, i) {
+    const mijloc = meniu.sus + (i + 0.5) * inaltRand + U;
+
+    if (o.sectiune) {
+      ctx.textAlign = "left";
+      ctx.font = Math.round(2.7 * U) + "px system-ui, sans-serif";
+      ctx.fillStyle = "#e8a13c";
+      ctx.fillText(o.sectiune, meniu.stanga + 1.5 * U, mijloc);
+      ctx.strokeStyle = "rgba(232, 161, 60, 0.25)";
+      ctx.lineWidth = 0.12 * U;
+      ctx.beginPath();
+      ctx.moveTo(meniu.stanga + 1.5 * U, mijloc + 1.1 * U);
+      ctx.lineTo(meniu.dreapta - 1.5 * U, mijloc + 1.1 * U);
+      ctx.stroke();
+      return;
+    }
+
+    ctx.font = Math.round(3.1 * U) + "px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillStyle = o.fel === "nimic" ? "#b9ada0" : "#f2e7d3";
+    ctx.fillText(o.nume, meniu.stanga + 2.5 * U, mijloc);
+
+    if (o.fel === "nimic") return;
+
+    // Cantitatea și prețul stau în coloanele lor, aliniate la dreapta, ca într-o
+    // listă de bucate adevărată.
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#a89b8c";
+    ctx.fillText(o.cantitate, meniu.stanga + 36 * U, mijloc);
+    ctx.fillStyle = "#e8dcc4";
+    ctx.fillText(o.pret, meniu.stanga + 50 * U, mijloc);
+  });
 }
 
 /* ==========================================================================
@@ -2557,6 +2634,51 @@ const AI = {
         const text = String((j && j.message && j.message.content) || "");
         const numar = text.match(/\d+/);
         raspunde(numar ? parseInt(numar[0], 10) : null);
+      })
+      .catch(function () { raspunde(null); });
+  },
+
+  /* Vorba musafirilor de la masa a treia. Tot modelul o scrie, dacă e pornit;
+     dacă nu, rămân replicile scrise de mână — și nu se vede diferența decât
+     prin faptul că se repetă mai des. */
+  discuta: function (istoric, gata) {
+    let raspuns = false;
+    const raspunde = function (pereche) {
+      if (raspuns) return;
+      raspuns = true;
+      gata(pereche);
+    };
+    setTimeout(function () { raspunde(null); }, 5000);
+
+    const dinainte = istoric.length
+      ? "Până acum și-au spus: " + istoric.join(" / ") + ". "
+      : "Tocmai s-au așezat. ";
+
+    fetch(this.url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: this.model,
+        stream: false,
+        think: false,
+        options: { temperature: 1.0, num_predict: 60 },
+        messages: [
+          { role: "system", content:
+            "Scrii replici scurte și firești, în română, pentru doi oameni care " +
+            "beau ceva într-un bar liniștit. Fără ghilimele, fără explicații." },
+          { role: "user", content: dinainte +
+            "Scrie următoarele două replici, una pentru fiecare, de cel mult " +
+            "șapte cuvinte. Format exact:\nA: ...\nB: ..." }
+        ]
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        const text = String((j && j.message && j.message.content) || "");
+        const linii = text.split("\n")
+          .map(function (l) { return l.replace(/^\s*[-–*]?\s*[AB]\s*[:.)\-]\s*/i, "").trim(); })
+          .filter(function (l) { return l.length > 1 && l.length < 70; });
+        raspunde(linii.length >= 2 ? [linii[0], linii[1]] : null);
       })
       .catch(function () { raspunde(null); });
   }

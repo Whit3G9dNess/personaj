@@ -62,14 +62,15 @@ face nimic.
 
 Localul e gata și populat: cei trei stau pe scaune la o masă cu picior și blat
 gros, în spate e tejgheaua barului cu raftul de sticle și un barman care șterge
-un pahar, iar în stânga, mai departe, la a doua masă, un om cu o mână de aur
+un pahar, iar în stânga, mai departe, la a doua masă, un om cu o mână de argint
 joacă șah cu unul făcut tot din aur. La a treia masă, cea din față, vin din când
-în când doi inși, schimbă câteva vorbe și pleacă. Printre mese umblă un chelner
-cu tava, care trece și pe la noi din când în când.
+în când doi inși — de fiecare dată alții —, stau de vorbă și pleacă. Printre mese
+umblă un chelner cu tava, care trece și pe la noi din când în când.
 
 **Poți comanda.** Dă clic pe oricare dintre cei trei: chelnerul lasă tura și vine
-la masă cu meniul. Ceri suc, bere, vin, mici cu piure — sau nimic, dacă n-ai
-chef. Berea se toarnă la bar și se aude cum se umple paharul; micii se fac la
+la masă cu meniul — o listă scrisă, cu fel, cantitate și preț. Mici cu piure,
+ciorbă de burtă, cartofi prăjiți, papanași, înghețată, Prigat, bere, vin — sau
+nimic, dacă n-ai chef. Berea se toarnă la bar și se aude cum se umple paharul; micii se fac la
 aragazul din capătul barului, cu fum cu tot. După ce comanda ajunge pe masă, se
 bea și se mănâncă din ea din când în când. Sunetul pornește la primul clic,
 fiindcă browserele nu-l lasă altfel.

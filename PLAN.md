@@ -182,9 +182,15 @@ Localul capătă oameni. Amândoi de aici sunt de fundal: nu joacă, nu știu de
 cărți, au ciclul lor.
 
 - **Doi clienți** la masa a doua, care **joacă șah**: unul e om în carne și oase
-  cu o mână de aur, celălalt e făcut tot din aur, din cap până-n picioare. Mută
-  pe rând, la câteva secunde, fără reguli adevărate — ca și cărțile de la masa
-  noastră.
+  cu o mână de argint, celălalt e făcut tot din aur, din cap până-n picioare.
+  Mută pe rând, la câteva secunde, fără reguli adevărate — ca și cărțile de la
+  masa noastră.
+
+  Amândoi își desenează singuri brațele, căzute din umăr, cu mâinile pe
+  marginea blatului. Prima variantă le punea mâinile ca pe niște puncte
+  plutind pe lângă corp, iar omului de aur îi mai dădea și două luminițe
+  răzlețe — de departe arătau ca niște particule agățate de el. Un test cere
+  acum ca nicio formă de-a lui să nu iasă din trupul lui.
 - **Chelnerul**, care se plimbă prin local cu tava: pe la bar, pe la masa a
   doua, și pe la masa noastră din când în când. Nu așteaptă să fie chemat —
   face turul lui oricum. Se oprește puțin la fiecare popas, apoi merge mai
@@ -194,13 +200,28 @@ cărți, au ciclul lor.
   spatele barului.
 - **A treia masă**, în față-stânga, goală mai tot timpul. Din când în când intră
   doi inși, se așază, schimbă câteva vorbe scrise în bule deasupra lor, și
-  pleacă. Vorbesc pe rând, niciodată amândoi odată, și numai despre ce se vede
-  în local — despre partida noastră nu știu nimic.
+  pleacă. Vorbesc pe rând, niciodată amândoi odată.
+
+  **Nu sunt aceiași de fiecare dată:** la fiecare vizită se croiesc alți doi din
+  liste de haine, piele, păr și un accesoriu (pălărie, fular, ochelari sau
+  nimic), cu mici diferențe de statură. Un test cere ca din patru vizite să iasă
+  cel puțin două înfățișări deosebite.
+
+  **Paharele nu apar din senin.** Se așază la masă goală și abia când trece
+  chelnerul pe la ei — are un popas al lui acolo — le apare ceva de băut.
+
+  **Vorbesc despre ce văd**, inclusiv despre masa noastră: focul draconianului,
+  liniștea reptilianului, cărțile aruncate ale clovnului, comanda care tocmai a
+  sosit. Regula veche („fundalul nu știe de partidă") a căzut aici, la cerere.
 
 Contractul e cel de la masa mare (`deseneaza`, `actualizeaza`), ca să nu apară
-un al doilea fel de a face un personaj. Diferența e doar că pe ăștia nu-i cheamă
-nimeni: nu primesc evenimente de la mașina de stări a jocului, și un test
-verifică asta — după o mână întreagă, niciunul nu știe cine a câștigat.
+un al doilea fel de a face un personaj. Nu primesc evenimente de la mașina de
+stări a jocului; ce află despre partidă, află uitându-se — prin `vizita.vede`.
+
+**Conversația poate veni de la model.** Dacă Ollama e pornit, musafirii primesc
+de acolo următoarele două replici, cu ce și-au spus până atunci ca fir. Dacă nu
+răspunde în cinci secunde, rămân replicile scrise de mână, și nu se vede
+diferența decât prin faptul că se repetă mai des.
 
 Toți patru sunt croiți pe același trup de bază, fiindcă sunt fundal: nu trebuie
 să fie cineva anume. Fiecare desenează peste el ce are în plus — mâna de aur,
@@ -326,10 +347,14 @@ Un browser nu lasă sunetul să pornească nechemat, deci contextul audio se
 deschide la primul clic — care e chiar clicul de comandă. Până atunci, scena e
 mută, așa cum e și acum.
 
-**Meniul.** Desene mici, scris mare: lângă fiecare rând stă un semn desenat de
-cel mult 2,6U (un pahar, o farfurie, un cerc tăiat), iar numele e scris cu 3,4U.
-Două teste păzesc raportul ăsta, fiindcă e ușor de stricat. Când vor fi mai
-multe feluri, desenele pot să dispară de tot și să rămână doar lista.
+**Meniul** e o listă scrisă, ca la restaurant: capete de listă (Mâncare,
+Deserturi, De băut), iar sub ele felul, cât e porția și cât costă, în trei
+coloane aliniate. Fără desene — la nouă feluri ar fi fost cinci pahare care se
+bat cap în cap.
+
+Sucul e Prigat, mâncarea e mici cu piure, ciorbă de burtă și cartofi prăjiți,
+deserturile papanași și înghețată. Băuturile se măsoară în litri, mâncarea în
+grame sau mililitri — un test verifică chiar asta, pe fiecare fel în parte.
 
 Textul din meniu e primul din toată scena. Până acum n-a existat nicio literă în
 ea, în afară de numele-ajutor de la siluete, care au dispărut la Faza 5.

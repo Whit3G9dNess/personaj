@@ -74,5 +74,14 @@ aragazul din capătul barului, cu fum cu tot. După ce comanda ajunge pe masă, 
 bea și se mănâncă din ea din când în când. Sunetul pornește la primul clic,
 fiindcă browserele nu-l lasă altfel.
 
-Urmează partida adevărată: cărțile capătă valori și joci tu mâna clovnului,
-împotriva celorlalți doi. Vezi [PLAN.md](PLAN.md).
+**Partida o joci tu.** Cărțile au valori de la 1 la 10 și cea mai mare ia mâna.
+Mâna clovnului o vezi jos, în fața mesei — când îți vine rândul, cărțile se
+ridică puțin și se aprinde o lumină caldă sub ele. Dai clic pe una și o pune pe
+masă. Dacă nu te hotărăști în douăsprezece secunde, joacă el — scena rămâne bună
+și dacă doar te uiți la ea.
+
+Draconianul și reptilianul joacă singuri. Dacă ai **Ollama** pornit pe
+calculator, sunt conduși de modelul de acolo, fiecare cu firea lui; altfel, de o
+judecată scrisă în cod — draconianul trântește cea mai mare carte, reptilianul
+câștigă cu cât mai puțin. Nu trebuie să instalezi nimic: fără Ollama, scena
+merge exact la fel de repede.

@@ -282,6 +282,10 @@ return {
   sunet: typeof sunet !== "undefined" ? sunet : null,
   apasa: typeof apasa !== "undefined" ? apasa : null,
   actualizeazaComanda: typeof actualizeazaComanda !== "undefined" ? actualizeazaComanda : null,
+  AI: typeof AI !== "undefined" ? AI : null,
+  alegeDinCod: typeof alegeDinCod !== "undefined" ? alegeDinCod : null,
+  asteaptaJucator: function () { return typeof asteaptaJucator !== "undefined" && asteaptaJucator; },
+  laRand: function () { return typeof laRand !== "undefined" ? laRand : null; },
   sah: typeof sah !== "undefined" ? sah : null,
   actualizeazaFundal: typeof actualizeazaFundal !== "undefined" ? actualizeazaFundal : null,
   deseneazaTot: typeof deseneazaTot !== "undefined" ? deseneazaTot : null,
@@ -331,6 +335,10 @@ function porneste(optiuni) {
   const fabrica = new Function("document", "window", "requestAnimationFrame",
                                sursaScenei + "\n" + EXPORTURI);
   const scena = fabrica(doc, fereastra, function () {});
+
+  // Testele nu vorbesc cu Ollama decât dacă cer ele anume: altfel ar depinde de
+  // ce e instalat pe calculator și cât de repede răspunde.
+  if (scena.AI) scena.AI.activ = false;
   scena.panza = panza;
   scena.desene = panza.desene;
   scena.goleste = panza.goleste;
@@ -1431,23 +1439,29 @@ function testeReglaje() {
     }
   });
 
-  test("cărțile din mâna clovnului nu se mai văd peste el", function () {
+  test("mâna ta nu acoperă clovnul: stă jos, în fața mesei", function () {
     const s = porneste();
     s.panaLaStarea("gandire");
-    const d = cadruIntreg(s);
-    const clovn = candApare(d, NAS);
-    const spateCarte = candApare(d, SPATE_CARTE2);
-    adevarat(spateCarte >= 0, "nu se desenează nicio carte");
-    adevarat(spateCarte < clovn,
-             "cărțile lui trebuie desenate înaintea lui, ca să le acopere cu spatele");
+    s.avanseaza(1);
+    const eu = s.personaj("Clovnul");
+    for (const c of eu.mana) {
+      adevarat(c.y > eu.y, "o carte de-a ta a rămas peste el (y=" + Math.round(c.y) + ")");
+    }
   });
 
   test("cărțile puse pe masă se văd în continuare", function () {
     const s = porneste();
     s.panaLaStarea("jucare");
-    // Așteptăm până chiar apare o carte cu fața în sus pe blat.
+    // Așteptăm până chiar apare o carte cu fața în sus pe blat — jucând-o noi,
+    // dacă e rândul nostru.
     let paza = 0;
-    while (!s.cartiPeMasa.length && paza++ < 600) s.avanseaza(1 / 60);
+    while (!s.cartiPeMasa.length && paza++ < 900) {
+      if (s.asteaptaJucator()) {
+        const eu = s.personaj("Clovnul");
+        s.apasa(eu.mana[0].x, eu.mana[0].y);
+      }
+      s.avanseaza(1 / 60);
+    }
     adevarat(s.cartiPeMasa.length > 0, "nimeni n-a pus nicio carte pe masă");
 
     const d = cadruIntreg(s);
@@ -1750,6 +1764,242 @@ function testeMasaATreia() {
   });
 }
 
+/* --- 6.12 Musafirii comentează ce văd la masa noastră ---------------------- */
+
+// Aduce musafirii la masă și îi lasă acolo.
+function asteaptaMusafirii(s) {
+  let paza = 0;
+  while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+  adevarat(s.vizita.stare === "asezati", "n-au venit musafirii");
+}
+
+function testeComentarii() {
+  sectiune("6.12 Musafirii comentează");
+
+  test("comentează când draconianul scoate foc", function () {
+    const s = porneste();
+    asteaptaMusafirii(s);
+    s.trimiteEveniment(s.personaj("Draconianul"), "pierdere");
+    adevarat(s.vizita.deSpus.length > 0, "n-au băgat de seamă focul");
+
+    const auzite = new Set();
+    for (let i = 0; i < 60 * 30; i++) {
+      s.avanseaza(1 / 60);
+      if (s.vizita.vorbeste >= 0) auzite.add(s.vizita.replica);
+    }
+    const despreFoc = ["Ai văzut? Iar a scos foc.", "Ăla se aprinde din orice.",
+                       "Miroase a ars.", "E dragonul, iar a pierdut."];
+    adevarat(despreFoc.some(function (v) { return auzite.has(v); }),
+             "n-au pomenit de foc: " + Array.from(auzite).join(" / "));
+  });
+
+  test("comentează și tăcerea reptilianului", function () {
+    const s = porneste();
+    asteaptaMusafirii(s);
+    s.trimiteEveniment(s.personaj("Reptilianul"), "castig");
+    adevarat(s.vizita.deSpus.length > 0, "n-au băgat de seamă");
+  });
+
+  test("dacă masa lor e goală, n-are cine să comenteze", function () {
+    const s = porneste();
+    egal(s.vizita.stare, "gol", "ar trebui să fie goală la început");
+    s.trimiteEveniment(s.personaj("Draconianul"), "pierdere");
+    egal(s.vizita.deSpus.length, 0, "vorbește cineva care nici măcar nu e în local");
+  });
+
+  test("nu țin minte mai mult de două lucruri deodată", function () {
+    const s = porneste();
+    asteaptaMusafirii(s);
+    for (let i = 0; i < 6; i++) s.trimiteEveniment(s.personaj("Draconianul"), "pierdere");
+    adevarat(s.vizita.deSpus.length <= 2,
+             "au strâns " + s.vizita.deSpus.length + " subiecte pe limbă");
+  });
+
+  test("tot pe rând vorbesc, și când comentează", function () {
+    const s = porneste();
+    asteaptaMusafirii(s);
+    s.trimiteEveniment(s.personaj("Draconianul"), "pierdere");
+    const vorbitori = new Set();
+    for (let i = 0; i < 60 * 30; i++) {
+      s.avanseaza(1 / 60);
+      if (s.vizita.vorbeste >= 0) vorbitori.add(s.vizita.vorbeste);
+    }
+    egal(vorbitori.size, 2, "au vorbit amândoi, pe rând");
+  });
+}
+
+/* --- 6.13 Faza 10: partida adevărată -------------------------------------- */
+
+// Avansează până îți vine rândul să pui o carte.
+function panaLaRandulTau(s) {
+  let paza = 0;
+  while (!s.asteaptaJucator() && paza++ < 60 * 90) s.avanseaza(1 / 60);
+  adevarat(s.asteaptaJucator(), "nu mi-a venit niciodată rândul");
+}
+
+// Avansează până e rândul personajului cu numele dat.
+function panaLaRandulLui(s, nume) {
+  let paza = 0;
+  while ((!s.laRand() || s.laRand().nume !== nume) && paza++ < 60 * 90) {
+    if (s.asteaptaJucator()) {
+      const eu = s.personaje.find(function (p) { return Math.sin(p.unghi) >= 0; });
+      s.apasa(eu.mana[0].x, eu.mana[0].y);
+    }
+    s.avanseaza(1 / 60);
+  }
+  adevarat(s.laRand() && s.laRand().nume === nume, "n-a ajuns la rândul lui " + nume);
+}
+
+function testePartida() {
+  sectiune("6.13 Faza 10 — Partida adevărată");
+
+  test("cărțile au valori de la 1 la 10", function () {
+    const s = porneste();
+    s.panaLaStarea("gandire");
+    egal(s.carti.length, 9, "cărți împărțite");
+    for (const c of s.carti) {
+      adevarat(Number.isInteger(c.valoare) && c.valoare >= 1 && c.valoare <= 10,
+               "o carte are valoarea " + c.valoare);
+    }
+  });
+
+  test("mâna ta se vede jos, cu fața în sus", function () {
+    const s = porneste();
+    s.panaLaStarea("gandire");
+    s.avanseaza(1);
+    const eu = s.personaj("Clovnul");
+    for (const c of eu.mana) {
+      egal(c.fataInSus, true, "cartea ta trebuie să fie cu fața la tine");
+      adevarat(c.y > s.cy() + s.masa.ry,
+               "mâna ta trebuie să stea jos, în fața mesei (y=" + Math.round(c.y) + ")");
+    }
+    // Iar valorile se și scriu pe ele.
+    s.goleste();
+    s.deseneazaCarte(eu.mana[0]);
+    const scris = s.desene.filter(function (d) { return d.op === "text"; });
+    egal(scris.length, 1, "valoarea trebuie scrisă pe carte");
+    egal(scris[0].text, String(eu.mana[0].valoare), "scrie altceva decât valoarea");
+  });
+
+  test("masa te așteaptă să alegi", function () {
+    const s = porneste();
+    panaLaRandulTau(s);
+    const inainte = s.cartiPeMasa.length;
+    s.avanseaza(8);
+    egal(s.cartiPeMasa.length, inainte, "s-a jucat fără mine");
+    egal(s.asteaptaJucator(), true, "n-o mai așteaptă nimeni pe mine");
+  });
+
+  test("alegi o carte și ea ajunge pe masă", function () {
+    const s = porneste();
+    const eu = s.personaj("Clovnul");
+    panaLaRandulTau(s);
+    const aleasa = eu.mana[1];
+    const cate = eu.mana.length;
+    s.apasa(aleasa.x, aleasa.y);
+    egal(eu.mana.length, cate - 1, "cartea n-a plecat din mână");
+    adevarat(s.cartiPeMasa.indexOf(aleasa) >= 0, "cartea aleasă n-a ajuns pe masă");
+    egal(s.asteaptaJucator(), false, "masa mă mai așteaptă degeaba");
+  });
+
+  test("dacă nu te hotărăști, joacă el în locul tău", function () {
+    const s = porneste();
+    const eu = s.personaj("Clovnul");
+    panaLaRandulTau(s);
+    const cate = eu.mana.length;
+    s.avanseaza(14);
+    adevarat(eu.mana.length < cate, "a rămas înțepenit așteptându-mă la nesfârșit");
+  });
+
+  test("cea mai mare carte ia mâna", function () {
+    const s = porneste();
+    s.panaLaStarea("jucare");
+    let paza = 0;
+    while (s.stare() !== "castigator" && paza++ < 60 * 90) {
+      if (s.asteaptaJucator()) {
+        const eu = s.personaj("Clovnul");
+        s.apasa(eu.mana[0].x, eu.mana[0].y);
+      }
+      s.avanseaza(1 / 60);
+    }
+    egal(s.cartiPeMasa.length, 3, "n-au jucat toți");
+    let ceaMare = s.cartiPeMasa[0];
+    for (const c of s.cartiPeMasa) if (c.valoare > ceaMare.valoare) ceaMare = c;
+    egal(s.castigator().nume, ceaMare.jucatDe.nume,
+         "a câștigat altcineva decât cel cu cartea " + ceaMare.valoare);
+  });
+
+  test("reptilianul joacă socotit", function () {
+    const s = porneste();
+    const r = s.personaj("Reptilianul");
+    r.mana = [{ valoare: 2 }, { valoare: 6 }, { valoare: 9 }];
+    s.cartiPeMasa.length = 0;
+    s.cartiPeMasa.push({ valoare: 5 });
+    egal(s.alegeDinCod(r), 6, "trebuie să pună cea mai mică dintre cele care bat");
+    s.cartiPeMasa[0].valoare = 10;
+    egal(s.alegeDinCod(r), 2, "dacă tot nu poate bate, scapă de cea mai mică");
+  });
+
+  test("modelul alege cartea, dacă răspunde la timp", function () {
+    const s = porneste();
+    s.AI.activ = true;
+    let intrebat = null;
+    s.AI.intreaba = function (p, situatie, gata) {
+      intrebat = { nume: p.nume, situatie: situatie };
+      gata(p.mana[p.mana.length - 1].valoare);      // ultima carte din mâna lui
+    };
+    panaLaRandulLui(s, "Reptilianul");
+    const asteptata = s.personaj("Reptilianul").mana[s.personaj("Reptilianul").mana.length - 1].valoare;
+    let paza = 0;
+    while (s.laRand() && paza++ < 60 * 30) s.avanseaza(1 / 60);
+    const ultima = s.cartiPeMasa[s.cartiPeMasa.length - 1];
+    egal(ultima.valoare, asteptata, "n-a jucat ce a zis modelul");
+    adevarat(intrebat && intrebat.situatie.indexOf("mână") >= 0,
+             "modelul n-a primit situația mesei");
+  });
+
+  test("dacă modelul tace, joacă judecata din cod", function () {
+    const s = porneste();
+    s.AI.activ = true;
+    s.AI.intreaba = function () {};                 // nu răspunde niciodată
+    panaLaRandulLui(s, "Reptilianul");
+    const asteptata = s.alegeDinCod(s.personaj("Reptilianul"));
+    let paza = 0;
+    while (s.laRand() && paza++ < 60 * 30) s.avanseaza(1 / 60);
+    const ultima = s.cartiPeMasa[s.cartiPeMasa.length - 1];
+    egal(ultima.valoare, asteptata, "n-a căzut pe judecata din cod");
+  });
+
+  test("dacă modelul spune o carte pe care n-o are, e ignorat", function () {
+    const s = porneste();
+    s.AI.activ = true;
+    s.AI.intreaba = function (p, situatie, gata) { gata(42); };
+    panaLaRandulLui(s, "Reptilianul");
+    const rept = s.personaj("Reptilianul");
+    const asteptata = s.alegeDinCod(rept);
+    let paza = 0;
+    while (s.laRand() && paza++ < 60 * 30) s.avanseaza(1 / 60);
+    const ultima = s.cartiPeMasa[s.cartiPeMasa.length - 1];
+    egal(ultima.valoare, asteptata, "a jucat ceva ce nu avea în mână");
+  });
+
+  test("partida se reia: câștigătorul împarte mâna următoare", function () {
+    const s = porneste();
+    let paza = 0;
+    while (s.stare() !== "reactie" && paza++ < 60 * 90) {
+      if (s.asteaptaJucator()) {
+        const eu = s.personaj("Clovnul");
+        s.apasa(eu.mana[0].x, eu.mana[0].y);
+      }
+      s.avanseaza(1 / 60);
+    }
+    const c = s.castigator();
+    paza = 0;
+    while (s.stare() !== "impartire" && paza++ < 60 * 60) s.avanseaza(1 / 60);
+    egal(s.personaje[s.startator()].nume, c.nume, "startatorul mâinii următoare");
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -1776,6 +2026,8 @@ function testeMasaATreia() {
   testeReglaje();
   testeComanda();
   testeMasaATreia();
+  testeComentarii();
+  testePartida();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

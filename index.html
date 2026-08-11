@@ -541,7 +541,9 @@ function deseneazaCarte(c) {
   ctx.translate(c.x, c.y);
   ctx.rotate(c.rot);
 
-  const l = latCarte, i = inaltCarte;
+  // Cărțile din mâna ta sunt mai mari: pe ele apeși.
+  const k = c.marime || 1;
+  const l = latCarte * k, i = inaltCarte * k;
 
   // Umbra cărții pe masă.
   ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
@@ -557,10 +559,11 @@ function deseneazaCarte(c) {
     ctx.fillStyle = "#f7ecd8";
     dreptunghiRotunjit(-l / 2, -i / 2, l, i, 0.7 * U);
     ctx.fill();
-    // Un semn simplu în mijloc — cărțile nu au valori reale.
+    // Valoarea, scrisă mare la mijloc: după ea se ia mâna.
     ctx.fillStyle = "#8a2f2a";
-    elipsa(0, 0, l * 0.17, l * 0.17);
-    ctx.fill();
+    ctx.font = "bold " + Math.round(3.2 * U) + "px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(String(c.valoare === undefined ? "" : c.valoare), 0, 1.15 * U);
     ctx.strokeStyle = "rgba(120, 90, 60, 0.5)";
     ctx.lineWidth = 0.18 * U;
     dreptunghiRotunjit(-l / 2 + 0.5 * U, -i / 2 + 0.5 * U, l - U, i - U, 0.4 * U);
@@ -758,16 +761,30 @@ function aseazaPersonaj(p) {
   }
 }
 
-// Așază în evantai cărțile din mână. Se recalculează de fiecare dată când
-// personajul primește sau joacă o carte.
+// Cel din față ești tu: stă cu spatele la privitor, deci mâna lui e mâna ta.
+function esteAlTau(p) { return Math.sin(p.unghi) >= 0; }
+
+/* Așază în evantai cărțile din mână. Ale tale stau jos, în fața mesei, cu fața
+   în sus — de acolo alegi. Ale celorlalți rămân strânse lângă ei, pe blat. */
 function rearanjeazaMana(p, durata) {
   const n = p.mana.length;
+  const alTau = esteAlTau(p);
+
   for (let i = 0; i < n; i++) {
     const d = i - (n - 1) / 2;
-    const unghiCarte = p.rotCarte + d * 0.16;
-    const x = p.manaX + Math.cos(p.rotCarte) * d * latCarte * 0.5;
-    const y = p.manaY + Math.sin(p.rotCarte) * d * latCarte * 0.5 - Math.abs(d) * 0.3 * U;
-    mutaObiect(p.mana[i], x, y, unghiCarte, durata || 0.35, 0);
+    if (alTau) {
+      p.mana[i].fataInSus = true;
+      p.mana[i].marime = 1.45;
+      mutaObiect(p.mana[i],
+        cx + d * latCarte * 1.75,
+        H - 8.5 * U + Math.abs(d) * 0.7 * U,
+        d * 0.06, durata || 0.35, 0);
+    } else {
+      const unghiCarte = p.rotCarte + d * 0.16;
+      const x = p.manaX + Math.cos(p.rotCarte) * d * latCarte * 0.5;
+      const y = p.manaY + Math.sin(p.rotCarte) * d * latCarte * 0.5 - Math.abs(d) * 0.3 * U;
+      mutaObiect(p.mana[i], x, y, unghiCarte, durata || 0.35, 0);
+    }
   }
 }
 
@@ -987,6 +1004,7 @@ function aruncaCartileInAer(p) {
     // Nu mai sunt în mâna nimănui: din clipa asta zboară la vedere, nu ascunse
     // în spatele lui.
     c.proprietar = null;
+    c.marime = 1;
     mutaObiect(c,
       c.x + intreg(-6, 6) * U,
       c.y - intreg(10, 16) * U,
@@ -1000,7 +1018,7 @@ function aruncaCartileInAer(p) {
 const clovnul = personaje[0];
 clovnul.deseneaza = function (context, t) { deseneazaClovn(this, context, t); };
 clovnul.reactie = function (tip, cine) {
-  if (tip === "pierdere") aruncaCartileInAer(this);
+  if (tip === "pierdere") { aruncaCartileInAer(this); vizita.vede("carti"); }
   else if (tip === "vecinCastiga" && cine) {
     // Se răsucește spre cel care a luat mâna, ca să-i vadă mutra.
     this.privesteSpre = cine.x < this.x ? -1 : 1;
@@ -1175,10 +1193,13 @@ function sufleFoc(p, cate) {
 
 const draconianul = personaje[1];
 draconianul.gura = { x: 11.2, y: -25.6 };   // vârful botului, în unități U
+draconianul.promptSistem =
+  "Ești un draconian masiv și fioros, care joacă cărți la un bar. Ești nerăbdător " +
+  "și trântești cărțile. Răspunzi DOAR cu un număr, nimic altceva.";
 draconianul.deseneaza = function (context, t) { deseneazaDraconian(this, context, t); };
 draconianul.reactie = function (tip) {
   // E nervos des: pierderea îi aprinde botul pentru o clipă.
-  if (tip === "pierdere") { this.focTimp = 0.9; sufleFoc(this, 18); }
+  if (tip === "pierdere") { this.focTimp = 0.9; sufleFoc(this, 18); vizita.vede("foc"); }
   // Când câștigă altcineva, mârâie: doar un fum scurt pe nări.
   else if (tip === "vecinCastiga") aprindeFum(this.guraX, this.guraY, 9);
 };
@@ -1328,12 +1349,16 @@ function deseneazaReptilian(p, ctx, t) {
 }
 
 const reptilianul = personaje[2];
+reptilianul.promptSistem =
+  "Ești un reptilian umanoid, calm și calculat, cel mai bun jucător de cărți de la " +
+  "masă. Joci pe economie: câștigi cu cât mai puțin. Răspunzi DOAR cu un număr.";
 reptilianul.deseneaza = function (context, t) { deseneazaReptilian(this, context, t); };
-reptilianul.reactie = function () {
+reptilianul.reactie = function (tip) {
   // Nu arată nimic, orice ar primi. Anulează și tresărirea comună — contrastul
-  // cu ceilalți doi e tot efectul lui.
+  // cu ceilalți doi e tot efectul lui. Se vede tocmai de la masa a treia.
   this.reactieAmpl = 0;
   this.reactieTimp = 0;
+  if (tip === "castig") vizita.vede("reptilian");
 };
 
 /* ==========================================================================
@@ -1521,23 +1546,32 @@ function asazaSahul() {
   }
 }
 
-// Mută o piesă a jucătorului la rând pe o celulă liberă de alături.
+/* Mută o piesă a celui care e la rând. Strânge întâi toate mutările care se pot
+   face și alege dintre ele — cu tabla plină, o piesă luată la nimereală e de
+   cele mai multe ori una din fundul tablei, care n-are unde să se ducă. */
 function mutaLaSah() {
-  const aleLui = sah.piese.filter(function (p) { return p.alb === (sah.randul === 0); });
-  if (!aleLui.length) return;
-  const p = aleLui[Math.floor(intreg(0, aleLui.length)) % aleLui.length];
   const directii = [[0, -1], [0, 1], [1, 0], [-1, 0], [1, -1], [-1, -1]];
+  const ocupat = function (i, j) {
+    return sah.piese.some(function (q) { return q.i === i && q.j === j; });
+  };
 
-  for (let incercari = 0; incercari < 8; incercari++) {
-    const d = directii[Math.floor(intreg(0, directii.length)) % directii.length];
-    const i = p.i + d[0], j = p.j + d[1];
-    if (i < 0 || i > 7 || j < 0 || j > 7) continue;
-    if (sah.piese.some(function (q) { return q.i === i && q.j === j; })) continue;
-    p.i = i; p.j = j;
-    const c = celulaSah(i, j);
-    mutaObiect(p, c.x, c.y, 0, 0.5, 0);
-    return;
+  const mutari = [];
+  for (const p of sah.piese) {
+    if (p.alb !== (sah.randul === 0)) continue;
+    for (const d of directii) {
+      const i = p.i + d[0], j = p.j + d[1];
+      if (i < 0 || i > 7 || j < 0 || j > 7) continue;
+      if (ocupat(i, j)) continue;
+      mutari.push({ piesa: p, i: i, j: j });
+    }
   }
+  if (!mutari.length) return;
+
+  const m = mutari[Math.floor(intreg(0, mutari.length)) % mutari.length];
+  m.piesa.i = m.i;
+  m.piesa.j = m.j;
+  const c = celulaSah(m.i, m.j);
+  mutaObiect(m.piesa, c.x, c.y, 0, 0.5, 0);
 }
 
 function deseneazaSah() {
@@ -1787,6 +1821,25 @@ const VORBE = [
   ["Plătim?", "Mai stai puțin."]
 ];
 
+/* Ce spun când văd ceva la masa noastră. Nu se uită într-acolo tot timpul —
+   doar când se întâmplă ceva greu de trecut cu vederea. */
+const VORBE_DESPRE = {
+  foc: [
+    ["Ai văzut? Iar a scos foc.", "Ăla se aprinde din orice."],
+    ["Miroase a ars.", "E dragonul, iar a pierdut."]
+  ],
+  carti: [
+    ["Ăstuia i-au zburat cărțile.", "Face asta de fiecare dată."],
+    ["Ce-i cu clovnul ăla?", "A pierdut, ce să fie."]
+  ],
+  reptilian: [
+    ["Ăla verde n-a clipit deloc.", "Nici când câștigă."],
+    ["Ăsta cu costum le ia pe toate.", "Și nici nu se bucură."]
+  ],
+  mancare: [["Ce le-au adus?", "Mici cu piure."]],
+  baut:    [["Ăia și-au luat de băut.", "Hai și noi un rând."]]
+};
+
 const vizita = {
   stare: "gol",        // gol → vin → asezati → pleaca → gol
   cronometru: 16,
@@ -1794,7 +1847,19 @@ const vizita = {
   vorbeste: -1,        // 0, 1, sau -1 dacă tac amândoi
   replica: "",
   vorbaTimp: 0,
-  schimb: 0
+  schimb: 0,
+  pereche: null,       // schimbul de replici pe care îl spun acum
+  deSpus: []           // ce au văzut la masa noastră și n-au apucat să comenteze
+};
+
+/* Au văzut ceva la masa noastră. Dacă sunt acolo și n-au altceva pe limbă,
+   comentează la următorul schimb de vorbe. */
+vizita.vede = function (subiect) {
+  if (this.stare !== "asezati") return;
+  if (this.deSpus.length >= 2) return;          // nu ține minte mai mult de-atât
+  const variante = VORBE_DESPRE[subiect];
+  if (!variante) return;
+  this.deSpus.push(variante[Math.floor(intreg(0, variante.length)) % variante.length]);
 };
 
 function creeazaMusafir(nume, paleta, semn) {
@@ -1867,23 +1932,34 @@ function actualizeazaVizita(dt) {
       vizita.cronometru = intreg(45, 80);
       vizita.vorbaTimp = intreg(1.5, 3.5);
       vizita.vorbeste = -1;
+      vizita.pereche = null;
     } else {
       vizita.stare = "gol";
       vizita.cronometru = intreg(25, 50);
+      vizita.deSpus.length = 0;      // ce-au văzut aseară nu mai spun mâine
     }
     return;
   }
 
-  // Așezați: vorbesc pe rând, cu pauze între schimburi.
+  // Așezați: vorbesc pe rând, cu pauze între schimburi. Dacă au văzut ceva la
+  // masa noastră, despre asta vorbesc întâi.
   vizita.vorbaTimp -= dt;
   if (vizita.vorbaTimp <= 0) {
     if (vizita.vorbeste === 1) {                  // s-a terminat schimbul
       vizita.vorbeste = -1;
-      vizita.schimb = (vizita.schimb + 1) % VORBE.length;
+      vizita.pereche = null;
       vizita.vorbaTimp = intreg(3, 7);
     } else {
+      if (!vizita.pereche) {
+        if (vizita.deSpus.length) {
+          vizita.pereche = vizita.deSpus.shift();
+        } else {
+          vizita.pereche = VORBE[vizita.schimb];
+          vizita.schimb = (vizita.schimb + 1) % VORBE.length;
+        }
+      }
       vizita.vorbeste = vizita.vorbeste < 0 ? 0 : 1;
-      vizita.replica = VORBE[vizita.schimb][vizita.vorbeste];
+      vizita.replica = vizita.pereche[vizita.vorbeste];
       vizita.vorbaTimp = 2.8;
     }
   }
@@ -2138,6 +2214,19 @@ function apasatPe(p, x, y) {
 function apasa(x, y) {
   sunet.porneste();
 
+  // Dacă masa te așteaptă, un clic pe o carte de-a ta o pune pe masă.
+  if (asteaptaJucator && !meniu.deschis) {
+    const eu = personaje.find(esteAlTau);
+    for (const c of eu.mana) {
+      const k = c.marime || 1;
+      if (Math.abs(x - c.x) < latCarte * k * 0.62 && Math.abs(y - c.y) < inaltCarte * k * 0.62) {
+        joacaCartea(eu, c.valoare);
+        sunet.canta("poc");
+        return;
+      }
+    }
+  }
+
   if (meniu.deschis) {
     for (const r of meniu.randuri) {
       if (x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1) { alege(r.optiune); return; }
@@ -2246,6 +2335,7 @@ function puneComandaPeMasa() {
     cronometru: intreg(4, 9)
   });
   sunet.canta("poc");
+  vizita.vede(comanda.ce.fel === "mancare" ? "mancare" : "baut");
 
   comanda.stare = "nimic";
   comanda.pentru = null;
@@ -2422,9 +2512,88 @@ function deseneazaMeniu() {
    ========================================================================== */
 
 /* Ciclul, la nesfârșit:
-     impartire → gandire → jucare → castigator → reactie → pauza → impartire  */
+     impartire → gandire → jucare → castigator → reactie → pauza → impartire
+
+   Din Faza 10 mâna nu se mai joacă de la sine: cărțile au valori, cea mai mare
+   ia mâna, iar cărțile clovnului le pui tu. */
 
 const CARTI_IN_MANA = 3;
+const RABDARE = 12;        // câte secunde te așteaptă masa până joacă el în locul tău
+
+/* Adversarii pot fi conduși de un model local prin Ollama. Regula de aur: dacă
+   modelul tace, întârzie sau spune o prostie, partida merge mai departe cu
+   judecata scrisă în cod. Nimeni nu trebuie să instaleze nimic. */
+const AI = {
+  url: "http://localhost:11434/api/chat",
+  model: "gemma4:e2b",
+  activ: true,
+  asteptare: 2500,
+
+  intreaba: function (p, situatie, gata) {
+    let raspuns = false;
+    const raspunde = function (valoare) {
+      if (raspuns) return;
+      raspuns = true;
+      gata(valoare);
+    };
+    setTimeout(function () { raspunde(null); }, this.asteptare);
+
+    fetch(this.url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: this.model,
+        stream: false,
+        think: false,              // altfel se gândește zeci de secunde
+        options: { temperature: 0.6 + (p.haos || 0), num_predict: 8 },
+        messages: [
+          { role: "system", content: p.promptSistem },
+          { role: "user", content: situatie }
+        ]
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        const text = String((j && j.message && j.message.content) || "");
+        const numar = text.match(/\d+/);
+        raspunde(numar ? parseInt(numar[0], 10) : null);
+      })
+      .catch(function () { raspunde(null); });
+  }
+};
+
+// Ce vede un personaj când îi vine rândul.
+function situatiaMesei(p) {
+  const mana = p.mana.map(function (c) { return c.valoare; }).join(", ");
+  const masa = cartiPeMasa.length
+    ? cartiPeMasa.map(function (c) { return c.valoare; }).join(", ")
+    : "nimic încă";
+  return "Ai în mână cărțile: " + mana + ". Pe masă s-a jucat: " + masa +
+         ". Cea mai mare carte ia mâna. Ce carte joci? Răspunde doar cu numărul.";
+}
+
+/* Judecata din cod: firea fiecăruia, scrisă în trei rânduri. E și rezerva de
+   care atârnă totul când modelul nu răspunde. */
+function alegeDinCod(p) {
+  if (!p.mana.length) return 0;
+  const valori = p.mana.map(function (c) { return c.valoare; })
+                       .sort(function (a, b) { return a - b; });
+  let max = 0;
+  for (const c of cartiPeMasa) if (c.valoare > max) max = c.valoare;
+
+  if (p === reptilianul) {
+    // Cea mai mică dintre cele care bat; dacă nu poate bate, scapă de cea mai mică.
+    for (const v of valori) if (v > max) return v;
+    return valori[0];
+  }
+  if (p === draconianul) {
+    // Trântește cea mai mare de cele mai multe ori. Nu-l duce capul la altceva.
+    return intreg(0, 1) < 0.6 ? valori[valori.length - 1]
+                              : valori[Math.floor(intreg(0, valori.length)) % valori.length];
+  }
+  // Clovnul, când nu te hotărăști tu: la nimereală, ca tot ce face el.
+  return valori[Math.floor(intreg(0, valori.length)) % valori.length];
+}
 
 let stare = "";
 let tStare = 0;        // de cât timp durează starea curentă
@@ -2434,6 +2603,10 @@ let jucate = 0;
 let startator = 0;     // cine primește prima carte și joacă primul
 let castigator = null;
 let durataGandire = 1.5;
+let laRand = null;             // cine e la rând acum
+let raspunsModel = null;       // ce a apucat să spună modelul pentru el
+let asteaptaJucator = false;   // masa te așteaptă pe tine
+let rabdare = 0;
 const cartiPeMasa = [];
 
 function schimbaStarea(noua) {
@@ -2453,6 +2626,8 @@ function schimbaStarea(noua) {
   else if (noua === "jucare") {
     jucate = 0;
     cronometru = 0.2;
+    laRand = null;
+    asteaptaJucator = false;
   }
   else if (noua === "castigator") {
     castigator = alegeCastigator();
@@ -2485,15 +2660,65 @@ function schimbaStarea(noua) {
   }
 }
 
-// Reptilianul e cel mai bun jucător dintre cei trei, și se vede.
+// Mâna e a celui care a pus cea mai mare carte. La egalitate, a celui care a
+// pus-o primul.
 function alegeCastigator() {
-  const sanse = [0.24, 0.30, 0.46];
-  let r = Math.random(), acum = 0;
-  for (let i = 0; i < personaje.length; i++) {
-    acum += sanse[i];
-    if (r <= acum) return personaje[i];
+  let cea = null;
+  for (const c of cartiPeMasa) {
+    if (!cea || c.valoare > cea.valoare) cea = c;
   }
-  return personaje[personaje.length - 1];
+  return (cea && cea.jucatDe) || personaje[startator % personaje.length];
+}
+
+// Începe rândul cuiva: ori te întreabă pe tine, ori întreabă modelul.
+function incepeRandul(p) {
+  laRand = p;
+  raspunsModel = null;
+  trimiteEveniment(p, "gandeste");
+
+  if (esteAlTau(p)) {
+    asteaptaJucator = true;
+    rabdare = RABDARE;
+    return;
+  }
+
+  asteaptaJucator = false;
+  cronometru = 0.35 + timpDeGandire(p) * 0.5;
+  if (AI.activ) {
+    const cerut = p;
+    AI.intreaba(p, situatiaMesei(p), function (valoare) {
+      // Numai dacă tot el e la rând și chiar are cartea aia în mână.
+      if (laRand !== cerut) return;
+      if (cerut.mana.some(function (c) { return c.valoare === valoare; })) {
+        raspunsModel = valoare;
+      }
+    });
+  }
+}
+
+function joacaCartea(p, valoare) {
+  let i = p.mana.findIndex(function (c) { return c.valoare === valoare; });
+  if (i < 0) i = 0;
+  const c = p.mana.splice(i, 1)[0];
+
+  c.fataInSus = true;
+  c.proprietar = null;      // de acum e a mesei, se vede de oriunde
+  c.marime = 1;             // și are mărimea celorlalte de pe blat
+  c.jucatDe = p;
+  // Cartea aterizează puțin dezordonat — nimeni nu pune perfect drept.
+  mutaObiect(c,
+    p.masaX + intreg(-0.8, 0.8) * U,
+    p.masaY + intreg(-0.8, 0.8) * U,
+    p.rotCarte + intreg(-0.14, 0.14),
+    0.45, 0);
+  cartiPeMasa.push(c);
+  rearanjeazaMana(p, 0.3);
+  trimiteEveniment(p, "joaca");
+
+  jucate++;
+  laRand = null;
+  asteaptaJucator = false;
+  cronometru = 0.35;
 }
 
 function actualizeazaJocul(dt) {
@@ -2504,6 +2729,7 @@ function actualizeazaJocul(dt) {
     if (cronometru <= 0 && impartite < CARTI_IN_MANA * personaje.length) {
       const p = personaje[(startator + impartite) % personaje.length];
       const c = creeazaCarte(teanc.x, teanc.y, -0.12);
+      c.valoare = Math.floor(intreg(1, 11));      // de la 1 la 10
       c.proprietar = p;
       carti.push(c);
       p.mana.push(c);
@@ -2521,26 +2747,25 @@ function actualizeazaJocul(dt) {
   }
 
   else if (stare === "jucare") {
-    if (cronometru <= 0 && jucate < personaje.length) {
+    if (jucate < personaje.length) {
       const p = personaje[(startator + jucate) % personaje.length];
-      const c = p.mana.pop();
-      c.fataInSus = true;
-      c.proprietar = null;      // de acum e a mesei, se vede de oriunde
-      // Cartea aterizează puțin dezordonat — nimeni nu pune perfect drept.
-      mutaObiect(c,
-        p.masaX + intreg(-0.8, 0.8) * U,
-        p.masaY + intreg(-0.8, 0.8) * U,
-        p.rotCarte + intreg(-0.14, 0.14),
-        0.45, 0);
-      cartiPeMasa.push(c);
-      rearanjeazaMana(p, 0.3);
-      trimiteEveniment(p, "joaca");
-      jucate++;
-      // Fiecare se gândește cât îi e felul înainte să pună cartea.
-      const urmator = personaje[(startator + jucate) % personaje.length];
-      cronometru = 0.25 + timpDeGandire(urmator) * 0.5;
+      if (laRand !== p) {
+        incepeRandul(p);
+      } else if (asteaptaJucator) {
+        // Te așteaptă, dar nu la nesfârșit: dacă nu te hotărăști, joacă el.
+        rabdare -= dt;
+        if (rabdare <= 0) joacaCartea(p, alegeDinCod(p));
+      } else if (cronometru <= 0) {
+        /* Dacă am întrebat modelul și încă nu a răspuns, îi mai dăm o clipă —
+           dar nu mai mult de-atât. Mai bine joacă din cod decât să înghețe masa
+           așteptând un răspuns care poate nu vine niciodată. */
+        const maiAsteptam = AI.activ && raspunsModel === null && cronometru > -1.6;
+        if (!maiAsteptam) {
+          joacaCartea(p, raspunsModel !== null ? raspunsModel : alegeDinCod(p));
+        }
+      }
     }
-    if (jucate >= personaje.length && cronometru <= -0.5) {
+    else if (cronometru <= -0.5) {
       schimbaStarea("castigator");
     }
   }
@@ -2572,6 +2797,28 @@ function actualizeazaJocul(dt) {
 
 let ultimulTimp = 0;
 let t = 0;   // timpul total, folosit de animațiile de idle
+
+/* Mâna ta, jos, în fața mesei. Cât te așteaptă masa, cărțile stau puțin mai sus
+   și au o lumină caldă sub ele — ca să se vadă că e rândul tău. */
+function deseneazaManaTa() {
+  const eu = personaje.find(esteAlTau);
+  if (!eu || !eu.mana.length) return;
+
+  if (asteaptaJucator) {
+    const lumina = ctx.createRadialGradient(cx, H - 5 * U, 0, cx, H - 5 * U, 26 * U);
+    lumina.addColorStop(0, "rgba(255, 205, 130, 0.20)");
+    lumina.addColorStop(1, "rgba(255, 180, 90, 0)");
+    ctx.fillStyle = lumina;
+    ctx.fillRect(0, H - 22 * U, W, 22 * U);
+  }
+
+  for (const c of eu.mana) {
+    ctx.save();
+    if (asteaptaJucator) ctx.translate(0, -1.2 * U);
+    deseneazaCarte(c);
+    ctx.restore();
+  }
+}
 
 function actualizeazaTot(dt) {
   actualizeazaJocul(dt);
@@ -2615,11 +2862,8 @@ function deseneazaTot() {
   deseneazaMasa();
 
   for (const p of personaje) {
-    if (Math.sin(p.unghi) >= 0) {         // cel din față
+    if (esteAlTau(p)) {                   // cel din față
       deseneazaScaun(p);
-      // Cărțile lui se desenează înaintea lui: stă cu spatele la noi, deci
-      // le ține ascunse. Nu i se văd decât cele pe care le pune pe masă.
-      for (const c of carti) if (c.proprietar === p) deseneazaCarte(c);
       deseneazaPersonaj(p, t);
       deseneazaSpatar(p);
     }
@@ -2635,7 +2879,7 @@ function deseneazaTot() {
   deseneazaTeanc();
   deseneazaPahare();
   for (const c of carti) {
-    if (c.proprietar && Math.sin(c.proprietar.unghi) >= 0) continue;   // deja desenate
+    if (c.proprietar && esteAlTau(c.proprietar)) continue;   // mâna ta, mai jos
     deseneazaCarte(c);
   }
   deseneazaParticule();
@@ -2643,7 +2887,9 @@ function deseneazaTot() {
   deseneazaLumina();
   deseneazaVigneta();
 
-  // Vorbele și meniul stau peste tot, altfel nu s-ar citi prin vignetă.
+  // Mâna ta, vorbele și meniul stau peste tot: sunt lucrurile pe care trebuie
+  // să le vezi limpede, nu prin vignetă.
+  deseneazaManaTa();
   deseneazaVorba();
   deseneazaMeniu();
 }

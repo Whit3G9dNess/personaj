@@ -23,7 +23,7 @@ funcționează deja.
 | 7 | Localul: masa cu scaune, barul, masa a doua | ✅ gata |
 | 8 | Lumea din local: clienții, chelnerul, barmanul | ✅ gata |
 | 9 | Comanda, bucătăria și sunetul | ✅ gata |
-| 10 | Partida adevărată: joci tu cărțile clovnului | ⬜ |
+| 10 | Partida adevărată: joci tu cărțile clovnului | ✅ gata |
 
 ---
 
@@ -276,8 +276,10 @@ doi joacă împotriva ta.
 
 - Cărțile capătă valori, iar mâna se câștigă după o regulă simplă și vizibilă
   (cea mai mare carte ia mâna).
-- Mâna clovnului se vede — doar ție, întoarsă spre tine — și alegi tu ce pune
-  pe masă. Până alegi, masa te așteaptă.
+- Mâna clovnului se vede — doar ție, întoarsă spre tine, jos în fața mesei — și
+  alegi tu ce pune pe masă. Până alegi, masa te așteaptă, cu o lumină caldă sub
+  cărțile tale. Dar nu la nesfârșit: după 12 secunde joacă el, ca scena să
+  rămână bună și pentru cineva care doar se uită.
 - Draconianul și reptilianul aleg singuri, fiecare după firea lui: draconianul
   aruncă ce-i vine, reptilianul calculează.
 
@@ -291,13 +293,28 @@ au și o judecată scrisă în cod, simplă, și pe ea cad înapoi dacă modelul
 întârzie sau răspunde aiurea. Nimeni nu trebuie să instaleze nimic ca să se uite
 la scenă.
 
-**De hotărât înainte de faza asta** (două lucruri care schimbă ce e proiectul):
+### Ce am aflat despre Ollama, pe drum
 
-1. SPEC §1 zice acum că partida e decorativă, iar §7 pune regulile de joc în
-   afara scopului. Faza 10 le schimbă pe amândouă.
-2. Cu Ollama, fișierul nu se mai deschide de oriunde și merge la fel: pe un
-   calculator fără Ollama, adversarii vor fi cei simpli din cod. Trebuie spus
-   asta în README, nu ascuns.
+Trei lucruri, toate găsite încercând, nu ghicind:
+
+1. **`think: false` nu e opțional.** Cu gândirea pornită, `gemma4:e2b` a luat
+   30 de secunde și a răspuns gol — tot bugetul se dusese pe gândit. Fără ea,
+   răspunde în 1,0–1,4 secunde la cald.
+2. **Modelul spune des cărți pe care nu le are.** Întrebat ce joacă având în
+   mână 3, 7 și 9, a răspuns „1", apoi „2". De asta răspunsul se verifică
+   întotdeauna: dacă valoarea nu e în mâna lui, se aruncă și joacă judecata din
+   cod. Nu e o măsură de siguranță teoretică — se întâmplă des.
+3. **Modelul pierde cursa cu timpul de gândire al scenei.** Draconianul se
+   gândește 1–2 secunde, cât îi ia și modelului să răspundă. Dacă a fost
+   întrebat și încă tace, masa îi mai dă 1,6 secunde; după aceea joacă din cod.
+   Așa, în timp real, ajunge ca amândoi adversarii să fie conduși de model.
+
+**Ce s-a schimbat în SPEC:** §1 zicea că partida e decorativă și §7 punea
+regulile de joc în afara scopului. Amândouă s-au schimbat. A rămas în afara
+scopului scorul: se joacă mână după mână, fără să țină nimeni socoteala.
+
+Pe un calculator fără Ollama nu se schimbă nimic vizibil: adversarii joacă din
+cod, la fel de repede. E scris și în README, nu ascuns.
 
 ### Sunetul
 

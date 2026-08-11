@@ -8,8 +8,10 @@ O scenă animată, într-un singur fișier `index.html`, desenată în canvas 2D
 sonorizată în WebAudio. Fără biblioteci, fără build, fără fișiere externe — nici
 imagini, nici sunete: se deschide direct în browser.
 
-Cărțile se împart și se joacă *decorativ* — ritmul e credibil, dar nu există reguli
-reale de joc. Interesul e în personaje și în cum reacționează unele la altele.
+Cărțile au valori de la 1 la 10 și cea mai mare ia mâna. **Mâna clovnului o joci
+tu**: o vezi jos, în fața mesei, și alegi ce pune pe masă. Ceilalți doi joacă
+singuri. Dacă nu alegi nimic, joacă și el după douăsprezece secunde — scena
+rămâne bună și dacă doar te uiți la ea.
 
 ## 2. Personajele
 
@@ -54,8 +56,9 @@ Cei trei joacă la o masă dintr-un bar.
 
 1. Se împart cărțile (animație de distribuire, câte una pe rând).
 2. Fiecare personaj „se gândește" — un timp diferit pentru fiecare.
-3. Fiecare pune o carte pe masă, în ordine.
-4. Unul câștigă mâna și trage cărțile spre el.
+3. Fiecare pune o carte pe masă, în ordine. Când e rândul clovnului, masa te
+   așteaptă pe tine.
+4. Cea mai mare carte ia mâna; câștigătorul trage cărțile spre el.
 5. Reacții: clovnul exagerează, draconianul scoate foc, reptilianul tace.
 6. Pauză scurtă, apoi se reia de la 1.
 
@@ -74,8 +77,8 @@ Faza 9.
 - Un singur fișier: `index.html` (HTML + CSS + JS inline).
 - Canvas 2D, personaje desenate din forme geometrice în cod — fără imagini.
 - Cod și comentarii în română, pe secțiuni numerotate.
-- Textul din scenă e doar meniul de comandă și vorbele musafirilor de la masa a
-  treia. În rest, nicio literă.
+- Textul din scenă e doar meniul de comandă, valorile de pe cărți și vorbele
+  musafirilor de la masa a treia. În rest, nicio literă.
 - Canvas-ul ocupă tot ecranul și se redimensionează cu fereastra.
 - Sunetul se sintetizează în cod cu WebAudio, ca și desenul: fără fișiere audio.
   Pornește la primul clic, fiindcă browserele nu lasă altfel, și rămâne un
@@ -96,8 +99,19 @@ Faza 9.
 
 Ordinea de lucru efectivă e cea din [PLAN.md](PLAN.md).
 
+## 4c. Adversarii
+
+Draconianul și reptilianul își aleg singuri cărțile. Dacă pe calculator rulează
+Ollama, sunt întrebați pe el — fiecare cu firea lui, dată de `promptSistem` și
+`temperature` din `personaje.json`. Răspunsul se verifică întotdeauna: dacă nu e
+o carte din mâna lui, se aruncă.
+
+Fără Ollama, sau dacă modelul întârzie ori spune o prostie, joacă o judecată
+scrisă în cod. Scena nu se oprește niciodată după un răspuns care nu vine, și nu
+trebuie instalat nimic ca să meargă.
+
 ## 7. În afara scopului
 
-- Reguli reale de joc și scor.
-- Orice altă interacțiune în afară de comanda de la bar (§4b).
+- Scor: se joacă mână după mână, fără să țină nimeni socoteala.
+- Orice altă interacțiune în afară de jucat cărțile și comanda de la bar.
 - Meniuri, setări, salvare.

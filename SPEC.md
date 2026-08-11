@@ -36,8 +36,9 @@ Cei trei joacă la o masă dintr-un bar.
   de deasupra. Cei trei stau pe scaune, la masă.
 - Sunt așezați la 120° unul de altul; camera fixă.
 - În centru: teancul de cărți și mâna jucată curent.
-- În fundal, de-a latul scenei: tejgheaua barului, cu raftul de sticle deasupra
-  și un barman care se plimbă în spatele ei.
+- În fundal, de-a latul scenei: barul — tejghea cu panou verde, două polițe
+  luminate cu sticle, lămpi atârnate deasupra, plante, scaune înalte trase la
+  tejghea și un barman care se plimbă în spatele ei.
 - În stânga, mai departe și mai mică: a doua masă, la care doi clienți joacă
   șah — un om cu o mână de aur și unul făcut tot din aur. Printre mese umblă un
   chelner cu tava, care trece și pe la masa noastră din când în când.
@@ -59,8 +60,8 @@ Bucla merge la nesfârșit, fără input din partea privitorului.
 
 ## 4b. Comanda de la bar
 
-Singura interacțiune din scenă. Comanzi pentru oricare dintre cei trei — suc,
-bere, vin, sau nimic, dacă nu vrei. Chelnerul se duce la bar, se aude cum se toarnă, aduce paharul și
+Chemi chelnerul cu un clic și comanzi pentru oricare dintre cei trei — suc,
+bere, vin, mici cu piure, sau nimic, dacă nu vrei. Chelnerul se duce la bar, se aude cum se toarnă, aduce paharul și
 îl pune pe masă; după aceea se bea din el din când în când, fiecare cum îi e
 felul. Partida merge înainte tot timpul. Detaliile, în [PLAN.md](PLAN.md),
 Faza 9.
@@ -70,6 +71,7 @@ Faza 9.
 - Un singur fișier: `index.html` (HTML + CSS + JS inline).
 - Canvas 2D, personaje desenate din forme geometrice în cod — fără imagini.
 - Cod și comentarii în română, pe secțiuni numerotate.
+- Singurul text din scenă e meniul de comandă. În rest, nicio literă.
 - Canvas-ul ocupă tot ecranul și se redimensionează cu fereastra.
 - Sunetul se sintetizează în cod cu WebAudio, ca și desenul: fără fișiere audio.
   Pornește la primul clic, fiindcă browserele nu lasă altfel, și rămâne un
@@ -82,9 +84,11 @@ Faza 9.
 3. Animații de idle (respirație, legănat, clipit).
 4. Ciclul de împărțit și jucat cărțile.
 5. Reacțiile la câștig/pierdere, inclusiv focul draconianului.
-6. Localul: masa cu scaune, tejgheaua cu sucuri, masa a doua.
-7. Lumea din local: cei doi clienți și chelnerul.
-8. Comanda de la bar, cu sunet.
+6. Localul: masa cu scaune, barul, masa a doua.
+7. Lumea din local: cei doi clienți, chelnerul, barmanul.
+8. Comanda, bucătăria și sunetul.
+9. Partida adevărată, jucată de privitor (vezi PLAN.md, Faza 10 — schimbă §1
+   și §7 de mai jos, deci se face numai după ce e hotărât).
 
 Ordinea de lucru efectivă e cea din [PLAN.md](PLAN.md).
 

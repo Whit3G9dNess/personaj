@@ -66,5 +66,12 @@ un pahar, iar în stânga, mai departe, la a doua masă, un om cu o mână de au
 joacă șah cu unul făcut tot din aur. Printre mese umblă un chelner cu tava, care
 trece și pe la noi din când în când.
 
-A mai rămas comanda: ceri ceva de băut pentru oricare dintre cei trei — sau
-refuzi — și, dacă ceri, auzi cum se toarnă la bar. Vezi [PLAN.md](PLAN.md).
+**Poți comanda.** Dă clic pe oricare dintre cei trei: chelnerul lasă tura și vine
+la masă cu meniul. Ceri suc, bere, vin, mici cu piure — sau nimic, dacă n-ai
+chef. Berea se toarnă la bar și se aude cum se umple paharul; micii se fac la
+aragazul din capătul barului, cu fum cu tot. După ce comanda ajunge pe masă, se
+bea și se mănâncă din ea din când în când. Sunetul pornește la primul clic,
+fiindcă browserele nu-l lasă altfel.
+
+Urmează partida adevărată: cărțile capătă valori și joci tu mâna clovnului,
+împotriva celorlalți doi. Vezi [PLAN.md](PLAN.md).

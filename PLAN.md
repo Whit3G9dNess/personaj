@@ -22,7 +22,8 @@ funcționează deja.
 | 6 | Rafinare | ✅ gata |
 | 7 | Localul: masa cu scaune, barul, masa a doua | ✅ gata |
 | 8 | Lumea din local: clienții, chelnerul, barmanul | ✅ gata |
-| 9 | Comanda și sunetul | ⬜ |
+| 9 | Comanda, bucătăria și sunetul | ✅ gata |
+| 10 | Partida adevărată: joci tu cărțile clovnului | ⬜ |
 
 ---
 
@@ -215,37 +216,75 @@ se întâmplă în spate nu te trage cu ochiul.
 **Rămas de aici:** reptilianul era prea mic față de ceilalți doi și a fost mărit
 la 13×25U — acum e al doilea ca mărime, după draconian.
 
-## Faza 9 — Comanda și sunetul
+## Faza 9 — Comanda, bucătăria și sunetul
 
-Aici scena capătă singurul ei buton, și primul sunet. Vine ultima fiindcă are
-nevoie de tot ce e înainte: de chelner ca să aducă, de bar ca să toarne, de masă
+Aici scena capătă singurul ei buton, și primul sunet. Vine după tot restul
+fiindcă are nevoie de el: de chelner ca să aducă, de bar ca să toarne, de masă
 ca să pună paharul pe ea.
 
-Comanzi pentru oricare dintre cei trei, iar restul se întâmplă singur:
-
-1. **Alegi** — întâi pentru cine, apoi ce: suc, bere, vin sau **nimic**. Meniul
-   stă mic și discret lângă personajul ales, iar până nu-l atingi, scena merge
-   exact ca până acum. Fiecare dintre cei trei poate avea paharul lui pe masă.
+1. **Chemi chelnerul.** Dai clic pe personajul pentru care vrei să comanzi, iar
+   chelnerul întrerupe tura și vine la masa noastră. Până nu-l chemi, scena
+   merge exact ca până acum.
+2. **Alegi** — băutură (suc, bere, vin), mâncare (mici cu piure) sau **nimic**.
 
    Refuzul e o opțiune la fel de bună ca celelalte, nu o ieșire de avarie: dacă
    alegi „nimic, mulțumesc", chelnerul dă din cap și își vede de tura lui. La
    fel se întâmplă și dacă închizi meniul fără să alegi. Scena trebuie să fie
    la fel de bună neatinsă — asta e starea ei normală, la urma urmei.
-2. **Chelnerul se duce la bar** și toarnă. Se **aude turnatul**, altfel pentru
-   fiecare băutură: sucul scurt și subțire, berea cu spumă care sfârâie după,
-   vinul mai gros și mai grav. Sunetul urcă în înălțime pe măsură ce paharul
-   se umple — de asta se aude că e un pahar, nu un zgomot oarecare.
-3. **Aduce paharul** la masa celor trei și îl pune lângă cel care a comandat, cu
-   un „poc" scurt de sticlă pe lemn.
-4. **Se bea din când în când**, fiecare cum îi e felul: clovnul ridică paharul
-   teatral și soarbe zgomotos, draconianul îl dă pe gât dintr-o dată,
-   reptilianul ia o înghițitură mică și-l pune la loc exact unde era. Nivelul
-   scade de fiecare dată. Când s-a golit, paharul rămâne pe masă — poți comanda
-   din nou.
+3. **Chelnerul duce comanda la bar.**
+   - **De băut:** barmanul toarnă. Se **aude turnatul**, altfel pentru fiecare:
+     sucul scurt și subțire, berea cu spumă care sfârâie după, vinul mai gros și
+     mai grav. Sunetul urcă în înălțime pe măsură ce paharul se umple — de asta
+     se aude că e un pahar, nu un zgomot oarecare.
+   - **De mâncare:** barmanul se mută la **aragazul** de la capătul barului,
+     pune micii pe plită, iar de acolo iese **fum** cât timp lucrează (același
+     sistem de particule ca focul draconianului). Se aude sfârâitul. Când sunt
+     gata, pune piureul pe farfurie și o decorează.
+4. **Aduce comanda** la masă și o pune lângă cel care a cerut-o, cu un „poc"
+   scurt de sticlă sau de farfurie pe lemn.
+5. **Se consumă din când în când**, fiecare cum îi e felul: clovnul ridică
+   paharul teatral și soarbe zgomotos, draconianul îl dă pe gât dintr-o dată,
+   reptilianul ia o înghițitură mică și pune paharul exact unde era. Nivelul din
+   pahar scade, farfuria se golește. Când s-a terminat, poți comanda din nou.
 
 Comanda nu oprește partida: cărțile se împart și se joacă mai departe cât timp
 chelnerul e pe drum. Dacă mâna se termină între timp, cu atât mai bine — se
 suprapun.
+
+Barmanul capătă astfel o treabă adevărată: până acum doar șterge un pahar și se
+plimbă. Aragazul, cu hota și plita lui, se adaugă la capătul barului, pe blatul
+de lucru care există deja.
+
+## Faza 10 — Partida adevărată
+
+Până aici cărțile se joacă decorativ: n-au valori, iar câștigătorul e ales la
+zaruri. Faza asta schimbă lucrul ăsta — **tu joci cărțile clovnului**, ceilalți
+doi joacă împotriva ta.
+
+- Cărțile capătă valori, iar mâna se câștigă după o regulă simplă și vizibilă
+  (cea mai mare carte ia mâna).
+- Mâna clovnului se vede — doar ție, întoarsă spre tine — și alegi tu ce pune
+  pe masă. Până alegi, masa te așteaptă.
+- Draconianul și reptilianul aleg singuri, fiecare după firea lui: draconianul
+  aruncă ce-i vine, reptilianul calculează.
+
+**Adversarul.** Pe calculatorul ăsta e instalat Ollama, cu `gemma4:e2b`, deci
+ceilalți doi pot fi conduși de un model adevărat: primesc situația mesei și
+răspund cu ce carte joacă. `personaje.json` are deja pregătit, pentru fiecare,
+un `promptSistem` și o `temperature` — de acolo își iau firea.
+
+Regula de aur: **dacă Ollama nu răspunde, scena merge mai departe.** Adversarii
+au și o judecată scrisă în cod, simplă, și pe ea cad înapoi dacă modelul lipsește,
+întârzie sau răspunde aiurea. Nimeni nu trebuie să instaleze nimic ca să se uite
+la scenă.
+
+**De hotărât înainte de faza asta** (două lucruri care schimbă ce e proiectul):
+
+1. SPEC §1 zice acum că partida e decorativă, iar §7 pune regulile de joc în
+   afara scopului. Faza 10 le schimbă pe amândouă.
+2. Cu Ollama, fișierul nu se mai deschide de oriunde și merge la fel: pe un
+   calculator fără Ollama, adversarii vor fi cei simpli din cod. Trebuie spus
+   asta în README, nu ascuns.
 
 ### Sunetul
 
@@ -257,12 +296,21 @@ Un browser nu lasă sunetul să pornească nechemat, deci contextul audio se
 deschide la primul clic — care e chiar clicul de comandă. Până atunci, scena e
 mută, așa cum e și acum.
 
-**Verificare:** comanzi o bere, o auzi turnată și, peste puțin timp, cel pentru
-care ai comandat are un pahar din care soarbe. Partida n-a stat nicio clipă.
+**Meniul.** Desene mici, scris mare: lângă fiecare rând stă un semn desenat de
+cel mult 2,6U (un pahar, o farfurie, un cerc tăiat), iar numele e scris cu 3,4U.
+Două teste păzesc raportul ăsta, fiindcă e ușor de stricat. Când vor fi mai
+multe feluri, desenele pot să dispară de tot și să rămână doar lista.
+
+Textul din meniu e primul din toată scena. Până acum n-a existat nicio literă în
+ea, în afară de numele-ajutor de la siluete, care au dispărut la Faza 5.
+
+**Verificare:** chemi chelnerul, comanzi o bere, o auzi turnată și, peste puțin
+timp, cel pentru care ai comandat are un pahar din care soarbe. Ceri mici cu
+piure și vezi fumul ieșind de la aragaz cât se fac. Partida n-a stat nicio clipă.
 
 ---
 
-## Reguli pentru fazele 7–9
+## Reguli pentru fazele 7–10
 
 1. Fundalul nu are voie să fure atenția: mai mic, mai întunecat, mai puțin
    detaliat, fără culori la fel de tari ca la cei trei.
@@ -276,12 +324,13 @@ care ai comandat are un pahar din care soarbe. Partida n-a stat nicio clipă.
    ce se vede.
 6. Comanda e singura interacțiune din toată scena. Nu se adaugă a doua.
 
-## Ce rămâne de hotărât la fazele 7–9
+## Ce rămâne de hotărât la fazele 9–10
 
-- Cum arată meniul de comandă: pahare desenate lângă personaj, sau un rând de
-  cuvinte jos.
-- Cum ceri meniul: clic pe personaj, sau apare singur când trece chelnerul pe
-  la masa noastră.
+- Cum arată meniul de comandă: farfurii și pahare desenate lângă personaj, sau
+  un rând de cuvinte jos.
+- Dacă adversarii de la Faza 10 sunt conduși de Ollama sau de o judecată scrisă
+  în cod (vezi Faza 10).
+- Ce reguli are partida adevărată: cea mai mare carte ia mâna, sau ceva cu atu.
 
 ---
 

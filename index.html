@@ -2547,13 +2547,19 @@ function asazaPeMasa(obiect) {
   obiect.y = cy + masa.ry * 0.66 * Math.sin(a);
 }
 
-/* Sticla nu stă lângă cel care a cerut-o, ci în mijlocul blatului, la vedere,
-   ca la orice masă la care se bea vin. A doua sticlă se așază lângă prima. */
+/* Sticla nu stă lângă cel care a cerut-o, ci pe mijlocul blatului, la vedere,
+   ca la orice masă la care se bea vin. Nu chiar în buricul mesei, însă: acolo
+   stă capul clovnului, care e între noi și masă, iar sticla i-ar ieși prin
+   pălărie. O punem în golul de lângă el, spre dreapta, între cărțile jucate și
+   marginea blatului. A doua sticlă se așază lângă prima, mai spre margine. */
 function asazaInMijloc(sticla) {
   let cate = 0;
   for (const x of pahare) if (x.tip === "sticla" && x !== sticla) cate++;
-  const semn = cate % 2 ? 1 : -1;
-  sticla.x = cx + (cate === 0 ? 0 : semn * Math.ceil(cate / 2) * 3.4 * U);
+  // Pe ecranele înalte și înguste masa se strânge, dar clovnul nu: de-aia golul
+  // se măsoară și în U, nu numai în lățimi de masă.
+  const gol = Math.max(masa.rx * 0.40, 12 * U);
+  const pas = Math.max(masa.rx * 0.11, 3.6 * U);
+  sticla.x = cx + gol + cate * pas;
   sticla.y = cy - masa.ry * 0.10;
 }
 

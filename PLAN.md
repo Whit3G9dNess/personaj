@@ -284,8 +284,9 @@ ca să pună paharul pe ea.
      gata, pune piureul pe farfurie și o decorează.
 4. **Aduce comanda** la masă — tot ce e pe tavă odată — și o pune lângă cel care
    a cerut-o, cu un „poc" scurt de sticlă sau de farfurie pe lemn. Sticla de vin
-   face excepție: ea se așază în mijlocul mesei, la vedere. Dacă ai mai cerut
-   ceva cât era plecat, se întoarce la bar cu comanda aia.
+   face excepție: ea se așază pe mijlocul mesei, în golul din dreapta clovnului
+   — în buricul mesei ar ieși prin capul lui, fiindcă el stă între noi și blat.
+   Dacă ai mai cerut ceva cât era plecat, se întoarce la bar cu comanda aia.
 5. **Se consumă din când în când**, fiecare cum îi e felul: clovnul ridică
    paharul teatral și soarbe zgomotos, draconianul îl dă pe gât dintr-o dată,
    reptilianul ia o înghițitură mică și pune paharul exact unde era. Nivelul din

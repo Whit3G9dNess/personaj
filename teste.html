@@ -2088,7 +2088,7 @@ function testeMancare() {
     egal(pahar.nivel, 0, "paharul trebuie să vină gol — ți-l torni singur");
   });
 
-  test("sticla de vin stă în mijlocul mesei, nu lângă cel care a cerut-o", function () {
+  test("sticla de vin stă pe mijlocul mesei, nu lângă cel care a cerut-o", function () {
     const s = porneste();
     cheamaChelnerul(s, "Clovnul");
     comandaDinMeniu(s, "vin");
@@ -2097,11 +2097,37 @@ function testeMancare() {
 
     const sticla = s.pahare.find(function (p) { return p.tip === "sticla"; });
     const pahar = s.pahare.find(function (p) { return p.tip === "pahar"; });
-    const laMijloc = Math.hypot(sticla.x - s.cx(), sticla.y - s.cy());
-    adevarat(laMijloc < s.masa.ry * 0.5,
-             "sticla e la " + (laMijloc / s.U()).toFixed(1) + "U de mijlocul mesei");
-    adevarat(Math.hypot(pahar.x - s.cx(), pahar.y - s.cy()) > laMijloc,
+    const clovn = s.personaj("Clovnul");
+    adevarat(Math.abs(sticla.x - s.cx()) < s.masa.rx * 0.75 &&
+             Math.abs(sticla.y - s.cy()) < s.masa.ry * 0.5, "sticla nu e pe blat");
+    adevarat(Math.hypot(pahar.x - clovn.x, pahar.y - clovn.y) <
+             Math.hypot(sticla.x - clovn.x, sticla.y - clovn.y),
              "paharul trebuie să rămână la locul lui, lângă cel care a cerut vinul");
+  });
+
+  test("sticla nu iese prin clovnul din fața mesei", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    comandaDinMeniu(s, "vin");
+    let paza = 0;
+    while (s.comanda.stare !== "nimic" && paza++ < 60 * 90) s.avanseaza(1 / 60);
+
+    // Cât de lat e desenat clovnul, de la cap la pantofi.
+    const d = s.deseneaza(s.personaj("Clovnul"), 0);
+    let st = 1e9, dr = -1e9, sus = 1e9;
+    for (const x of d) {
+      if (!x.limite) continue;
+      st = Math.min(st, x.limite.x0); dr = Math.max(dr, x.limite.x1);
+      sus = Math.min(sus, x.limite.y0);
+    }
+
+    const sticla = s.pahare.find(function (p) { return p.tip === "sticla"; });
+    const laDreapta = sticla.x - 1.5 * s.U() > dr;
+    const laStanga  = sticla.x + 1.5 * s.U() < st;
+    const deasupra  = sticla.y < sus;      // toată sticla e mai sus decât el
+    adevarat(laDreapta || laStanga || deasupra,
+             "sticla se desenează peste clovn (el ține de la " + Math.round(st) +
+             " la " + Math.round(dr) + ", sticla e la " + Math.round(sticla.x) + ")");
   });
 
   test("a doua sticlă se așază lângă prima, nu peste ea", function () {

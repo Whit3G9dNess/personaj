@@ -76,8 +76,9 @@ apeși încă o dată și se șterge, iar jos scrie cât face tot. Când ai term
 zici **„doar atât"** și pleacă cu comanda, sau **„mă mai gândesc"** — atunci
 duce ce-ai ales până acum și îți lasă meniul în față, pentru încă un rând.
 Berea se toarnă la bar și se aude cum se umple paharul; mâncarea se face la
-aragazul din capătul barului, cu fum cu tot. Vinul vine cu sticla lui, pusă în
-mijlocul mesei, și cu paharul gol — apeși pe sticlă și îți torni singur. După ce
+aragazul din capătul barului, cu fum cu tot. Vinul vine cu sticla lui, pusă pe
+mijlocul mesei — în golul de lângă clovn, ca să se vadă toată —, și cu paharul
+gol; apeși pe sticlă și îți torni singur. După ce
 comanda ajunge pe masă, se bea și se mănâncă din ea din când în când. Sunetul
 pornește la primul clic, fiindcă browserele nu-l lasă altfel.
 

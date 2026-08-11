@@ -91,8 +91,9 @@ sfârâit, felurile unul după altul. Se aude cum se umple paharul. Pe urmă vin
 toate odată pe masă, fiecare la locul lui lângă cel care le-a cerut, și se
 consumă din ele din când în când, fiecare cum îi e felul.
 
-Vinul face excepție: vine cu sticla și cu paharul gol. Sticla stă în mijlocul
-mesei, la vedere; apeși pe ea și îți torni singur.
+Vinul face excepție: vine cu sticla și cu paharul gol. Sticla stă pe mijlocul
+mesei, la vedere — nu chiar în buric, ci în golul de lângă clovn, ca să nu-i
+iasă prin cap; apeși pe ea și îți torni singur.
 
 Partida merge înainte tot timpul. Detaliile, în [PLAN.md](PLAN.md), Faza 9.
 

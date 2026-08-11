@@ -63,8 +63,9 @@ face nimic.
 Localul e gata și populat: cei trei stau pe scaune la o masă cu picior și blat
 gros, în spate e tejgheaua barului cu raftul de sticle și un barman care șterge
 un pahar, iar în stânga, mai departe, la a doua masă, un om cu o mână de aur
-joacă șah cu unul făcut tot din aur. Printre mese umblă un chelner cu tava, care
-trece și pe la noi din când în când.
+joacă șah cu unul făcut tot din aur. La a treia masă, cea din față, vin din când
+în când doi inși, schimbă câteva vorbe și pleacă. Printre mese umblă un chelner
+cu tava, care trece și pe la noi din când în când.
 
 **Poți comanda.** Dă clic pe oricare dintre cei trei: chelnerul lasă tura și vine
 la masă cu meniul. Ceri suc, bere, vin, mici cu piure — sau nimic, dacă n-ai

@@ -39,9 +39,12 @@ Cei trei joacă la o masă dintr-un bar.
 - În fundal, de-a latul scenei: barul — tejghea cu panou verde, două polițe
   luminate cu sticle, lămpi atârnate deasupra, plante, scaune înalte trase la
   tejghea și un barman care se plimbă în spatele ei.
-- În stânga, mai departe și mai mică: a doua masă, la care doi clienți joacă
-  șah — un om cu o mână de aur și unul făcut tot din aur. Printre mese umblă un
-  chelner cu tava, care trece și pe la masa noastră din când în când.
+- În stânga-spate, mai departe și mai mică: a doua masă, la care doi clienți
+  joacă șah — un om cu o mână de aur și unul făcut tot din aur.
+- În stânga-față: a treia masă, goală mai tot timpul. Din când în când vin doi
+  inși, stau de vorbă și pleacă.
+- Printre mese umblă un chelner cu tava, care trece și pe la masa noastră din
+  când în când.
 - Nu se desenează pereți — barul și masa a doua ies din întuneric doar cât să se
   înțeleagă unde suntem.
 - Masa celor trei rămâne singura complet luminată. Tot ce e în jur e mai
@@ -71,7 +74,8 @@ Faza 9.
 - Un singur fișier: `index.html` (HTML + CSS + JS inline).
 - Canvas 2D, personaje desenate din forme geometrice în cod — fără imagini.
 - Cod și comentarii în română, pe secțiuni numerotate.
-- Singurul text din scenă e meniul de comandă. În rest, nicio literă.
+- Textul din scenă e doar meniul de comandă și vorbele musafirilor de la masa a
+  treia. În rest, nicio literă.
 - Canvas-ul ocupă tot ecranul și se redimensionează cu fereastra.
 - Sunetul se sintetizează în cod cu WebAudio, ca și desenul: fără fișiere audio.
   Pornește la primul clic, fiindcă browserele nu lasă altfel, și rămâne un

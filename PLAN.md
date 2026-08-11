@@ -192,6 +192,10 @@ cărți, au ciclul lor.
 - **Barmanul**, care se plimbă în spatele tejghelei ștergând un pahar: cămașă
   albă cu mânecile suflecate, bretele, papion, barbă. Nu iese niciodată din
   spatele barului.
+- **A treia masă**, în față-stânga, goală mai tot timpul. Din când în când intră
+  doi inși, se așază, schimbă câteva vorbe scrise în bule deasupra lor, și
+  pleacă. Vorbesc pe rând, niciodată amândoi odată, și numai despre ce se vede
+  în local — despre partida noastră nu știu nimic.
 
 Contractul e cel de la masa mare (`deseneaza`, `actualizeaza`), ca să nu apară
 un al doilea fel de a face un personaj. Diferența e doar că pe ăștia nu-i cheamă
@@ -209,6 +213,13 @@ decât ea.
 
 Mișcarea dintr-un loc în altul nu mai e a cărților: `mutaObiect` /
 `actualizeazaObiect` mută la fel și piesele de șah.
+
+Nici mersul nu mai e al fiecăruia: `mergiSpre(p, x, y, viteză, dt)` duce pe
+oricine, cu pas constant și cu picioarele mișcându-se. Prima variantă a
+barmanului se apropia de țintă cu un procent din distanță pe cadru — pornea
+brusc, aluneca fără să pășească și părea că se teleportează înapoi după ce
+termina de gătit. Un test cere acum ca nimeni să nu se mute mai mult de 0,6U
+într-un cadru.
 
 **Verificare:** localul e viu, dar dacă te uiți la masa celor trei, nimic din ce
 se întâmplă în spate nu te trage cu ochiul.
@@ -232,6 +243,8 @@ ca să pună paharul pe ea.
    fel se întâmplă și dacă închizi meniul fără să alegi. Scena trebuie să fie
    la fel de bună neatinsă — asta e starea ei normală, la urma urmei.
 3. **Chelnerul duce comanda la bar.**
+   Chelnerul așteaptă acolo până vine și barmanul: nu se toarnă și nu se
+   gătește nimic până nu ajunge omul la locul lui.
    - **De băut:** barmanul toarnă. Se **aude turnatul**, altfel pentru fiecare:
      sucul scurt și subțire, berea cu spumă care sfârâie după, vinul mai gros și
      mai grav. Sunetul urcă în înălțime pe măsură ce paharul se umple — de asta

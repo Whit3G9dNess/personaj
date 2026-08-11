@@ -272,6 +272,8 @@ return {
   masa: masa,
   bar: typeof bar !== "undefined" ? bar : null,
   masa2: typeof masa2 !== "undefined" ? masa2 : null,
+  masa3: typeof masa3 !== "undefined" ? masa3 : null,
+  vizita: typeof vizita !== "undefined" ? vizita : null,
   fundal: typeof fundal !== "undefined" ? fundal : null,
   meniu: typeof meniu !== "undefined" ? meniu : null,
   comanda: typeof comanda !== "undefined" ? comanda : null,
@@ -1240,7 +1242,7 @@ function testeLumeaDinLocal() {
   test("localul are patru oameni ai lui, cu același contract", function () {
     const s = porneste();
     adevarat(s.fundal, "lipsește lumea din local");
-    egal(s.fundal.length, 4, "personaje de fundal");
+    egal(s.fundal.length, 6, "personaje de fundal");
     for (const p of s.fundal) {
       egal(typeof p.deseneaza, "function", p.nume + ".deseneaza");
       egal(typeof p.actualizeaza, "function", p.nume + ".actualizeaza");
@@ -1638,6 +1640,116 @@ function testeComanda() {
   });
 }
 
+/* --- 6.11 Masa a treia și mersul barmanului -------------------------------- */
+
+function testeMasaATreia() {
+  sectiune("6.11 Masa a treia și mersul barmanului");
+
+  test("localul are o a treia masă, în față-stânga", function () {
+    const s = porneste();
+    adevarat(s.masa3, "lipsește a treia masă");
+    adevarat(s.masa3.x < s.cx() - s.masa.rx, "trebuie să fie în stânga mesei noastre");
+    adevarat(s.masa3.y > s.cy(), "trebuie să fie mai în față decât masa noastră");
+    adevarat(s.masa3.rx > s.masa2.rx, "fiind mai aproape, trebuie să fie mai mare decât masa a doua");
+  });
+
+  test("la început masa a treia e goală", function () {
+    const s = porneste();
+    egal(s.vizita.stare, "gol", "starea vizitei");
+    for (const m of s.vizita.musafiri) {
+      egal(typeof m.deseneaza, "function", m.nume + ".deseneaza");
+    }
+  });
+
+  test("din când în când vin doi clienți și se așază la ea", function () {
+    const s = porneste();
+    let paza = 0;
+    while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+    egal(s.vizita.stare, "asezati", "n-a venit nimeni în patru minute");
+    for (const m of s.vizita.musafiri) {
+      adevarat(Math.abs(m.x - s.masa3.x) < s.masa3.rx * 1.4 &&
+               Math.abs(m.y - s.masa3.y) < s.masa3.ry * 3,
+               m.nume + " nu s-a așezat la masă");
+    }
+    adevarat((s.vizita.musafiri[0].x - s.masa3.x) * (s.vizita.musafiri[1].x - s.masa3.x) < 0,
+             "trebuie să stea față în față");
+  });
+
+  test("cât stau, vorbesc între ei, pe rând", function () {
+    const s = porneste();
+    let paza = 0;
+    while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+
+    const auzite = new Set();
+    let vorbitori = new Set();
+    for (let i = 0; i < 60 * 60 && s.vizita.stare === "asezati"; i++) {
+      s.avanseaza(1 / 60);
+      if (s.vizita.vorbeste >= 0) {
+        auzite.add(s.vizita.replica);
+        vorbitori.add(s.vizita.vorbeste);
+        adevarat(s.vizita.vorbeste === 0 || s.vizita.vorbeste === 1,
+                 "vorbește cineva care nu e la masă");
+      }
+    }
+    adevarat(auzite.size >= 2, "n-au schimbat decât " + auzite.size + " vorbe într-un minut");
+    egal(vorbitori.size, 2, "au vorbit amândoi, pe rând");
+  });
+
+  test("vorbele se și văd, scrise deasupra lor", function () {
+    const s = porneste();
+    let paza = 0;
+    while (s.vizita.vorbeste < 0 && paza++ < 60 * 300) s.avanseaza(1 / 60);
+    adevarat(s.vizita.vorbeste >= 0, "nimeni n-a scos o vorbă");
+
+    const d = cadruIntreg(s);
+    const bule = d.filter(function (x) {
+      return x.op === "text" && x.text === s.vizita.replica;
+    });
+    egal(bule.length, 1, "replica trebuie scrisă o dată, deasupra celui care vorbește");
+    const m = s.vizita.musafiri[s.vizita.vorbeste];
+    adevarat(bule[0].limite.cy < m.y, "vorba trebuie să stea deasupra lui");
+  });
+
+  test("pleacă și masa rămâne goală la loc", function () {
+    const s = porneste();
+    let paza = 0;
+    while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+    paza = 0;
+    while (s.vizita.stare !== "gol" && paza++ < 60 * 300) s.avanseaza(1 / 60);
+    egal(s.vizita.stare, "gol", "n-au mai plecat");
+    egal(s.vizita.vorbeste, -1, "au plecat vorbind singuri");
+  });
+
+  test("barmanul merge pe picioarele lui, nu se teleportează", function () {
+    const s = porneste();
+    const b = dinFundal(s, "Barmanul");
+    cheamaChelnerul(s, "Clovnul");
+    alegeDinMeniu(s, "mici");
+
+    let maxim = 0, inainte = b.x;
+    for (let i = 0; i < 60 * 40; i++) {
+      s.avanseaza(1 / 60);
+      maxim = Math.max(maxim, Math.abs(b.x - inainte));
+      inainte = b.x;
+    }
+    adevarat(maxim < 0.6 * s.U(),
+             "a sărit " + (maxim / s.U()).toFixed(2) + "U într-un cadru — asta e teleportare");
+  });
+
+  test("barmanul se întoarce singur la locul lui după ce termină", function () {
+    const s = porneste();
+    const b = dinFundal(s, "Barmanul");
+    cheamaChelnerul(s, "Clovnul");
+    alegeDinMeniu(s, "mici");
+
+    let paza = 0;
+    while (s.comanda.stare !== "nimic" && paza++ < 60 * 120) s.avanseaza(1 / 60);
+    s.avanseaza(25);
+    adevarat(Math.abs(b.x - s.aragaz.x) > 12 * s.U(),
+             "a rămas înțepenit lângă aragaz după ce a terminat");
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -1663,6 +1775,7 @@ function testeComanda() {
   testeLumeaDinLocal();
   testeReglaje();
   testeComanda();
+  testeMasaATreia();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

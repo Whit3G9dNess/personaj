@@ -44,7 +44,8 @@ Cei trei joacă la o masă dintr-un bar.
 - În stânga-spate, mai departe și mai mică: a doua masă, la care doi clienți
   joacă șah — un om cu o mână de argint și unul făcut tot din aur.
 - În stânga-față: a treia masă, goală mai tot timpul. Din când în când vin doi
-  inși, stau de vorbă și pleacă.
+  inși, stau de vorbă și pleacă. Cum se așază, au o sticlă de vin în mijlocul
+  mesei lor.
 - Printre mese umblă un chelner cu tava, care trece și pe la masa noastră din
   când în când.
 - Nu se desenează pereți — barul și masa a doua ies din întuneric doar cât să se
@@ -72,12 +73,28 @@ listă scrisă, ca la restaurant — fel, cantitate, preț, pe trei coloane:
 - **Mâncare:** mici cu piure, ciorbă de burtă, cartofi prăjiți.
 - **Deserturi:** papanași, înghețată.
 - **De băut:** Prigat, bere, vin — măsurate în litri.
-- Și „nimic, mulțumesc", o opțiune ca oricare alta.
+
+Comanda se face dintr-o dată, ca la masă: apeși pe câte feluri vrei și fiecare
+se bifează — ciorbă, papanași și un suc, sau numai ciorba și sucul, cum ai chef.
+Apăsat a doua oară, felul se șterge de pe listă. Jos e scris cât face tot.
+
+La sfârșit alegi cum se încheie:
+
+- **„doar atât"** — pleacă cu comanda și ia meniul cu el.
+- **„mă mai gândesc"** — duce ce-ai ales până acum, dar îți lasă meniul în față;
+  ce mai bifezi pleacă la următorul drum.
+- **„nimic, mulțumesc"** — o opțiune ca oricare alta: dă din cap și își vede de
+  tura lui.
 
 Chelnerul duce comanda la bar; barmanul toarnă sau gătește la aragaz, cu fum și
-sfârâit. Se aude cum se umple paharul. Pe urmă comanda vine pe masă și se
-consumă din ea din când în când, fiecare cum îi e felul. Partida merge înainte
-tot timpul. Detaliile, în [PLAN.md](PLAN.md), Faza 9.
+sfârâit, felurile unul după altul. Se aude cum se umple paharul. Pe urmă vin
+toate odată pe masă, fiecare la locul lui lângă cel care le-a cerut, și se
+consumă din ele din când în când, fiecare cum îi e felul.
+
+Vinul face excepție: vine cu sticla și cu paharul gol. Sticla stă în mijlocul
+mesei, la vedere; apeși pe ea și îți torni singur.
+
+Partida merge înainte tot timpul. Detaliile, în [PLAN.md](PLAN.md), Faza 9.
 
 ## 4c. Adversarii
 

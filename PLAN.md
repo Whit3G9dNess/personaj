@@ -229,8 +229,9 @@ să fie cineva anume. Fiecare desenează peste el ce are în plus — mâna de a
 
 Adâncimea o dă tot ordinea desenării, ca la Faza 7: barmanul e prins între raft
 și tejghea, cei doi șahiști între piciorul mesei și blat, iar chelnerul se
-desenează înainte sau după masa noastră, după cum e mai departe sau mai aproape
-decât ea.
+desenează în trei locuri diferite, după cât de aproape e de noi — în spatele
+mesei a doua, în spatele mesei noastre, sau în fața ei. Fără al treilea caz,
+când trecea pe lângă masa a doua părea că s-a urcat pe ea.
 
 Mișcarea dintr-un loc în altul nu mai e a cărților: `mutaObiect` /
 `actualizeazaObiect` mută la fel și piesele de șah.
@@ -259,6 +260,13 @@ ca să pună paharul pe ea.
    merge exact ca până acum.
 2. **Alegi** — băutură (suc, bere, vin), mâncare (mici cu piure) sau **nimic**.
 
+   Se alege ca la masă, nu ca dintr-un meniu de calculator: bifezi câte feluri
+   vrei odată — ciorba, papanașii și sucul —, iar a doua apăsare pe același fel
+   îl scoate de pe listă. Comanda se încheie cu **„doar atât"** (pleacă cu ea și
+   ia meniul) sau cu **„mă mai gândesc"** (duce ce-ai ales și îți lasă meniul în
+   față, pentru încă un rând). Cât e meniul pe masă, cărțile rămân ale tale:
+   clicurile care nu cad pe meniu ajung tot la mâna ta.
+
    Refuzul e o opțiune la fel de bună ca celelalte, nu o ieșire de avarie: dacă
    alegi „nimic, mulțumesc", chelnerul dă din cap și își vede de tura lui. La
    fel se întâmplă și dacă închizi meniul fără să alegi. Scena trebuie să fie
@@ -274,8 +282,10 @@ ca să pună paharul pe ea.
      pune micii pe plită, iar de acolo iese **fum** cât timp lucrează (același
      sistem de particule ca focul draconianului). Se aude sfârâitul. Când sunt
      gata, pune piureul pe farfurie și o decorează.
-4. **Aduce comanda** la masă și o pune lângă cel care a cerut-o, cu un „poc"
-   scurt de sticlă sau de farfurie pe lemn.
+4. **Aduce comanda** la masă — tot ce e pe tavă odată — și o pune lângă cel care
+   a cerut-o, cu un „poc" scurt de sticlă sau de farfurie pe lemn. Sticla de vin
+   face excepție: ea se așază în mijlocul mesei, la vedere. Dacă ai mai cerut
+   ceva cât era plecat, se întoarce la bar cu comanda aia.
 5. **Se consumă din când în când**, fiecare cum îi e felul: clovnul ridică
    paharul teatral și soarbe zgomotos, draconianul îl dă pe gât dintr-o dată,
    reptilianul ia o înghițitură mică și pune paharul exact unde era. Nivelul din
@@ -355,6 +365,19 @@ bat cap în cap.
 Sucul e Prigat, mâncarea e mici cu piure, ciorbă de burtă și cartofi prăjiți,
 deserturile papanași și înghețată. Băuturile se măsoară în litri, mâncarea în
 grame sau mililitri — un test verifică chiar asta, pe fiecare fel în parte.
+
+**Fiecare fel arată a el.** Ciorba vine în castron adânc, cu zeamă galbenă și
+bucăți în ea; cartofii sunt nouă bețe aurii aruncate pe farfurie; papanașii au
+gogoașa, căciulița, smântâna și dulceața; înghețata vine în cupă cu picior, cu
+trei bile și fulgi de ciocolată. La început toate cinci se desenau la fel — o
+farfurie cu mici și piure —, iar un test cere acum ca oricare două feluri să nu
+aibă exact aceleași culori.
+
+**Lucrurile de pe masă nu se mai suprapun:** fiecare comandă nouă primește locul
+ei pe blat, lângă cel care a cerut-o, la 0,38 radiani de precedenta.
+
+**Vinul vine cu sticla lui.** Paharul sosește gol; apeși pe sticlă și îți torni
+singur, cu tot cu sunetul de turnat. O sticlă ține trei pahare.
 
 Textul din meniu e primul din toată scena. Până acum n-a existat nicio literă în
 ea, în afară de numele-ajutor de la siluete, care au dispărut la Faza 5.

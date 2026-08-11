@@ -277,7 +277,9 @@ return {
   fundal: typeof fundal !== "undefined" ? fundal : null,
   meniu: typeof meniu !== "undefined" ? meniu : null,
   comanda: typeof comanda !== "undefined" ? comanda : null,
+  asazaPeMasa: typeof asazaPeMasa !== "undefined" ? asazaPeMasa : null,
   pahare: typeof pahare !== "undefined" ? pahare : null,
+  deseneazaPahare: typeof deseneazaPahare !== "undefined" ? deseneazaPahare : null,
   aragaz: typeof aragaz !== "undefined" ? aragaz : null,
   sunet: typeof sunet !== "undefined" ? sunet : null,
   apasa: typeof apasa !== "undefined" ? apasa : null,
@@ -1219,6 +1221,13 @@ const PIELE_OM       = "#d8a883";
 const CAMASA_CHELNER = "#f0efea";
 const MUSTATA        = "#181410";
 const CAMASA_BARMAN  = "#f2f1ec";
+const CASTRON        = "#f2f0ea";
+const ZEAMA          = "#e8d067";
+const CARTOF         = "#e8b93c";
+const SMANTANA       = "#f4f1e6";
+const DULCEATA       = "#7b2340";
+const INGHETATA      = "#5a3a2a";
+const STICLA_VIN     = "#2f4a30";
 const TABLA_DESCHIS  = "#d9c7a0";
 const TABLA_INCHIS   = "#5d4326";
 
@@ -1530,6 +1539,21 @@ function alegeDinMeniu(s, id) {
   s.apasa((rand.x0 + rand.x1) / 2, (rand.y0 + rand.y1) / 2);
 }
 
+// Bifează felurile date și încheie comanda cu „doar atât".
+function comandaDinMeniu(s) {
+  for (let i = 1; i < arguments.length; i++) alegeDinMeniu(s, arguments[i]);
+  alegeDinMeniu(s, "gata");
+}
+
+// Așteaptă până se golește tava și chelnerul își ia lumea în cap.
+function panaAjungePeMasa(s) {
+  let paza = 0;
+  while (s.comanda.stare !== "nimic" && s.comanda.stare !== "alege" && paza++ < 60 * 120) {
+    s.avanseaza(1 / 60);
+  }
+  adevarat(paza < 60 * 120, "comanda n-a ajuns niciodată pe masă");
+}
+
 function testeComanda() {
   sectiune("6.10 Faza 9 — Comanda, bucătăria și sunetul");
 
@@ -1566,10 +1590,10 @@ function testeComanda() {
     cheamaChelnerul(s, "Clovnul");
     const nume = s.meniu.randuri.map(function (r) { return r.optiune.id; });
     for (const id of ["mici", "ciorba", "cartofi", "papanasi", "inghetata",
-                      "suc", "bere", "vin", "nimic"]) {
+                      "suc", "bere", "vin", "gata", "gandesc", "nimic"]) {
       adevarat(nume.indexOf(id) >= 0, "lipsește din meniu: " + id);
     }
-    egal(s.meniu.randuri.length, 9, "rânduri pe care se poate apăsa");
+    egal(s.meniu.randuri.length, 11, "rânduri pe care se poate apăsa");
   });
 
   test("meniul e scris ca la restaurant: fel, cantitate, preț", function () {
@@ -1586,7 +1610,7 @@ function testeComanda() {
     }
     for (const r of s.meniu.randuri) {
       const o = r.optiune;
-      if (o.fel === "nimic") continue;
+      if (o.inchide) continue;                 // rândurile de sfârșit n-au preț
       adevarat(scrise.indexOf(o.cantitate) >= 0, o.nume + " n-are cantitatea scrisă");
       adevarat(scrise.indexOf(o.pret) >= 0, o.nume + " n-are prețul scris");
       if (o.fel === "baut") {
@@ -1618,7 +1642,7 @@ function testeComanda() {
   test("comanzi o bere: se toarnă la bar și ajunge pe masă", function () {
     const s = porneste();
     const clovn = cheamaChelnerul(s, "Clovnul");
-    alegeDinMeniu(s, "bere");
+    comandaDinMeniu(s, "bere");
     egal(s.comanda.stare, "laBar", "chelnerul n-a plecat spre bar");
 
     let paza = 0;
@@ -1630,10 +1654,88 @@ function testeComanda() {
              "paharul nu e pe masă");
   });
 
+  test("bifezi mai multe feluri odată și vin toate pe masă", function () {
+    const s = porneste();
+    const clovn = cheamaChelnerul(s, "Clovnul");
+    alegeDinMeniu(s, "ciorba");
+    alegeDinMeniu(s, "papanasi");
+    alegeDinMeniu(s, "suc");
+    egal(s.meniu.alese.length, 3, "n-a ținut minte tot ce am bifat");
+    egal(s.comanda.stare, "alege", "a plecat la bar înainte să termin de ales");
+
+    alegeDinMeniu(s, "gata");
+    egal(s.meniu.deschis, false, "a rămas cu meniul în față deși am zis „doar atât”");
+    panaAjungePeMasa(s);
+
+    const aduse = s.pahare.map(function (p) { return p.optiune.id; });
+    for (const id of ["ciorba", "papanasi", "suc"]) {
+      adevarat(aduse.indexOf(id) >= 0, "n-a ajuns pe masă: " + id);
+    }
+    for (const p of s.pahare) egal(p.pentru, clovn, p.optiune.id + " a fost dus altcuiva");
+  });
+
+  test("apeși de două ori pe un fel și îl ștergi de pe listă", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    alegeDinMeniu(s, "ciorba");
+    alegeDinMeniu(s, "bere");
+    alegeDinMeniu(s, "ciorba");
+    egal(s.meniu.alese.length, 1, "a doua apăsare trebuie să șteargă felul de pe listă");
+    egal(s.meniu.alese[0].id, "bere", "a rămas altceva pe listă");
+  });
+
+  test("„doar atât” fără nimic bifat e tot un refuz", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    alegeDinMeniu(s, "gata");
+    egal(s.meniu.deschis, false, "meniul a rămas deschis");
+    egal(s.comanda.stare, "nimic", "chelnerul a plecat la bar cu tava goală");
+    s.avanseaza(8);
+    egal(s.pahare.length, 0, "a apărut ceva pe masă deși n-am cerut nimic");
+  });
+
+  test("„mă mai gândesc” aduce ce-ai ales și îți lasă meniul în față", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    alegeDinMeniu(s, "ciorba");
+    alegeDinMeniu(s, "gandesc");
+    adevarat(s.meniu.deschis, "trebuia să-mi lase meniul pe masă");
+    egal(s.comanda.stare, "laBar", "n-a plecat cu ciorba la bar");
+
+    panaAjungePeMasa(s);
+    egal(s.pahare.length, 1, "n-a adus ciorba");
+    egal(s.pahare[0].optiune.id, "ciorba", "a adus altceva");
+    adevarat(s.meniu.deschis, "a plecat cu meniul după ce a adus ciorba");
+
+    // Meniul e tot acolo: mai ceri ceva și îl trimiți din nou.
+    alegeDinMeniu(s, "papanasi");
+    alegeDinMeniu(s, "gata");
+    panaAjungePeMasa(s);
+    egal(s.meniu.deschis, false, "acum trebuia să ia meniul cu el");
+    egal(s.pahare.length, 2, "n-au ajuns papanașii pe masă");
+  });
+
+  test("cu meniul în față îți poți juca mai departe cărțile", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    alegeDinMeniu(s, "ciorba");
+    alegeDinMeniu(s, "gandesc");
+
+    let paza = 0;
+    while (!s.asteaptaJucator() && paza++ < 60 * 120) s.avanseaza(1 / 60);
+    adevarat(s.asteaptaJucator(), "nu mi-a venit rândul într-un minut");
+
+    const clovn = s.personaj("Clovnul");
+    const carte = clovn.mana[0];
+    const cate = clovn.mana.length;
+    s.apasa(carte.x, carte.y);
+    adevarat(clovn.mana.length < cate, "cartea n-a plecat pe masă din cauza meniului");
+  });
+
   test("turnatul se aude", function () {
     const s = porneste();
     cheamaChelnerul(s, "Clovnul");
-    alegeDinMeniu(s, "vin");
+    comandaDinMeniu(s, "vin");
     let paza = 0;
     while (s.comanda.stare !== "seFace" && paza++ < 60 * 60) s.avanseaza(1 / 60);
     egal(s.sunet.ultimul, "turnat", "nu s-a auzit turnatul");
@@ -1642,7 +1744,7 @@ function testeComanda() {
   test("comanzi mici cu piure: barmanul se duce la aragaz și iese fum", function () {
     const s = porneste();
     cheamaChelnerul(s, "Draconianul");
-    alegeDinMeniu(s, "mici");
+    comandaDinMeniu(s, "mici");
 
     let paza = 0;
     while (s.comanda.stare !== "seFace" && paza++ < 60 * 60) s.avanseaza(1 / 60);
@@ -1658,7 +1760,7 @@ function testeComanda() {
   test("din comanda adusă se și consumă, până se termină", function () {
     const s = porneste();
     cheamaChelnerul(s, "Clovnul");
-    alegeDinMeniu(s, "suc");
+    comandaDinMeniu(s, "suc");
     let paza = 0;
     while (s.comanda.stare !== "nimic" && paza++ < 60 * 90) s.avanseaza(1 / 60);
 
@@ -1671,7 +1773,7 @@ function testeComanda() {
   test("partida merge înainte cât timp e comanda pe drum", function () {
     const s = porneste();
     cheamaChelnerul(s, "Clovnul");
-    alegeDinMeniu(s, "bere");
+    comandaDinMeniu(s, "bere");
     const stareInainte = s.stare();
     const vazute = {};
     let paza = 0;
@@ -1728,6 +1830,19 @@ function testeMasaATreia() {
              "trebuie să stea față în față");
   });
 
+  test("cum vin, au și o sticlă de vin în mijlocul mesei lor", function () {
+    const s = porneste();
+    let paza = 0;
+    while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+    egal(s.vizita.stare, "asezati", "n-a venit nimeni în patru minute");
+
+    const sticle = formeDeCuloare(cadruIntreg(s), STICLA_VIN).filter(function (d) {
+      return Math.abs(d.limite.cx - s.masa3.x) < s.masa3.rx * 0.35 &&
+             Math.abs(d.limite.cy - s.masa3.y) < 12 * s.U();
+    });
+    adevarat(sticle.length > 0, "n-au primit nicio sticlă pe masă");
+  });
+
   test("cât stau, vorbesc între ei, pe rând", function () {
     const s = porneste();
     let paza = 0;
@@ -1777,7 +1892,7 @@ function testeMasaATreia() {
     const s = porneste();
     const b = dinFundal(s, "Barmanul");
     cheamaChelnerul(s, "Clovnul");
-    alegeDinMeniu(s, "mici");
+    comandaDinMeniu(s, "mici");
 
     let maxim = 0, inainte = b.x;
     for (let i = 0; i < 60 * 40; i++) {
@@ -1793,7 +1908,7 @@ function testeMasaATreia() {
     const s = porneste();
     const b = dinFundal(s, "Barmanul");
     cheamaChelnerul(s, "Clovnul");
-    alegeDinMeniu(s, "mici");
+    comandaDinMeniu(s, "mici");
 
     let paza = 0;
     while (s.comanda.stare !== "nimic" && paza++ < 60 * 120) s.avanseaza(1 / 60);
@@ -1864,6 +1979,193 @@ function testeComentarii() {
       if (s.vizita.vorbeste >= 0) vorbitori.add(s.vizita.vorbeste);
     }
     egal(vorbitori.size, 2, "au vorbit amândoi, pe rând");
+  });
+}
+
+/* --- 6.10b Mâncarea, sticla de vin și locul de pe masă --------------------- */
+
+// Pune de-a gata ceva pe masă, fără să mai treacă prin chelner.
+function punePeMasa(s, id, nivel) {
+  const o = s.meniu.optiuni.find(function (x) { return x.id === id; });
+  if (!o) cade("nu există felul „" + id + "”");
+  const p = s.personaj("Clovnul");
+  const obiect = {
+    pentru: p, optiune: o, nivel: nivel === undefined ? 1 : nivel,
+    tip: o.fel === "baut" ? "pahar" : "farfurie",
+    x: s.cx(), y: s.cy(), cronometru: 5
+  };
+  // Ca la comandă adevărată: întâi îi găsim loc, abia apoi ajunge pe masă.
+  s.asazaPeMasa(obiect);
+  s.pahare.push(obiect);
+  return obiect;
+}
+
+function culorileUnuiFel(s, id) {
+  s.pahare.length = 0;
+  punePeMasa(s, id);
+  s.goleste();
+  s.deseneazaPahare();
+  return culori(s.desene);
+}
+
+function testeMancare() {
+  sectiune("6.10b Mâncarea pe masă");
+
+  test("fiecare fel arată altfel", function () {
+    const s = porneste();
+    const feluri = ["mici", "ciorba", "cartofi", "papanasi", "inghetata"];
+    const vazute = {};
+    for (const id of feluri) vazute[id] = culorileUnuiFel(s, id);
+
+    for (let i = 0; i < feluri.length; i++) {
+      for (let j = i + 1; j < feluri.length; j++) {
+        const a = vazute[feluri[i]], b = vazute[feluri[j]];
+        const laFel = a.size === b.size &&
+                      Array.from(a).every(function (c) { return b.has(c); });
+        adevarat(!laFel, feluri[i] + " arată exact ca " + feluri[j]);
+      }
+    }
+  });
+
+  test("ciorba vine în castron, nu pe farfurie", function () {
+    const s = porneste();
+    const c = culorileUnuiFel(s, "ciorba");
+    adevarat(c.has(CASTRON), "ciorba n-are castron");
+    adevarat(c.has(ZEAMA), "ciorba n-are zeamă");
+  });
+
+  test("cartofii sunt mulți și subțiri", function () {
+    const s = porneste();
+    s.pahare.length = 0;
+    punePeMasa(s, "cartofi");
+    s.goleste();
+    s.deseneazaPahare();
+    const bete = formeDeCuloare(s.desene, CARTOF);
+    adevarat(bete.length >= 6, "am găsit doar " + bete.length + " cartofi pe farfurie");
+  });
+
+  test("papanașii au smântână și dulceață", function () {
+    const s = porneste();
+    const c = culorileUnuiFel(s, "papanasi");
+    adevarat(c.has(SMANTANA), "papanașii n-au smântână");
+    adevarat(c.has(DULCEATA), "papanașii n-au dulceață");
+  });
+
+  test("înghețata vine în cupă, cu bile", function () {
+    const s = porneste();
+    s.pahare.length = 0;
+    punePeMasa(s, "inghetata");
+    s.goleste();
+    s.deseneazaPahare();
+    const bile = formeDeCuloare(s.desene, INGHETATA);
+    adevarat(bile.length >= 2, "am găsit doar " + bile.length + " bile de înghețată");
+  });
+
+  test("mâncarea și băutura nu se pun una peste alta", function () {
+    const s = porneste();
+    s.pahare.length = 0;
+    const a = punePeMasa(s, "suc");
+    const b = punePeMasa(s, "mici");
+    const c = punePeMasa(s, "papanasi");
+    const perechi = [[a, b], [a, c], [b, c]];
+    for (const [x, y] of perechi) {
+      adevarat(Math.hypot(x.x - y.x, x.y - y.y) > 6 * s.U(),
+               x.optiune.id + " și " + y.optiune.id + " stau una peste alta");
+    }
+  });
+
+  test("vinul vine cu sticlă pe masă, și cu paharul gol", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    comandaDinMeniu(s, "vin");
+    let paza = 0;
+    while (s.comanda.stare !== "nimic" && paza++ < 60 * 90) s.avanseaza(1 / 60);
+
+    const sticla = s.pahare.find(function (p) { return p.tip === "sticla"; });
+    const pahar = s.pahare.find(function (p) { return p.tip === "pahar"; });
+    adevarat(sticla, "n-a venit nicio sticlă");
+    adevarat(pahar, "n-a venit niciun pahar");
+    egal(pahar.nivel, 0, "paharul trebuie să vină gol — ți-l torni singur");
+  });
+
+  test("sticla de vin stă în mijlocul mesei, nu lângă cel care a cerut-o", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    comandaDinMeniu(s, "vin");
+    let paza = 0;
+    while (s.comanda.stare !== "nimic" && paza++ < 60 * 90) s.avanseaza(1 / 60);
+
+    const sticla = s.pahare.find(function (p) { return p.tip === "sticla"; });
+    const pahar = s.pahare.find(function (p) { return p.tip === "pahar"; });
+    const laMijloc = Math.hypot(sticla.x - s.cx(), sticla.y - s.cy());
+    adevarat(laMijloc < s.masa.ry * 0.5,
+             "sticla e la " + (laMijloc / s.U()).toFixed(1) + "U de mijlocul mesei");
+    adevarat(Math.hypot(pahar.x - s.cx(), pahar.y - s.cy()) > laMijloc,
+             "paharul trebuie să rămână la locul lui, lângă cel care a cerut vinul");
+  });
+
+  test("a doua sticlă se așază lângă prima, nu peste ea", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    comandaDinMeniu(s, "vin");
+    let paza = 0;
+    while (s.comanda.stare !== "nimic" && paza++ < 60 * 90) s.avanseaza(1 / 60);
+    cheamaChelnerul(s, "Draconianul");
+    comandaDinMeniu(s, "vin");
+    paza = 0;
+    while (s.comanda.stare !== "nimic" && paza++ < 60 * 90) s.avanseaza(1 / 60);
+
+    const sticle = s.pahare.filter(function (p) { return p.tip === "sticla"; });
+    egal(sticle.length, 2, "n-au ajuns amândouă sticlele pe masă");
+    adevarat(Math.abs(sticle[0].x - sticle[1].x) > 3 * s.U(), "stau una peste alta");
+  });
+
+  test("apeși pe sticlă și îți torni singur", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    comandaDinMeniu(s, "vin");
+    let paza = 0;
+    while (s.comanda.stare !== "nimic" && paza++ < 60 * 90) s.avanseaza(1 / 60);
+
+    const sticla = s.pahare.find(function (p) { return p.tip === "sticla"; });
+    const pahar = s.pahare.find(function (p) { return p.tip === "pahar"; });
+    const inainte = sticla.nivel;
+
+    s.apasa(sticla.x, sticla.y - 3 * s.U());
+    adevarat(pahar.nivel > 0, "paharul a rămas gol");
+    adevarat(sticla.nivel < inainte, "din sticlă n-a scăzut nimic");
+    egal(s.sunet.ultimul, "turnat", "nu s-a auzit turnatul");
+  });
+
+  test("sticla se golește după câteva pahare", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    comandaDinMeniu(s, "vin");
+    let paza = 0;
+    while (s.comanda.stare !== "nimic" && paza++ < 60 * 90) s.avanseaza(1 / 60);
+    const sticla = s.pahare.find(function (p) { return p.tip === "sticla"; });
+
+    for (let i = 0; i < 10; i++) s.apasa(sticla.x, sticla.y - 3 * s.U());
+    egal(sticla.nivel, 0, "sticla ține la nesfârșit");
+  });
+
+  test("chelnerul nu se urcă pe masa a doua", function () {
+    const s = porneste();
+    const ch = dinFundal(s, "Chelnerul");
+    let paza = 0;
+    // îl așteptăm să ajungă în dreptul mesei a doua
+    while (!(ch.y < s.masa2.y + s.masa2.ry && Math.abs(ch.x - s.masa2.x) < s.masa2.rx * 1.6) &&
+           paza++ < 60 * 240) {
+      s.avanseaza(1 / 60);
+    }
+    adevarat(paza < 60 * 240, "chelnerul n-a trecut niciodată pe lângă masa a doua");
+
+    const d = cadruIntreg(s);
+    const chelner = candApare(d, CAMASA_CHELNER);
+    const blat = candApare(d, BLAT_MASA2);
+    adevarat(chelner >= 0 && blat >= 0, "nu se desenează amândoi");
+    adevarat(chelner < blat,
+             "fiind în spatele mesei, chelnerul trebuie desenat înaintea blatului");
   });
 }
 
@@ -2144,6 +2446,7 @@ function testePartida() {
   testeLumeaDinLocal();
   testeReglaje();
   testeComanda();
+  testeMancare();
   testeMasaATreia();
   testeComentarii();
   testeMusafiri();

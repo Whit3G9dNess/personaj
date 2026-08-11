@@ -2068,8 +2068,13 @@ function deseneazaMasa3Blat() {
   elipsa(masa3.x, masa3.y, masa3.rx, masa3.ry);
   ctx.fill();
 
+  if (vizita.stare !== "asezati") return;
+
+  // Cum s-au așezat, au și sticla de vin în mijlocul mesei, între ei.
+  sticlaDeVin(masa3.x, masa3.y - 0.4 * U, 0.62, 1);
+
   // Paharele apar abia după ce trece chelnerul pe la ei.
-  if (vizita.stare === "asezati" && vizita.serviti) {
+  if (vizita.serviti) {
     ctx.fillStyle = "rgba(226, 232, 236, 0.35)";
     for (let s = -1; s <= 1; s += 2) {
       dreptunghiRotunjit(masa3.x + s * masa3.rx * 0.30 - 1.3 * U, masa3.y - 4.4 * U,
@@ -2263,7 +2268,11 @@ const sunet = {
    se oprește nicio clipă cât timp chelnerul e pe drum. */
 
 /* Meniul e o listă scrisă, ca la restaurant: felul, cât e porția, cât costă.
-   Fără desene — la câte feluri sunt, ar fi fost cinci pahare la fel. */
+   Fără desene — la câte feluri sunt, ar fi fost cinci pahare la fel.
+
+   Ultimele trei rânduri nu sunt feluri, ci sfârșitul comenzii: „doar atât" (le
+   duce și ia meniul înapoi), „mă mai gândesc" (le duce, dar îți lasă meniul în
+   față) și „nimic, mulțumesc" (pleacă cu mâna goală). */
 const OPTIUNI = [
   { sectiune: "Mâncare" },
   { id: "mici",      nume: "mici cu piure",   cantitate: "300 g",  pret: "32 lei", fel: "mancare", culoare: "#8a5a33" },
@@ -2276,11 +2285,46 @@ const OPTIUNI = [
   { id: "suc",       nume: "Prigat",          cantitate: "0,5 l",  pret: "9 lei",  fel: "baut",    culoare: "#e07b1f" },
   { id: "bere",      nume: "bere",            cantitate: "0,5 l",  pret: "12 lei", fel: "baut",    culoare: "#d8a52a" },
   { id: "vin",       nume: "vin",             cantitate: "0,25 l", pret: "15 lei", fel: "baut",    culoare: "#7c2b33" },
-  { id: "nimic",     nume: "nimic, mulțumesc", fel: "nimic" }
+  { id: "gata",      nume: "doar atât",        fel: "gata",    inchide: true },
+  { id: "gandesc",   nume: "mă mai gândesc",   fel: "gandesc", inchide: true },
+  { id: "nimic",     nume: "nimic, mulțumesc", fel: "nimic",   inchide: true }
 ];
 
-const meniu = { deschis: false, pentru: null, randuri: [] };
-const comanda = { stare: "nimic", pentru: null, ce: null, cronometru: 0 };
+// `alese` sunt felurile bifate acum, cele care pleacă la bar la următorul „gata".
+const meniu = { deschis: false, pentru: null, randuri: [], optiuni: OPTIUNI, alese: [] };
+
+// Prețul unui fel, în lei, citit din rândul lui de meniu ("24 lei" → 24).
+function pretInLei(o) { return o.pret ? parseInt(o.pret, 10) : 0; }
+
+/* Culorile din farfurii. Fiecare fel trebuie să se recunoască de la distanță,
+   altfel n-are rost să-l ceri. */
+const MANCARE = {
+  farfurie:   "#efe7d6",
+  adancitura: "#d9cfb8",
+  piure:      "#ecdf9e",
+  mic:        "#8a5a33",
+  castron:    "#f2f0ea",
+  zeama:      "#e8d067",
+  legume:     "#c8503a",
+  verdeata:   "#6b8f4a",
+  cartof:     "#e8b93c",
+  cartofUmbra:"#c2921f",
+  papanas:    "#d8a24a",
+  smantana:   "#f4f1e6",
+  dulceata:   "#7b2340",
+  cupa:       "rgba(226, 232, 236, 0.45)",
+  inghetata:  "#5a3a2a",
+  ciocolata:  "#33201a",
+  sticla:     "#2f4a30",
+  eticheta:   "#e8dcc4"
+};
+/* `lista` e rândul de feluri pe care le face barmanul acum, unul după altul;
+   `ce` e cel la care lucrează. Dacă mai ceri ceva cât ăsta e pe drum, comanda
+   nouă așteaptă la `coada` și pleacă imediat ce se golește tava. */
+const comanda = {
+  stare: "nimic", pentru: null, lista: [], index: 0, ce: null,
+  cronometru: 0, coada: []
+};
 const pahare = [];
 const aragaz = { x: 0, y: 0, fum: 0 };
 
@@ -2291,11 +2335,40 @@ function apasatPe(p, x, y) {
          y > p.y - inalt * 1.4 && y < p.y + 2 * U;
 }
 
+// Îți torni singur din sticlă, atât cât încape într-un pahar.
+function toarnaDinSticla(sticla) {
+  const pahar = pahare.find(function (p) {
+    return p.pentru === sticla.pentru && p.tip === "pahar" && p.optiune.id === sticla.optiune.id;
+  });
+  if (!pahar || sticla.nivel <= 0) return;
+  sticla.nivel = Math.max(0, sticla.nivel - 0.34);
+  pahar.nivel = 1;
+  pahar.cronometru = intreg(4, 9);
+  sunet.canta("turnat");
+}
+
 function apasa(x, y) {
   sunet.porneste();
 
+  // Clic pe o sticlă de pe masă: torni.
+  for (const obiect of pahare) {
+    if (obiect.tip !== "sticla" || obiect.nivel <= 0) continue;
+    if (Math.abs(x - obiect.x) < 2.5 * U && y > obiect.y - 11 * U && y < obiect.y + 1.5 * U) {
+      toarnaDinSticla(obiect);
+      return;
+    }
+  }
+
+  // Meniul deschis ia clicurile care cad pe el, dar numai pe ele: cu meniul în
+  // față îți vine rândul la fel de des, deci cărțile trebuie să rămână ale tale.
+  if (meniu.deschis) {
+    for (const r of meniu.randuri) {
+      if (x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1) { alege(r.optiune); return; }
+    }
+  }
+
   // Dacă masa te așteaptă, un clic pe o carte de-a ta o pune pe masă.
-  if (asteaptaJucator && !meniu.deschis) {
+  if (asteaptaJucator) {
     const eu = personaje.find(esteAlTau);
     for (const c of eu.mana) {
       const k = c.marime || 1;
@@ -2307,13 +2380,7 @@ function apasa(x, y) {
     }
   }
 
-  if (meniu.deschis) {
-    for (const r of meniu.randuri) {
-      if (x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1) { alege(r.optiune); return; }
-    }
-    return;                       // clic pe lângă meniu: îl lăsăm deschis
-  }
-
+  if (meniu.deschis) return;                 // în rest, clicurile îl lasă deschis
   if (comanda.stare !== "nimic") return;     // e deja o comandă pe drum
   for (const p of personaje) {
     if (apasatPe(p, x, y)) { cheamaChelnerul(p); return; }
@@ -2340,7 +2407,7 @@ function deschideMeniul(p) {
 
 function asazaMeniul() {
   const p = meniu.pentru;
-  const latRand = 52 * U, inaltRand = 4.6 * U;
+  const latRand = 52 * U, inaltRand = 4.2 * U;
   const inaltTot = OPTIUNI.length * inaltRand;
 
   let x0 = p.x + p.latime * U * 0.8;
@@ -2367,22 +2434,66 @@ function asazaMeniul() {
   });
 }
 
-function alege(o) {
-  meniu.deschis = false;
-  sunet.canta("poc");
+/* Un fel apăsat se bifează, apăsat a doua oară se șterge de pe listă. Cât timp
+   meniul e deschis poți strânge oricâte pe el: și ciorba, și papanașii, și
+   sucul — sau numai două din trei, cum ai chef. */
+function bifeaza(o) {
+  const i = meniu.alese.indexOf(o);
+  if (i >= 0) meniu.alese.splice(i, 1);
+  else meniu.alese.push(o);
+}
 
-  if (o.fel === "nimic") {
-    // Refuzul e o opțiune ca oricare alta: chelnerul dă din cap și pleacă.
+// Chelnerul ia meniul de pe masă. Dacă n-are nimic pe drum, își reia tura.
+function inchideMeniul() {
+  meniu.deschis = false;
+  meniu.alese.length = 0;
+  if (comanda.stare === "alege") {
     comanda.stare = "nimic";
     comanda.pentru = null;
     chelnerul.misiune = null;
+  }
+}
+
+function alege(o) {
+  sunet.canta("poc");
+
+  if (!o.inchide) { bifeaza(o); return; }
+
+  // Fără nimic bifat, „doar atât" și „mă mai gândesc" înseamnă tot un refuz:
+  // chelnerul dă din cap și pleacă, ca la „nimic, mulțumesc".
+  if (o.fel === "nimic" || !meniu.alese.length) { inchideMeniul(); return; }
+
+  const p = meniu.pentru;
+  const lista = meniu.alese.slice();
+  meniu.alese.length = 0;
+  // „Mă mai gândesc": duce ce-ai ales până acum, dar îți lasă meniul în față.
+  if (o.fel === "gata") inchideMeniul();
+  trimiteLaBar(p, lista);
+}
+
+// Unde stă barmanul cât face felul ăsta: la aragaz sau la robinete.
+function loculBarmanului(o) {
+  return o.fel === "mancare" ? aragaz.x - 3 * U : aragaz.x - 20 * U;
+}
+
+function trimiteLaBar(p, lista) {
+  // Dacă tava e deja pe drum, comanda nouă așteaptă să se întoarcă chelnerul.
+  if (comanda.stare !== "nimic" && comanda.stare !== "alege") {
+    comanda.coada.push({ pentru: p, lista: lista });
     return;
   }
 
-  comanda.ce = o;
+  // Mâncarea întâi, băutura la urmă: barmanul nu umblă degeaba de la plită la
+  // robinete și înapoi pentru fiecare fel în parte.
+  lista.sort(function (a, b) { return (a.fel === "baut") - (b.fel === "baut"); });
+
+  comanda.pentru = p;
+  comanda.lista = lista;
+  comanda.index = 0;
+  comanda.ce = lista[0];
   comanda.stare = "laBar";
   // Barmanul pornește din clipa asta, ca să fie acolo când ajunge chelnerul.
-  barmanul.tinta = o.fel === "mancare" ? aragaz.x - 3 * U : aragaz.x - 20 * U;
+  barmanul.tinta = loculBarmanului(comanda.ce);
   chelnerul.misiune = {
     x: aragaz.x - 18 * U,
     y: bar.y + bar.inalt + 7 * U,
@@ -2392,13 +2503,26 @@ function alege(o) {
 
 function incepeLaBar() {
   comanda.stare = "seFace";
+  comanda.ce = comanda.lista[comanda.index];
+  // Al doilea fel din același rând se face mai repede: plita e caldă, iar
+  // paharele stau deja scoase pe tejghea.
+  const graba = comanda.index === 0 ? 1 : 0.6;
   if (comanda.ce.fel === "mancare") {
-    comanda.cronometru = 6;
+    comanda.cronometru = 6 * graba;
     sunet.canta("sfarait");
   } else {
-    comanda.cronometru = 2.6;
+    comanda.cronometru = 2.6 * graba;
     sunet.canta("turnat");
   }
+}
+
+// Barmanul le face pe rând. Când s-a terminat lista, pleacă tava spre masă.
+function urmatorulFel() {
+  comanda.index++;
+  if (comanda.index >= comanda.lista.length) { duceLaMasa(); return; }
+  comanda.ce = comanda.lista[comanda.index];
+  barmanul.tinta = loculBarmanului(comanda.ce);
+  comanda.stare = "asteaptaBarman";
 }
 
 function duceLaMasa() {
@@ -2411,23 +2535,75 @@ function duceLaMasa() {
   };
 }
 
+/* Fiecare lucru nou primește locul lui pe blat, lângă cel care l-a cerut. Dacă
+   mai are ceva acolo, se așază alături — nu unul peste altul. */
+function asazaPeMasa(obiect) {
+  const p = obiect.pentru;
+  let cate = 0;
+  // Sticlele nu se numără aici: ele stau în mijloc, nu în dreptul nimănui.
+  for (const x of pahare) if (x.pentru === p && x !== obiect && x.tip !== "sticla") cate++;
+  const a = p.unghi + 0.40 + cate * 0.38;
+  obiect.x = cx + masa.rx * 0.66 * Math.cos(a);
+  obiect.y = cy + masa.ry * 0.66 * Math.sin(a);
+}
+
+/* Sticla nu stă lângă cel care a cerut-o, ci în mijlocul blatului, la vedere,
+   ca la orice masă la care se bea vin. A doua sticlă se așază lângă prima. */
+function asazaInMijloc(sticla) {
+  let cate = 0;
+  for (const x of pahare) if (x.tip === "sticla" && x !== sticla) cate++;
+  const semn = cate % 2 ? 1 : -1;
+  sticla.x = cx + (cate === 0 ? 0 : semn * Math.ceil(cate / 2) * 3.4 * U);
+  sticla.y = cy - masa.ry * 0.10;
+}
+
 function puneComandaPeMasa() {
   const p = comanda.pentru;
-  const a = p.unghi + 0.52;          // puțin lateral față de el, pe blat
-  pahare.push({
-    pentru: p,
-    optiune: comanda.ce,
-    nivel: 1,
-    x: cx + masa.rx * 0.60 * Math.cos(a),
-    y: cy + masa.ry * 0.60 * Math.sin(a),
-    cronometru: intreg(4, 9)
-  });
+
+  // Tot ce e pe tavă coboară pe masă odată, fiecare la locul lui.
+  for (const o of comanda.lista) {
+    if (o.id === "vin") {
+      // Vinul vine cu sticla lui: paharul ți-l torni singur.
+      const sticla = { pentru: p, optiune: o, tip: "sticla", nivel: 1, cronometru: 1e9 };
+      asazaInMijloc(sticla);
+      pahare.push(sticla);
+      const pahar = { pentru: p, optiune: o, tip: "pahar", nivel: 0, cronometru: intreg(4, 9) };
+      asazaPeMasa(pahar);
+      pahare.push(pahar);
+    } else {
+      const obiect = {
+        pentru: p, optiune: o,
+        tip: o.fel === "baut" ? "pahar" : "farfurie",
+        nivel: 1, cronometru: intreg(4, 9)
+      };
+      asazaPeMasa(obiect);
+      pahare.push(obiect);
+    }
+    vizita.vede(o.fel === "mancare" ? "mancare" : "baut");
+  }
   sunet.canta("poc");
-  vizita.vede(comanda.ce.fel === "mancare" ? "mancare" : "baut");
+
+  comanda.lista = [];
+  comanda.index = 0;
+  comanda.ce = null;
+
+  // Dacă ai mai cerut ceva între timp, pleacă înapoi la bar cu comanda aia.
+  if (comanda.coada.length) {
+    const urmatoarea = comanda.coada.shift();
+    comanda.stare = "nimic";
+    trimiteLaBar(urmatoarea.pentru, urmatoarea.lista);
+    return;
+  }
+
+  // Ți-a lăsat meniul în față: rămâne lângă masă și așteaptă restul comenzii.
+  if (meniu.deschis) {
+    comanda.stare = "alege";
+    chelnerul.misiune = null;
+    return;
+  }
 
   comanda.stare = "nimic";
   comanda.pentru = null;
-  comanda.ce = null;
   chelnerul.misiune = null;          // își reia tura
 }
 
@@ -2444,12 +2620,13 @@ function actualizeazaComanda(dt) {
         aragaz.fum = 0.18;
       }
     }
-    if (comanda.cronometru <= 0) duceLaMasa();
+    if (comanda.cronometru <= 0) urmatorulFel();
   }
 
-  // Se consumă din când în când, fiecare cum îi e felul.
+  // Se consumă din când în când, fiecare cum îi e felul. Din sticlă nu bea
+  // nimeni de-a dreptul: din ea îți torni tu.
   for (const pahar of pahare) {
-    if (pahar.nivel <= 0) continue;
+    if (pahar.tip === "sticla" || pahar.nivel <= 0) continue;
     pahar.cronometru -= dt;
     if (pahar.cronometru <= 0) {
       const inghititura = pahar.pentru === draconianul ? 0.5 :
@@ -2491,50 +2668,180 @@ function deseneazaAragaz() {
 function deseneazaPahare() {
   for (const p of pahare) {
     ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
-    elipsa(p.x + 0.3 * U, p.y + 0.7 * U, 2.2 * U, 0.9 * U);
+    elipsa(p.x + 0.3 * U, p.y + 0.7 * U, 2.6 * U, 1 * U);
     ctx.fill();
 
-    if (p.optiune.fel === "mancare") {
-      ctx.fillStyle = "#efe7d6";                        // farfuria
-      elipsa(p.x, p.y - 0.4 * U, 5.2 * U, 2.5 * U);
+    if (p.tip === "sticla") deseneazaSticlaDeVin(p);
+    else if (p.tip === "pahar") deseneazaPaharul(p);
+    else deseneazaFelul(p);
+  }
+}
+
+function farfurie(p) {
+  ctx.fillStyle = MANCARE.farfurie;
+  elipsa(p.x, p.y - 0.4 * U, 5.2 * U, 2.5 * U);
+  ctx.fill();
+  ctx.fillStyle = MANCARE.adancitura;
+  elipsa(p.x, p.y - 0.4 * U, 4.1 * U, 1.9 * U);
+  ctx.fill();
+}
+
+// Fiecare fel de mâncare arată a el, nu toate a farfurie cu ceva pe ea.
+function deseneazaFelul(p) {
+  const n = p.nivel;
+  if (n <= 0) { farfurie(p); return; }
+
+  if (p.optiune.id === "ciorba") {
+    // Castron adânc, zeamă galbenă, bucăți în ea.
+    ctx.fillStyle = MANCARE.castron;
+    elipsa(p.x, p.y - 0.6 * U, 4.8 * U, 2.6 * U);
+    ctx.fill();
+    ctx.fillStyle = MANCARE.zeama;
+    elipsa(p.x, p.y - 0.9 * U, 3.9 * U * n, 1.9 * U * n);
+    ctx.fill();
+    ctx.fillStyle = MANCARE.legume;
+    for (let i = -1; i <= 1; i++) {
+      elipsa(p.x + i * 1.5 * U, p.y - 1.1 * U + Math.abs(i) * 0.3 * U, 0.45 * U, 0.3 * U);
       ctx.fill();
-      ctx.fillStyle = "#d9cfb8";                        // adâncitura ei
-      elipsa(p.x, p.y - 0.4 * U, 4.1 * U, 1.9 * U);
+    }
+    ctx.fillStyle = MANCARE.verdeata;
+    elipsa(p.x + 0.7 * U, p.y - 0.4 * U, 0.35 * U, 0.22 * U);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(180, 170, 150, 0.6)";       // buza castronului
+    ctx.lineWidth = 0.22 * U;
+    elipsa(p.x, p.y - 0.6 * U, 4.8 * U, 2.6 * U);
+    ctx.stroke();
+    return;
+  }
+
+  if (p.optiune.id === "cartofi") {
+    farfurie(p);
+    for (let i = 0; i < 9; i++) {
+      ctx.save();
+      ctx.translate(p.x + (pseudo(i) - 0.5) * 6 * U, p.y - 0.6 * U + (pseudo(i + 9) - 0.5) * 1.8 * U);
+      ctx.rotate((pseudo(i + 18) - 0.5) * 2.2);
+      ctx.fillStyle = i % 3 === 0 ? MANCARE.cartofUmbra : MANCARE.cartof;
+      dreptunghiRotunjit(-1.6 * U * n, -0.3 * U, 3.2 * U * n, 0.6 * U, 0.25 * U);
       ctx.fill();
-      if (p.nivel > 0) {
-        ctx.fillStyle = "#ecdf9e";                      // piureul
-        elipsa(p.x - 2 * U, p.y - 0.6 * U, 1.8 * U * p.nivel, 1.2 * U * p.nivel);
+      ctx.restore();
+    }
+    return;
+  }
+
+  if (p.optiune.id === "papanasi") {
+    farfurie(p);
+    for (let s = -1; s <= 1; s += 2) {
+      const x = p.x + s * 1.7 * U;
+      ctx.fillStyle = MANCARE.papanas;                  // gogoașa
+      elipsa(x, p.y - 1 * U, 1.5 * U * n, 1.1 * U * n);
+      ctx.fill();
+      ctx.fillStyle = MANCARE.smantana;                 // smântâna peste ea
+      elipsa(x, p.y - 1.5 * U, 1.2 * U * n, 0.6 * U * n);
+      ctx.fill();
+      ctx.fillStyle = MANCARE.papanas;                  // căciulița de deasupra
+      elipsa(x, p.y - 2.1 * U, 0.6 * U * n, 0.5 * U * n);
+      ctx.fill();
+      ctx.fillStyle = MANCARE.dulceata;                 // dulceața
+      for (let i = -1; i <= 1; i++) {
+        elipsa(x + i * 0.6 * U, p.y - 1.6 * U + Math.abs(i) * 0.2 * U, 0.3 * U, 0.25 * U);
         ctx.fill();
-        ctx.fillStyle = p.optiune.culoare;              // micii, unul lângă altul
-        for (let i = 0; i < 3; i++) {
-          elipsa(p.x + (0.2 + i * 1.2) * U, p.y - 0.5 * U + i * 0.2 * U,
-                 1.4 * U * p.nivel, 0.6 * U * p.nivel);
-          ctx.fill();
-        }
       }
-    } else {
-      const inalt = 6 * U, lat = 3.4 * U;
-      ctx.fillStyle = "rgba(226, 232, 236, 0.30)";      // sticla paharului
-      dreptunghiRotunjit(p.x - lat / 2, p.y - inalt, lat, inalt, 0.5 * U);
+    }
+    return;
+  }
+
+  if (p.optiune.id === "inghetata") {
+    // Cupă cu picior, cu bile de ciocolată în ea.
+    // Piciorul și talpa cupei.
+    ctx.fillStyle = MANCARE.cupa;
+    dreptunghiRotunjit(p.x - 0.5 * U, p.y - 2.4 * U, U, 2.4 * U, 0.3 * U);
+    ctx.fill();
+    elipsa(p.x, p.y, 2 * U, 0.7 * U);
+    ctx.fill();
+    // Bolul cupei, în spatele bilelor.
+    dreptunghiRotunjit(p.x - 2.4 * U, p.y - 4.2 * U, 4.8 * U, 2 * U, 0.9 * U);
+    ctx.fill();
+
+    ctx.fillStyle = MANCARE.inghetata;                  // bilele, la vedere
+    const bile = [[-1.1, -4.3], [1.1, -4.3], [0, -5.4]];
+    for (const b of bile) {
+      elipsa(p.x + b[0] * U, p.y + b[1] * U, 1.2 * U * n, 1.1 * U * n);
       ctx.fill();
-      if (p.nivel > 0) {
-        ctx.fillStyle = p.optiune.culoare;
-        const h = (inalt - 0.8 * U) * p.nivel;
-        dreptunghiRotunjit(p.x - lat / 2 + 0.3 * U, p.y - 0.4 * U - h, lat - 0.6 * U, h, 0.35 * U);
-        ctx.fill();
-        if (p.optiune.id === "bere") {                  // guler de spumă
-          ctx.fillStyle = "#f2ead4";
-          dreptunghiRotunjit(p.x - lat / 2 + 0.3 * U, p.y - 0.4 * U - h - 0.9 * U,
-                             lat - 0.6 * U, 1.2 * U, 0.35 * U);
-          ctx.fill();
-        }
-      }
-      ctx.strokeStyle = "rgba(255, 240, 210, 0.40)";
-      ctx.lineWidth = 0.18 * U;
-      dreptunghiRotunjit(p.x - lat / 2, p.y - inalt, lat, inalt, 0.5 * U);
-      ctx.stroke();
+    }
+    ctx.fillStyle = MANCARE.ciocolata;                  // fulgii de ciocolată
+    for (let i = -1; i <= 1; i++) {
+      elipsa(p.x + i * 0.7 * U, p.y - (5.4 + Math.abs(i) * 0.5) * U, 0.22 * U, 0.2 * U);
+      ctx.fill();
+    }
+    // Doar buza cupei trece peste ele, cât să se vadă că sunt înăuntru.
+    ctx.strokeStyle = "rgba(226, 232, 236, 0.55)";
+    ctx.lineWidth = 0.25 * U;
+    elipsa(p.x, p.y - 4.2 * U, 2.4 * U, 0.8 * U);
+    ctx.stroke();
+    return;
+  }
+
+  // Mici cu piure.
+  farfurie(p);
+  ctx.fillStyle = MANCARE.piure;
+  elipsa(p.x - 2 * U, p.y - 0.6 * U, 1.8 * U * n, 1.2 * U * n);
+  ctx.fill();
+  ctx.fillStyle = MANCARE.mic;
+  for (let i = 0; i < 3; i++) {
+    elipsa(p.x + (0.2 + i * 1.2) * U, p.y - 0.5 * U + i * 0.2 * U,
+           1.4 * U * n, 0.6 * U * n);
+    ctx.fill();
+  }
+}
+
+function deseneazaPaharul(p) {
+  const inalt = 6 * U, lat = 3.4 * U;
+  ctx.fillStyle = "rgba(226, 232, 236, 0.30)";
+  dreptunghiRotunjit(p.x - lat / 2, p.y - inalt, lat, inalt, 0.5 * U);
+  ctx.fill();
+  if (p.nivel > 0) {
+    ctx.fillStyle = p.optiune.culoare;
+    const h = (inalt - 0.8 * U) * p.nivel;
+    dreptunghiRotunjit(p.x - lat / 2 + 0.3 * U, p.y - 0.4 * U - h, lat - 0.6 * U, h, 0.35 * U);
+    ctx.fill();
+    if (p.optiune.id === "bere") {                      // guler de spumă
+      ctx.fillStyle = "#f2ead4";
+      dreptunghiRotunjit(p.x - lat / 2 + 0.3 * U, p.y - 0.4 * U - h - 0.9 * U,
+                         lat - 0.6 * U, 1.2 * U, 0.35 * U);
+      ctx.fill();
     }
   }
+  ctx.strokeStyle = "rgba(255, 240, 210, 0.40)";
+  ctx.lineWidth = 0.18 * U;
+  dreptunghiRotunjit(p.x - lat / 2, p.y - inalt, lat, inalt, 0.5 * U);
+  ctx.stroke();
+}
+
+/* Sticla de vin, desenată oriunde e nevoie de ea: pe masa noastră, în mijloc,
+   sau mai mică pe masa musafirilor din față. */
+function sticlaDeVin(x, y, scara, nivel) {
+  const lat = 3 * U * scara, inalt = 10 * U * scara;
+  ctx.fillStyle = MANCARE.sticla;
+  dreptunghiRotunjit(x - lat / 2, y - inalt * 0.62, lat, inalt * 0.62, 0.5 * U * scara);
+  ctx.fill();
+  dreptunghiRotunjit(x - lat * 0.17, y - inalt, lat * 0.34, inalt * 0.46, 0.2 * U * scara);
+  ctx.fill();
+
+  if (nivel > 0) {                                      // vinul rămas înăuntru
+    ctx.fillStyle = "#7c2b33";
+    const h = inalt * 0.5 * nivel;
+    dreptunghiRotunjit(x - lat / 2 + 0.35 * U * scara, y - 0.3 * U * scara - h,
+                       lat - 0.7 * U * scara, h, 0.3 * U * scara);
+    ctx.fill();
+  }
+  ctx.fillStyle = MANCARE.eticheta;
+  dreptunghiRotunjit(x - lat * 0.40, y - inalt * 0.42, lat * 0.80, inalt * 0.20, 0.15 * U * scara);
+  ctx.fill();
+}
+
+// Sticla de pe masa noastră. Apeși pe ea și îți torni singur în pahar.
+function deseneazaSticlaDeVin(s) {
+  sticlaDeVin(s.x, s.y, 1, s.nivel);
 }
 
 function deseneazaMeniu() {
@@ -2569,17 +2876,47 @@ function deseneazaMeniu() {
 
     ctx.font = Math.round(3.1 * U) + "px system-ui, sans-serif";
     ctx.textAlign = "left";
-    ctx.fillStyle = o.fel === "nimic" ? "#b9ada0" : "#f2e7d3";
-    ctx.fillText(o.nume, meniu.stanga + 2.5 * U, mijloc);
 
-    if (o.fel === "nimic") return;
+    if (o.inchide) {
+      // Linia care desparte felurile de sfârșitul comenzii.
+      if (o.id === "gata") {
+        ctx.strokeStyle = "rgba(232, 161, 60, 0.25)";
+        ctx.lineWidth = 0.12 * U;
+        ctx.beginPath();
+        ctx.moveTo(meniu.stanga + 1.5 * U, mijloc - 2.6 * U);
+        ctx.lineTo(meniu.dreapta - 1.5 * U, mijloc - 2.6 * U);
+        ctx.stroke();
+      }
+      // Cele două confirmări se aprind abia când ai bifat ceva.
+      const viu = o.fel !== "nimic" && meniu.alese.length > 0;
+      ctx.fillStyle = viu ? "#e8a13c" : "#b9ada0";
+      ctx.fillText(o.nume, meniu.stanga + 2.5 * U, mijloc);
+
+      // Cât face tot ce ai bifat, scris o singură dată, în dreptul lui „gata".
+      if (o.id === "gata" && viu) {
+        let total = 0;
+        for (const ales of meniu.alese) total += pretInLei(ales);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#e8dcc4";
+        ctx.fillText(total + " lei", meniu.stanga + 50 * U, mijloc);
+      }
+      return;
+    }
+
+    const bifat = meniu.alese.indexOf(o) >= 0;
+    if (bifat) {                                 // semnul de lângă ce ai ales
+      ctx.fillStyle = "#e8a13c";
+      ctx.fillText("✓", meniu.stanga + 0.9 * U, mijloc);
+    }
+    ctx.fillStyle = bifat ? "#f6d79a" : "#f2e7d3";
+    ctx.fillText(o.nume, meniu.stanga + 4.2 * U, mijloc);
 
     // Cantitatea și prețul stau în coloanele lor, aliniate la dreapta, ca într-o
     // listă de bucate adevărată.
     ctx.textAlign = "right";
     ctx.fillStyle = "#a89b8c";
     ctx.fillText(o.cantitate, meniu.stanga + 36 * U, mijloc);
-    ctx.fillStyle = "#e8dcc4";
+    ctx.fillStyle = bifat ? "#f6d79a" : "#e8dcc4";
     ctx.fillText(o.pret, meniu.stanga + 50 * U, mijloc);
   });
 }
@@ -2966,12 +3303,18 @@ function deseneazaTot() {
   deseneazaMasa2Sub();
   omulCuMana.deseneaza(ctx, t);
   omulDeAur.deseneaza(ctx, t);
+
+  /* Chelnerul umblă prin tot localul, așa că se desenează în trei locuri
+     diferite, după cât de aproape e de noi: în spatele mesei a doua, în spatele
+     mesei noastre, sau în fața ei. Altfel, când trecea pe lângă masa a doua,
+     părea că s-a urcat pe ea. */
+  const inSpateleMesei2 = chelnerul.y < masa2.y + masa2.ry;
+  if (inSpateleMesei2) chelnerul.deseneaza(ctx, t);
+
   deseneazaMasa2Blat();
   deseneazaSah();
 
-  // Chelnerul umblă prin local: dacă e mai departe decât masa noastră, trece
-  // pe după ea; dacă a ajuns la noi, îl vedem în fața ei.
-  if (chelnerul.y < cy) chelnerul.deseneaza(ctx, t);
+  if (!inSpateleMesei2 && chelnerul.y < cy) chelnerul.deseneaza(ctx, t);
 
   for (const p of personaje) {
     if (Math.sin(p.unghi) < 0) {          // cei din spate

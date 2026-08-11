@@ -64,16 +64,22 @@ Localul e gata și populat: cei trei stau pe scaune la o masă cu picior și bla
 gros, în spate e tejgheaua barului cu raftul de sticle și un barman care șterge
 un pahar, iar în stânga, mai departe, la a doua masă, un om cu o mână de argint
 joacă șah cu unul făcut tot din aur. La a treia masă, cea din față, vin din când
-în când doi inși — de fiecare dată alții —, stau de vorbă și pleacă. Printre mese
+în când doi inși — de fiecare dată alții —, stau de vorbă la o sticlă de vin
+pusă în mijlocul mesei lor, și pleacă. Printre mese
 umblă un chelner cu tava, care trece și pe la noi din când în când.
 
 **Poți comanda.** Dă clic pe oricare dintre cei trei: chelnerul lasă tura și vine
 la masă cu meniul — o listă scrisă, cu fel, cantitate și preț. Mici cu piure,
 ciorbă de burtă, cartofi prăjiți, papanași, înghețată, Prigat, bere, vin — sau
-nimic, dacă n-ai chef. Berea se toarnă la bar și se aude cum se umple paharul; micii se fac la
-aragazul din capătul barului, cu fum cu tot. După ce comanda ajunge pe masă, se
-bea și se mănâncă din ea din când în când. Sunetul pornește la primul clic,
-fiindcă browserele nu-l lasă altfel.
+nimic, dacă n-ai chef. Alegi câte vrei odată: apeși pe fiecare fel și se bifează,
+apeși încă o dată și se șterge, iar jos scrie cât face tot. Când ai terminat,
+zici **„doar atât"** și pleacă cu comanda, sau **„mă mai gândesc"** — atunci
+duce ce-ai ales până acum și îți lasă meniul în față, pentru încă un rând.
+Berea se toarnă la bar și se aude cum se umple paharul; mâncarea se face la
+aragazul din capătul barului, cu fum cu tot. Vinul vine cu sticla lui, pusă în
+mijlocul mesei, și cu paharul gol — apeși pe sticlă și îți torni singur. După ce
+comanda ajunge pe masă, se bea și se mănâncă din ea din când în când. Sunetul
+pornește la primul clic, fiindcă browserele nu-l lasă altfel.
 
 **Partida o joci tu.** Cărțile au valori de la 1 la 10 și cea mai mare ia mâna.
 Mâna clovnului o vezi jos, în fața mesei — când îți vine rândul, cărțile se

@@ -60,11 +60,11 @@ cărțile au grosime, iar când cineva ia mâna ceilalți doi află: clovnul se
 răsucește să-i vadă mutra, draconianul mârâie un fum pe nări, reptilianul nu
 face nimic.
 
-Localul e gata: cei trei stau pe scaune la o masă cu picior și blat gros, în
-spate e tejgheaua barului cu raftul de sticle, iar în stânga, mai departe, a
-doua masă — deocamdată goală.
+Localul e gata și populat: cei trei stau pe scaune la o masă cu picior și blat
+gros, în spate e tejgheaua barului cu raftul de sticle și un barman care șterge
+un pahar, iar în stânga, mai departe, la a doua masă, un om cu o mână de aur
+joacă șah cu unul făcut tot din aur. Printre mese umblă un chelner cu tava, care
+trece și pe la noi din când în când.
 
-A mai rămas lumea din local (doi clienți la masa a doua, un chelner care se
-plimbă cu tava și un barman în spatele tejghelei) și comanda: ceri ceva de băut
-pentru oricare dintre cei trei — sau refuzi — și, dacă ceri, auzi cum se toarnă
-la bar. Vezi [PLAN.md](PLAN.md).
+A mai rămas comanda: ceri ceva de băut pentru oricare dintre cei trei — sau
+refuzi — și, dacă ceri, auzi cum se toarnă la bar. Vezi [PLAN.md](PLAN.md).

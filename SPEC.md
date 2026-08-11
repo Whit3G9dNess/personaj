@@ -38,8 +38,9 @@ Cei trei joacă la o masă dintr-un bar.
 - În centru: teancul de cărți și mâna jucată curent.
 - În fundal, de-a latul scenei: tejgheaua barului, cu raftul de sticle deasupra
   și un barman care se plimbă în spatele ei.
-- În stânga, mai departe și mai mică: a doua masă, cu doi clienți. Printre ele
-  umblă un chelner cu tava, care trece și pe la masa noastră din când în când.
+- În stânga, mai departe și mai mică: a doua masă, la care doi clienți joacă
+  șah — un om cu o mână de aur și unul făcut tot din aur. Printre mese umblă un
+  chelner cu tava, care trece și pe la masa noastră din când în când.
 - Nu se desenează pereți — barul și masa a doua ies din întuneric doar cât să se
   înțeleagă unde suntem.
 - Masa celor trei rămâne singura complet luminată. Tot ce e în jur e mai

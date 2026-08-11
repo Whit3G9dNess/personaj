@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ro">
 <head>
 <meta charset="utf-8">
@@ -85,6 +85,7 @@ function calculeazaGeometria() {
   masa2.y = cy - masa.ry * 1.45;
 
   for (const p of personaje) aseazaPersonaj(p);
+  asazaFundalul();
 }
 
 /* ==========================================================================
@@ -159,7 +160,9 @@ function pseudo(i) {
   return x - Math.floor(x);
 }
 
-function deseneazaBar() {
+/* Barul se desenează în două bucăți, cu barmanul între ele: peretele, raftul și
+   sticlele sunt în spatele lui, tejgheaua îi trece pe dinainte. */
+function deseneazaBarFundal() {
   // Peretele din spatele barului: doar cu o idee mai deschis decât negrul.
   const perete = ctx.createLinearGradient(0, 0, 0, bar.y + bar.inalt);
   perete.addColorStop(0, "#100b07");
@@ -178,8 +181,10 @@ function deseneazaBar() {
   ctx.fillStyle = LOCAL.raft;
   ctx.fillRect(bar.x0, bar.raft, bar.x1 - bar.x0, 1.1 * U);
   deseneazaSticle();
+}
 
-  // Tejgheaua: fața ei, apoi muchia de sus, unde bate lumina.
+// Tejgheaua: fața ei, apoi muchia de sus, unde bate lumina.
+function deseneazaTejghea() {
   ctx.fillStyle = LOCAL.tejghea;
   ctx.fillRect(bar.x0, bar.y, bar.x1 - bar.x0, bar.inalt);
   ctx.fillStyle = LOCAL.tejgheaSus;
@@ -205,7 +210,9 @@ function deseneazaSticle() {
   }
 }
 
-function deseneazaMasa2() {
+/* Și masa a doua se desenează în două bucăți, cu clienții între ele: piciorul
+   și scaunele dedesubt, blatul peste poalele lor. */
+function deseneazaMasa2Sub() {
   // Aceleași forme ca la masa noastră, dar mai mici și mai stinse: e departe.
   ctx.fillStyle = LOCAL.piciorMasa;
   dreptunghiRotunjit(masa2.x - 1.5 * U, masa2.y, 3 * U, masa2.ry * 1.5, 0.8 * U);
@@ -216,13 +223,15 @@ function deseneazaMasa2() {
   // Cele două scaune, deocamdată goale. Clienții vin la Faza 8.
   ctx.fillStyle = LOCAL.scaunDeparte;
   for (let s = -1; s <= 1; s += 2) {
-    elipsa(masa2.x + s * masa2.rx * 1.25, masa2.y + masa2.ry * 0.3, masa2.rx * 0.24, masa2.rx * 0.09);
+    elipsa(masa2.x + s * masa2.rx * 1.02, masa2.y + masa2.ry * 0.3, masa2.rx * 0.24, masa2.rx * 0.09);
     ctx.fill();
-    dreptunghiRotunjit(masa2.x + s * masa2.rx * 1.25 - masa2.rx * 0.20,
+    dreptunghiRotunjit(masa2.x + s * masa2.rx * 1.02 - masa2.rx * 0.20,
                        masa2.y - masa2.ry * 1.5, masa2.rx * 0.40, masa2.ry * 1.6, 0.6 * U);
     ctx.fill();
   }
+}
 
+function deseneazaMasa2Blat() {
   ctx.fillStyle = LOCAL.muchieMasa2;
   elipsa(masa2.x, masa2.y + 1.5 * U, masa2.rx, masa2.ry);
   ctx.fill();
@@ -350,32 +359,40 @@ function deseneazaVigneta() {
 // duce. Nimic nu sare dintr-un loc în altul: totul se interpolează.
 const carti = [];
 
-function creeazaCarte(x, y, rot) {
+/* Mișcarea dintr-un punct în altul nu e a cărților, ci a oricărui lucru de pe
+   masă: și piesele de șah de la masa a doua se mută la fel. */
+
+function creeazaObiect(x, y, rot) {
   return {
     x: x, y: y, rot: rot,
     x0: x, y0: y, rot0: rot,
     x1: x, y1: y, rot1: rot,
-    t: 1, durata: 1,
-    fataInSus: false,
-    proprietar: null
+    t: 1, durata: 1
   };
 }
 
-function mutaCarte(c, x, y, rot, durata, intarziere) {
-  c.x0 = c.x; c.y0 = c.y; c.rot0 = c.rot;
-  c.x1 = x;   c.y1 = y;   c.rot1 = rot;
-  c.durata = durata;
-  c.t = -(intarziere || 0) / durata;
+function mutaObiect(o, x, y, rot, durata, intarziere) {
+  o.x0 = o.x; o.y0 = o.y; o.rot0 = o.rot;
+  o.x1 = x;   o.y1 = y;   o.rot1 = rot;
+  o.durata = durata;
+  o.t = -(intarziere || 0) / durata;
 }
 
-function actualizeazaCarte(c, dt) {
-  if (c.t >= 1) return;
-  c.t += dt / c.durata;
-  const t = Math.max(0, Math.min(1, c.t));
+function actualizeazaObiect(o, dt) {
+  if (o.t >= 1) return;
+  o.t += dt / o.durata;
+  const t = Math.max(0, Math.min(1, o.t));
   const e = usor(t);
-  c.x   = interpoleaza(c.x0, c.x1, e);
-  c.y   = interpoleaza(c.y0, c.y1, e);
-  c.rot = interpoleaza(c.rot0, c.rot1, e);
+  o.x   = interpoleaza(o.x0, o.x1, e);
+  o.y   = interpoleaza(o.y0, o.y1, e);
+  o.rot = interpoleaza(o.rot0, o.rot1, e);
+}
+
+function creeazaCarte(x, y, rot) {
+  const c = creeazaObiect(x, y, rot);
+  c.fataInSus = false;
+  c.proprietar = null;
+  return c;
 }
 
 function deseneazaCarte(c) {
@@ -551,7 +568,7 @@ const personaje = [
   {
     nume: "Reptilianul",
     unghi: Math.PI / 2 + (4 * Math.PI) / 3,    // dreapta-spate
-    ritm: 1.2, latime: 10.5, inaltime: 21,
+    ritm: 1.2, latime: 13, inaltime: 25,
     gandire: 1.3, haos: 0.04                   // constant, niciodată grăbit
   }
 ];
@@ -609,7 +626,7 @@ function rearanjeazaMana(p, durata) {
     const unghiCarte = p.rotCarte + d * 0.16;
     const x = p.manaX + Math.cos(p.rotCarte) * d * latCarte * 0.5;
     const y = p.manaY + Math.sin(p.rotCarte) * d * latCarte * 0.5 - Math.abs(d) * 0.3 * U;
-    mutaCarte(p.mana[i], x, y, unghiCarte, durata || 0.35, 0);
+    mutaObiect(p.mana[i], x, y, unghiCarte, durata || 0.35, 0);
   }
 }
 
@@ -825,7 +842,7 @@ function aruncaCartileInAer(p) {
   for (let i = 0; i < p.mana.length; i++) {
     const c = p.mana[i];
     c.fataInSus = true;
-    mutaCarte(c,
+    mutaObiect(c,
       c.x + intreg(-6, 6) * U,
       c.y - intreg(10, 16) * U,
       c.rot + intreg(-1.8, 1.8),
@@ -1174,6 +1191,416 @@ reptilianul.reactie = function () {
 };
 
 /* ==========================================================================
+   5e. LUMEA DIN LOCAL
+   ========================================================================== */
+
+/* Oamenii localului: doi clienți care joacă șah la masa a doua, chelnerul care
+   umblă printre mese și barmanul din spatele tejghelei. Respectă același
+   contract ca cei de la masa noastră — `deseneaza(ctx, t)`, `actualizeaza(dt)` —
+   dar nu primesc niciun eveniment din partidă. N-au de unde să știe cine a
+   câștigat mâna, și nici nu-i interesează. */
+
+const AUR = { corp: "#d4a12a", lucios: "#f2d068", umbra: "#8a6415" };
+const OM  = { piele: "#d8a883", par: "#4a3524", haina: "#3a3f4a", camasa: "#cfd4dc" };
+const CHELNER = {
+  camasa: "#f0efea", vesta: "#1c1c20", sort: "#141418", papion: "#141418",
+  piele: "#dcb08c", par: "#3b2617", mustata: "#181410", tava: "#b9b9bd"
+};
+const BARMAN = {
+  camasa: "#f2f1ec", bretele: "#22303f", pantalon: "#2a2a30", papion: "#22303f",
+  piele: "#dcb08c", par: "#6b5340", pahar: "#cfd8dc"
+};
+
+const fundal = [];
+
+// Cu cât e mai în spate, cu atât mai mic. Nimeni din local nu ajunge cât cei
+// de la masa noastră.
+function scaraDupaAdancime(y) {
+  const k = (y - bar.y) / ((cy + masa.ry) - bar.y);
+  return 0.46 + 0.34 * Math.max(0, Math.min(1, k));
+}
+
+/* Trupul de bază al oamenilor din local. Toți patru sunt croiți la fel — sunt
+   fundal, nu trebuie să fie cineva anume — iar fiecare desenează peste el ce
+   are în plus. Se desenează în unități U, cu tălpile în (0, 0). */
+function trupDeOm(p, c, t) {
+  const lat = p.latime * U, inalt = p.inaltime * U;
+  const respiratie = 1 + 0.02 * Math.sin(t * 1.1 + p.faza);
+  const pas = Math.sin((p.pas || 0) * 11);
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.40)";
+  elipsa(0, 0, lat * 0.48, lat * 0.15);
+  ctx.fill();
+
+  ctx.save();
+  ctx.scale(1, respiratie);
+
+  // Picioarele. Când merge, se desfac puțin.
+  ctx.fillStyle = c.pantalon;
+  for (let s = -1; s <= 1; s += 2) {
+    dreptunghiRotunjit(s * lat * 0.20 - lat * 0.14 + s * pas * lat * 0.10,
+                       -inalt * 0.48, lat * 0.28, inalt * 0.48, lat * 0.12);
+    ctx.fill();
+  }
+
+  // Trunchiul.
+  ctx.fillStyle = c.camasa;
+  dreptunghiRotunjit(-lat * 0.34, -inalt, lat * 0.68, inalt * 0.58, lat * 0.20);
+  ctx.fill();
+
+  // Brațele, ușor depărtate de corp.
+  ctx.fillStyle = c.maneca || c.camasa;
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.save();
+    ctx.translate(s * lat * 0.31, -inalt * 0.88);
+    ctx.rotate(s * (0.16 + 0.05 * Math.sin(t * 1.3 + p.faza + s)));
+    dreptunghiRotunjit(-lat * 0.10, 0, lat * 0.20, inalt * 0.44, lat * 0.10);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Gâtul și capul.
+  ctx.fillStyle = c.piele;
+  dreptunghiRotunjit(-lat * 0.09, -inalt - lat * 0.10, lat * 0.18, lat * 0.16, lat * 0.05);
+  ctx.fill();
+  elipsa(0, -inalt - lat * 0.34, lat * 0.25, lat * 0.29);
+  ctx.fill();
+
+  // Părul.
+  ctx.fillStyle = c.par;
+  elipsa(0, -inalt - lat * 0.44, lat * 0.26, lat * 0.19);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+/* Mâinile stau sus, pe marginea mesei — altfel blatul le-ar acoperi, iar mâna
+   de aur a unuia dintre ei e tot ce-l deosebește de un om oarecare. */
+function mainileDeOm(p, stangaCuloare, dreaptaCuloare) {
+  const lat = p.latime * U, inalt = p.inaltime * U;
+  const culori = [stangaCuloare, dreaptaCuloare];
+  let i = 0;
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.fillStyle = culori[i++];
+    elipsa(s * lat * 0.40, -inalt * 0.60, lat * 0.14, lat * 0.12);
+    ctx.fill();
+  }
+}
+
+/* --- Cei doi de la masa a doua ------------------------------------------- */
+
+const omulCuMana = {
+  nume: "Omul cu mâna de aur",
+  latime: 8, inaltime: 17, scara: 0.78, faza: 0.7, x: 0, y: 0
+};
+omulCuMana.deseneaza = function (context, t) {
+  context.save();
+  context.translate(this.x, this.y);
+  context.scale(this.scara, this.scara);
+  trupDeOm(this, {
+    pantalon: OM.haina, camasa: OM.camasa, maneca: OM.camasa,
+    piele: OM.piele, par: OM.par
+  }, t);
+  // Una dintre mâini e de aur. E singurul lucru care sclipește la el.
+  mainileDeOm(this, OM.piele, AUR.corp);
+  ctx.fillStyle = AUR.lucios;
+  elipsa(this.latime * U * 0.37, -this.inaltime * U * 0.62,
+         this.latime * U * 0.05, this.latime * U * 0.04);
+  ctx.fill();
+  context.restore();
+};
+omulCuMana.actualizeaza = function () {};
+
+const omulDeAur = {
+  nume: "Omul de aur",
+  latime: 8, inaltime: 17.5, scara: 0.78, faza: 2.1, x: 0, y: 0
+};
+omulDeAur.deseneaza = function (context, t) {
+  context.save();
+  context.translate(this.x, this.y);
+  context.scale(this.scara, this.scara);
+  // Tot din aur: haine, piele, păr. Nu se distinge nimic, doar lumina pe el.
+  trupDeOm(this, {
+    pantalon: AUR.corp, camasa: AUR.corp, maneca: AUR.corp,
+    piele: AUR.corp, par: AUR.umbra
+  }, t);
+  mainileDeOm(this, AUR.corp, AUR.corp);
+  // Lumina care i se plimbă pe umeri și pe frunte.
+  ctx.fillStyle = AUR.lucios;
+  elipsa(-this.latime * U * 0.10, -this.inaltime * U - this.latime * U * 0.40,
+         this.latime * U * 0.10, this.latime * U * 0.07);
+  ctx.fill();
+  elipsa(-this.latime * U * 0.20, -this.inaltime * U * 0.92,
+         this.latime * U * 0.08, this.latime * U * 0.16);
+  ctx.fill();
+  context.restore();
+};
+omulDeAur.actualizeaza = function () {};
+
+/* --- Șahul dintre ei ------------------------------------------------------ */
+
+const sah = { x: 0, y: 0, lat: 0, inalt: 0, piese: [], randul: 0, cronometru: 2.5 };
+const TABLA = { deschis: "#d9c7a0", inchis: "#5d4326", alb: "#efe6d2", negru: "#2a2118" };
+
+function celulaSah(i, j) {
+  return {
+    x: sah.x - sah.lat / 2 + (i + 0.5) * sah.lat / 8,
+    y: sah.y - sah.inalt / 2 + (j + 0.5) * sah.inalt / 8
+  };
+}
+
+function asazaSahul() {
+  sah.x = masa2.x;
+  sah.y = masa2.y - masa2.ry * 0.05;
+  sah.lat = masa2.rx * 1.02;
+  sah.inalt = masa2.ry * 1.15;
+
+  if (!sah.piese.length) {
+    const start = [[1, 6, 0], [3, 6, 0], [5, 6, 0], [2, 1, 1], [4, 1, 1], [6, 1, 1]];
+    for (const [i, j, alb] of start) {
+      const p = creeazaObiect(0, 0, 0);
+      p.i = i; p.j = j; p.alb = alb === 0;
+      sah.piese.push(p);
+    }
+  }
+  // La redimensionare piesele sar direct pe celula lor, fără animație.
+  for (const p of sah.piese) {
+    const c = celulaSah(p.i, p.j);
+    p.x = p.x1 = p.x0 = c.x;
+    p.y = p.y1 = p.y0 = c.y;
+    p.t = 1;
+  }
+}
+
+// Mută o piesă a jucătorului la rând pe o celulă liberă de alături.
+function mutaLaSah() {
+  const aleLui = sah.piese.filter(function (p) { return p.alb === (sah.randul === 0); });
+  if (!aleLui.length) return;
+  const p = aleLui[Math.floor(intreg(0, aleLui.length)) % aleLui.length];
+  const directii = [[0, -1], [0, 1], [1, 0], [-1, 0], [1, -1], [-1, -1]];
+
+  for (let incercari = 0; incercari < 8; incercari++) {
+    const d = directii[Math.floor(intreg(0, directii.length)) % directii.length];
+    const i = p.i + d[0], j = p.j + d[1];
+    if (i < 0 || i > 7 || j < 0 || j > 7) continue;
+    if (sah.piese.some(function (q) { return q.i === i && q.j === j; })) continue;
+    p.i = i; p.j = j;
+    const c = celulaSah(i, j);
+    mutaObiect(p, c.x, c.y, 0, 0.5, 0);
+    return;
+  }
+}
+
+function deseneazaSah() {
+  const cw = sah.lat / 8, ch = sah.inalt / 8;
+  const x0 = sah.x - sah.lat / 2, y0 = sah.y - sah.inalt / 2;
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.40)";
+  dreptunghiRotunjit(x0 - 0.5 * U, y0 + 0.6 * U, sah.lat + U, sah.inalt, 0.4 * U);
+  ctx.fill();
+
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      ctx.fillStyle = (i + j) % 2 ? TABLA.inchis : TABLA.deschis;
+      ctx.fillRect(x0 + i * cw, y0 + j * ch, cw + 0.4, ch + 0.4);
+    }
+  }
+
+  for (const p of sah.piese) {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+    elipsa(p.x + 0.2 * U, p.y + 0.3 * U, cw * 0.34, cw * 0.20);
+    ctx.fill();
+    ctx.fillStyle = p.alb ? TABLA.alb : TABLA.negru;
+    elipsa(p.x, p.y - cw * 0.18, cw * 0.30, cw * 0.34);
+    ctx.fill();
+    elipsa(p.x, p.y + cw * 0.10, cw * 0.34, cw * 0.16);
+    ctx.fill();
+  }
+}
+
+/* --- Chelnerul ------------------------------------------------------------ */
+
+const chelnerul = {
+  nume: "Chelnerul",
+  latime: 8.5, inaltime: 18.5, scara: 0.6, faza: 1.3,
+  x: 0, y: 0, spre: 1, asteptare: 0, pas: 0, directie: 1, drum: []
+};
+
+chelnerul.actualizeaza = function (dt) {
+  const tinta = this.drum[this.spre];
+  if (!tinta) return;
+
+  if (this.asteptare > 0) {
+    this.asteptare -= dt;
+    this.pas = 0;
+    return;
+  }
+
+  const dx = tinta.x - this.x, dy = tinta.y - this.y;
+  const d = Math.hypot(dx, dy);
+  const viteza = 26 * U;
+
+  if (d <= viteza * dt) {
+    this.x = tinta.x;
+    this.y = tinta.y;
+    this.asteptare = tinta.pauza;
+    this.spre = (this.spre + 1) % this.drum.length;
+  } else {
+    this.x += (dx / d) * viteza * dt;
+    this.y += (dy / d) * viteza * dt;
+    this.pas += dt;
+    this.directie = dx >= 0 ? 1 : -1;
+  }
+  this.scara = scaraDupaAdancime(this.y);
+};
+
+chelnerul.deseneaza = function (context, t) {
+  context.save();
+  context.translate(this.x, this.y);
+  context.scale(this.scara, this.scara);
+  const lat = this.latime * U, inalt = this.inaltime * U;
+
+  trupDeOm(this, {
+    pantalon: CHELNER.vesta, camasa: CHELNER.camasa, maneca: CHELNER.camasa,
+    piele: CHELNER.piele, par: CHELNER.par
+  }, t);
+
+  // Vesta neagră peste cămașa albă, și șorțul lung până sub genunchi.
+  ctx.fillStyle = CHELNER.vesta;
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.beginPath();
+    ctx.moveTo(s * lat * 0.34, -inalt);
+    ctx.lineTo(s * lat * 0.08, -inalt * 0.97);
+    ctx.lineTo(s * lat * 0.16, -inalt * 0.44);
+    ctx.lineTo(s * lat * 0.34, -inalt * 0.44);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.fillStyle = CHELNER.sort;
+  dreptunghiRotunjit(-lat * 0.30, -inalt * 0.52, lat * 0.60, inalt * 0.40, lat * 0.06);
+  ctx.fill();
+
+  // Papionul.
+  ctx.fillStyle = CHELNER.papion;
+  elipsa(0, -inalt - lat * 0.06, lat * 0.09, lat * 0.05);
+  ctx.fill();
+
+  // Mustața neagră — se vede de departe mai bine decât orice altceva de pe fața lui.
+  ctx.fillStyle = CHELNER.mustata;
+  elipsa(0, -inalt - lat * 0.28, lat * 0.11, lat * 0.035);
+  ctx.fill();
+
+  // Tava, ținută sus pe o mână.
+  ctx.fillStyle = CHELNER.tava;
+  elipsa(this.directie * lat * 0.46, -inalt * 0.86, lat * 0.24, lat * 0.08);
+  ctx.fill();
+
+  context.restore();
+};
+
+/* --- Barmanul ------------------------------------------------------------- */
+
+const barmanul = {
+  nume: "Barmanul",
+  latime: 8.5, inaltime: 18, scara: 0.55, faza: 0.2,
+  x: 0, y: 0, mers: 0, sterge: 0
+};
+
+barmanul.actualizeaza = function (dt) {
+  // Se plimbă încet de la un capăt la altul al tejghelei, fără să iasă din ea.
+  this.mers += dt * 0.22;
+  const mijloc = (bar.x0 + bar.x1) / 2;
+  this.x = mijloc + Math.sin(this.mers) * (bar.x1 - bar.x0) * 0.24;
+  this.y = bar.y + bar.inalt * 0.55;
+  this.sterge += dt;
+};
+
+barmanul.deseneaza = function (context, t) {
+  context.save();
+  context.translate(this.x, this.y);
+  context.scale(this.scara, this.scara);
+  const lat = this.latime * U, inalt = this.inaltime * U;
+
+  trupDeOm(this, {
+    pantalon: BARMAN.pantalon, camasa: BARMAN.camasa, maneca: BARMAN.camasa,
+    piele: BARMAN.piele, par: BARMAN.par
+  }, t);
+
+  // Bretelele peste cămașa albă.
+  ctx.fillStyle = BARMAN.bretele;
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.beginPath();
+    ctx.moveTo(s * lat * 0.20, -inalt);
+    ctx.lineTo(s * lat * 0.28, -inalt);
+    ctx.lineTo(s * lat * 0.16, -inalt * 0.46);
+    ctx.lineTo(s * lat * 0.08, -inalt * 0.46);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.fillStyle = BARMAN.papion;
+  elipsa(0, -inalt - lat * 0.06, lat * 0.10, lat * 0.05);
+  ctx.fill();
+
+  // Barba.
+  ctx.fillStyle = BARMAN.par;
+  elipsa(0, -inalt - lat * 0.24, lat * 0.19, lat * 0.14);
+  ctx.fill();
+  ctx.fillStyle = BARMAN.piele;
+  elipsa(0, -inalt - lat * 0.34, lat * 0.20, lat * 0.16);
+  ctx.fill();
+
+  // Paharul pe care îl tot șterge.
+  ctx.fillStyle = BARMAN.pahar;
+  const rasucire = 0.5 + 0.5 * Math.sin(this.sterge * 2.2);
+  dreptunghiRotunjit(lat * 0.30, -inalt * 0.72 - rasucire * 0.6 * U,
+                     lat * 0.16, lat * 0.30, lat * 0.05);
+  ctx.fill();
+
+  context.restore();
+};
+
+/* --- Așezarea lor în local ------------------------------------------------ */
+
+function asazaFundalul() {
+  // Destul de sus cât să li se vadă mai mult de jumătate de om peste blat.
+  omulCuMana.x = masa2.x - masa2.rx * 0.80;
+  omulCuMana.y = masa2.y + masa2.ry * 0.05;
+  omulDeAur.x = masa2.x + masa2.rx * 0.80;
+  omulDeAur.y = masa2.y + masa2.ry * 0.05;
+
+  chelnerul.drum = [
+    { x: W * 0.30, y: bar.y + bar.inalt + 7 * U, pauza: 2.2 },                    // la bar
+    { x: masa2.x + masa2.rx * 0.1, y: masa2.y + masa2.ry * 2.4, pauza: 3.0 },     // la masa a doua
+    { x: cx - masa.rx * 1.15, y: cy + masa.ry * 0.25, pauza: 2.6 },               // pe la noi
+    { x: W * 0.66, y: bar.y + bar.inalt + 7 * U, pauza: 1.6 }                     // înapoi spre bar
+  ];
+  if (!chelnerul.pornit) {
+    chelnerul.x = chelnerul.drum[0].x;
+    chelnerul.y = chelnerul.drum[0].y;
+    chelnerul.pornit = true;
+  }
+  chelnerul.scara = scaraDupaAdancime(chelnerul.y);
+
+  barmanul.x = (bar.x0 + bar.x1) / 2;
+  barmanul.y = bar.y + bar.inalt * 0.55;
+
+  if (!fundal.length) fundal.push(omulCuMana, omulDeAur, chelnerul, barmanul);
+  asazaSahul();
+}
+
+function actualizeazaFundal(dt) {
+  for (const p of fundal) p.actualizeaza(dt);
+
+  sah.cronometru -= dt;
+  if (sah.cronometru <= 0) {
+    mutaLaSah();
+    sah.randul = 1 - sah.randul;
+    sah.cronometru = intreg(4, 9);
+  }
+  for (const p of sah.piese) actualizeazaObiect(p, dt);
+}
+
+/* ==========================================================================
    6. MAȘINA DE STĂRI A UNEI MÂINI
    ========================================================================== */
 
@@ -1216,7 +1643,7 @@ function schimbaStarea(noua) {
     for (let i = 0; i < cartiPeMasa.length; i++) {
       const c = cartiPeMasa[i];
       c.fataInSus = false;
-      mutaCarte(c, castigator.manaX, castigator.manaY, castigator.rotCarte, 0.55, i * 0.06);
+      mutaObiect(c, castigator.manaX, castigator.manaY, castigator.rotCarte, 0.55, i * 0.06);
     }
   }
   else if (noua === "reactie") {
@@ -1233,7 +1660,7 @@ function schimbaStarea(noua) {
     // Tot ce a rămas se întoarce la teanc.
     for (const c of carti) {
       c.fataInSus = false;
-      mutaCarte(c, teanc.x, teanc.y, -0.12, 0.5, Math.random() * 0.12);
+      mutaObiect(c, teanc.x, teanc.y, -0.12, 0.5, Math.random() * 0.12);
     }
   }
 }
@@ -1279,7 +1706,7 @@ function actualizeazaJocul(dt) {
       const c = p.mana.pop();
       c.fataInSus = true;
       // Cartea aterizează puțin dezordonat — nimeni nu pune perfect drept.
-      mutaCarte(c,
+      mutaObiect(c,
         p.masaX + intreg(-0.8, 0.8) * U,
         p.masaY + intreg(-0.8, 0.8) * U,
         p.rotCarte + intreg(-0.14, 0.14),
@@ -1328,8 +1755,9 @@ let t = 0;   // timpul total, folosit de animațiile de idle
 function actualizeazaTot(dt) {
   actualizeazaJocul(dt);
   for (const p of personaje) actualizeazaPersonaj(p, dt);
-  for (const c of carti) actualizeazaCarte(c, dt);
+  for (const c of carti) actualizeazaObiect(c, dt);
   actualizeazaParticule(dt);
+  actualizeazaFundal(dt);
 }
 
 /* Ordinea de desenare ține loc de adâncime: cine e mai aproape, mai târziu.
@@ -1337,8 +1765,22 @@ function actualizeazaTot(dt) {
    jos, iar celui din față îi trece spătarul scaunului peste picioare. */
 function deseneazaTot() {
   deseneazaFundal();
-  deseneazaBar();
-  deseneazaMasa2();
+
+  // Barul, cu barmanul prins între raft și tejghea.
+  deseneazaBarFundal();
+  barmanul.deseneaza(ctx, t);
+  deseneazaTejghea();
+
+  // Masa a doua, cu cei doi jucători de șah prinși între picior și blat.
+  deseneazaMasa2Sub();
+  omulCuMana.deseneaza(ctx, t);
+  omulDeAur.deseneaza(ctx, t);
+  deseneazaMasa2Blat();
+  deseneazaSah();
+
+  // Chelnerul umblă prin local: dacă e mai departe decât masa noastră, trece
+  // pe după ea; dacă a ajuns la noi, îl vedem în fața ei.
+  if (chelnerul.y < cy) chelnerul.deseneaza(ctx, t);
 
   for (const p of personaje) {
     if (Math.sin(p.unghi) < 0) {          // cei din spate
@@ -1357,6 +1799,8 @@ function deseneazaTot() {
       deseneazaSpatar(p);
     }
   }
+
+  if (chelnerul.y >= cy) chelnerul.deseneaza(ctx, t);
 
   deseneazaTeanc();
   for (const c of carti) deseneazaCarte(c);

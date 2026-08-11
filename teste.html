@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ro">
 <head>
 <meta charset="utf-8">
@@ -249,7 +249,7 @@ const EXPORTURI = `
 return {
   usor: usor, interpoleaza: interpoleaza, normalizeazaUnghi: normalizeazaUnghi,
   personaje: personaje, carti: carti, cartiPeMasa: cartiPeMasa,
-  creeazaCarte: creeazaCarte, mutaCarte: mutaCarte, actualizeazaCarte: actualizeazaCarte,
+  creeazaCarte: creeazaCarte, mutaObiect: mutaObiect, actualizeazaObiect: actualizeazaObiect,
   deseneazaPersonaj: deseneazaPersonaj, actualizeazaPersonaj: actualizeazaPersonaj,
   trimiteEveniment: trimiteEveniment,
   actualizeazaJocul: actualizeazaJocul, schimbaStarea: schimbaStarea,
@@ -265,6 +265,9 @@ return {
   masa: masa,
   bar: typeof bar !== "undefined" ? bar : null,
   masa2: typeof masa2 !== "undefined" ? masa2 : null,
+  fundal: typeof fundal !== "undefined" ? fundal : null,
+  sah: typeof sah !== "undefined" ? sah : null,
+  actualizeazaFundal: typeof actualizeazaFundal !== "undefined" ? actualizeazaFundal : null,
   deseneazaTot: typeof deseneazaTot !== "undefined" ? deseneazaTot : null,
   deseneazaCarte: deseneazaCarte,
   timpDeGandire: typeof timpDeGandire !== "undefined" ? timpDeGandire : null,
@@ -322,8 +325,9 @@ function porneste(optiuni) {
       const dt = Math.min(p, ramas);
       scena.actualizeazaJocul(dt);
       for (const pers of scena.personaje) scena.actualizeazaPersonaj(pers, dt);
-      for (const c of scena.carti) scena.actualizeazaCarte(c, dt);
+      for (const c of scena.carti) scena.actualizeazaObiect(c, dt);
       if (scena.actualizeazaParticule) scena.actualizeazaParticule(dt);
+      if (scena.actualizeazaFundal) scena.actualizeazaFundal(dt);
       ramas -= dt;
     }
   };
@@ -483,11 +487,11 @@ function testeCiclu() {
   test("cărțile nu sar: se interpolează spre țintă", function () {
     const s = porneste();
     const c = s.creeazaCarte(0, 0, 0);
-    s.mutaCarte(c, 100, 0, 0, 1, 0);
+    s.mutaObiect(c, 100, 0, 0, 1, 0);
     egal(c.x, 0, "cartea nu se mișcă înainte de actualizare");
-    s.actualizeazaCarte(c, 0.5);
+    s.actualizeazaObiect(c, 0.5);
     adevarat(c.x > 0 && c.x < 100, "la jumătatea drumului cartea e între capete, e la " + c.x);
-    s.actualizeazaCarte(c, 0.6);
+    s.actualizeazaObiect(c, 0.6);
     aproape(c.x, 100, 1e-9, "la final cartea e exact în țintă");
   });
 }
@@ -1172,6 +1176,179 @@ function testeLocalul() {
   });
 }
 
+/* --- 6.8 Faza 8: lumea din local ------------------------------------------- */
+
+const AUR_CORP       = "#d4a12a";
+const PIELE_OM       = "#d8a883";
+const CAMASA_CHELNER = "#f0efea";
+const MUSTATA        = "#181410";
+const CAMASA_BARMAN  = "#f2f1ec";
+const TABLA_DESCHIS  = "#d9c7a0";
+const TABLA_INCHIS   = "#5d4326";
+
+function dinFundal(s, nume) {
+  adevarat(s.fundal, "lipsește lumea din local");
+  const p = s.fundal.find(function (x) { return x.nume === nume; });
+  if (!p) cade("nu există „" + nume + "” — sunt doar: " +
+               s.fundal.map(function (x) { return x.nume; }).join(", "));
+  return p;
+}
+
+function deseneazaDinFundal(s, p, t) {
+  s.goleste();
+  p.deseneaza(s.panza.ctx, t || 0);
+  return s.desene.slice();
+}
+
+function testeLumeaDinLocal() {
+  sectiune("6.8 Faza 8 — Lumea din local");
+
+  test("reptilianul nu mai e cel mai mic de la masă", function () {
+    const s = porneste();
+    const rept = s.personaj("Reptilianul");
+    const clovn = s.personaj("Clovnul");
+    adevarat(rept.inaltime > clovn.inaltime,
+             "reptilianul e de " + rept.inaltime + "U, clovnul de " + clovn.inaltime + "U");
+    adevarat(rept.latime > clovn.latime, "și trebuie să fie și mai lat decât clovnul");
+  });
+
+  test("localul are patru oameni ai lui, cu același contract", function () {
+    const s = porneste();
+    adevarat(s.fundal, "lipsește lumea din local");
+    egal(s.fundal.length, 4, "personaje de fundal");
+    for (const p of s.fundal) {
+      egal(typeof p.deseneaza, "function", p.nume + ".deseneaza");
+      egal(typeof p.actualizeaza, "function", p.nume + ".actualizeaza");
+    }
+  });
+
+  test("cei doi stau la masa a doua, față în față", function () {
+    const s = porneste();
+    const a = dinFundal(s, "Omul cu mâna de aur");
+    const b = dinFundal(s, "Omul de aur");
+    for (const p of [a, b]) {
+      adevarat(Math.abs(p.x - s.masa2.x) < s.masa2.rx * 1.3 &&
+               Math.abs(p.y - s.masa2.y) < s.masa2.ry * 2.5,
+               p.nume + " nu stă la masa a doua");
+    }
+    adevarat((a.x - s.masa2.x) * (b.x - s.masa2.x) < 0,
+             "trebuie să stea de o parte și de alta a mesei");
+  });
+
+  test("unul e om în carne și oase, cu o mână de aur", function () {
+    const s = porneste();
+    const c = culori(deseneazaDinFundal(s, dinFundal(s, "Omul cu mâna de aur"), 0));
+    adevarat(c.has(PIELE_OM), "n-are piele — atunci nu mai e om");
+    adevarat(c.has(AUR_CORP), "n-are nimic de aur");
+  });
+
+  test("celălalt e făcut tot din aur", function () {
+    const s = porneste();
+    const d = deseneazaDinFundal(s, dinFundal(s, "Omul de aur"), 0);
+    adevarat(!culori(d).has(PIELE_OM), "omul de aur n-are voie să aibă piele");
+    adevarat(formeDeCuloare(d, AUR_CORP).length >= 5,
+             "prea puțin aur pe el: " + formeDeCuloare(d, AUR_CORP).length + " forme");
+  });
+
+  test("între ei e o tablă de șah", function () {
+    const s = porneste();
+    const d = cadruIntreg(s);
+    const deschise = formeDeCuloare(d, TABLA_DESCHIS);
+    const inchise = formeDeCuloare(d, TABLA_INCHIS);
+    adevarat(deschise.length + inchise.length >= 32,
+             "tabla are doar " + (deschise.length + inchise.length) + " pătrate");
+    for (const p of deschise) {
+      adevarat(Math.abs(p.limite.cx - s.masa2.x) < s.masa2.rx,
+               "tabla trebuie să stea pe masa lor");
+    }
+  });
+
+  test("mută pe rând, din când în când", function () {
+    const s = porneste();
+    adevarat(s.sah && s.sah.piese && s.sah.piese.length >= 4, "n-are piese");
+    const inainte = s.sah.piese.map(function (p) { return p.x1 + "," + p.y1; }).join("|");
+    s.avanseaza(25);
+    const dupa = s.sah.piese.map(function (p) { return p.x1 + "," + p.y1; }).join("|");
+    adevarat(inainte !== dupa, "în 25 de secunde n-a mutat nimeni nimic");
+  });
+
+  test("chelnerul face turul localului: barul, masa a doua, masa noastră", function () {
+    const s = porneste();
+    const ch = dinFundal(s, "Chelnerul");
+    adevarat(ch.drum && ch.drum.length >= 3, "chelnerul n-are drum");
+    const langaBar = ch.drum.some(function (o) { return Math.abs(o.y - s.bar.y) < 20 * s.U(); });
+    const langaMasa2 = ch.drum.some(function (o) {
+      return Math.hypot(o.x - s.masa2.x, o.y - s.masa2.y) < s.masa2.rx * 2.2;
+    });
+    const langaNoi = ch.drum.some(function (o) {
+      return Math.hypot(o.x - s.cx(), o.y - s.cy()) < s.masa.rx * 1.8;
+    });
+    adevarat(langaBar, "nu trece pe la bar");
+    adevarat(langaMasa2, "nu trece pe la masa a doua");
+    adevarat(langaNoi, "nu trece niciodată pe la noi");
+  });
+
+  test("chelnerul chiar se plimbă, și se întoarce de unde a plecat", function () {
+    const s = porneste();
+    const ch = dinFundal(s, "Chelnerul");
+    const start = { x: ch.x, y: ch.y };
+    s.avanseaza(6);
+    adevarat(Math.hypot(ch.x - start.x, ch.y - start.y) > 3 * s.U(), "a rămas pe loc");
+    let intors = false;
+    for (let i = 0; i < 120 && !intors; i++) {
+      s.avanseaza(1);
+      if (Math.hypot(ch.x - start.x, ch.y - start.y) < 3 * s.U()) intors = true;
+    }
+    adevarat(intors, "nu s-a mai întors de unde a plecat");
+  });
+
+  test("chelnerul e în alb și negru, cu mustață", function () {
+    const s = porneste();
+    const c = culori(deseneazaDinFundal(s, dinFundal(s, "Chelnerul"), 0));
+    adevarat(c.has(CAMASA_CHELNER), "lipsește cămașa albă");
+    adevarat(c.has(MUSTATA), "lipsește mustața");
+  });
+
+  test("barmanul nu iese din spatele tejghelei", function () {
+    const s = porneste();
+    const b = dinFundal(s, "Barmanul");
+    for (let i = 0; i < 60; i++) {
+      s.avanseaza(1);
+      adevarat(b.x > s.bar.x0 && b.x < s.bar.x1, "a ieșit lateral din bar");
+      adevarat(b.y > s.bar.raft && b.y < s.bar.y + s.bar.inalt,
+               "a ieșit din spatele tejghelei (y=" + Math.round(b.y) + ")");
+    }
+  });
+
+  test("tejgheaua îl acoperă pe barman de la brâu în jos", function () {
+    const s = porneste();
+    const d = cadruIntreg(s);
+    const barman = candApare(d, CAMASA_BARMAN);
+    const tejghea = candApare(d, TEJGHEA);
+    adevarat(barman >= 0, "barmanul nu se desenează");
+    adevarat(barman < tejghea,
+             "barmanul trebuie desenat înaintea tejghelei, ca să-l acopere");
+  });
+
+  test("lumea din local nu află nimic despre partida noastră", function () {
+    const s = porneste();
+    s.panaLaStarea("reactie");
+    for (const p of s.fundal) {
+      egal(p.ultimulVecinCastigator, undefined, p.nume + " a aflat cine a câștigat");
+    }
+  });
+
+  test("fundalul rămâne mai mic decât masa noastră", function () {
+    const s = porneste();
+    const clovn = s.personaj("Clovnul");
+    for (const p of s.fundal) {
+      adevarat(p.scara < clovn.scara,
+               p.nume + " e desenat la " + p.scara.toFixed(2) +
+               ", cât cei de la masa noastră (" + clovn.scara.toFixed(2) + ")");
+    }
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -1194,6 +1371,7 @@ function testeLocalul() {
   testeReptilian();
   testeRafinare();
   testeLocalul();
+  testeLumeaDinLocal();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

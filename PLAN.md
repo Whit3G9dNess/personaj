@@ -21,7 +21,7 @@ funcționează deja.
 | 5 | Reptilianul | ✅ gata |
 | 6 | Rafinare | ✅ gata |
 | 7 | Localul: masa cu scaune, barul, masa a doua | ✅ gata |
-| 8 | Lumea din local: clienții, chelnerul, barmanul | ⬜ |
+| 8 | Lumea din local: clienții, chelnerul, barmanul | ✅ gata |
 | 9 | Comanda și sunetul | ⬜ |
 
 ---
@@ -180,22 +180,40 @@ trei stau acum pe scaune, cu umbrele pe blat.
 Localul capătă oameni. Amândoi de aici sunt de fundal: nu joacă, nu știu de
 cărți, au ciclul lor.
 
-- **Doi clienți** la masa a doua, care stau de vorbă: idle lent, gesturi rare,
-  unul se apleacă spre celălalt când „vorbește". Fără reguli, fără cărți.
+- **Doi clienți** la masa a doua, care **joacă șah**: unul e om în carne și oase
+  cu o mână de aur, celălalt e făcut tot din aur, din cap până-n picioare. Mută
+  pe rând, la câteva secunde, fără reguli adevărate — ca și cărțile de la masa
+  noastră.
 - **Chelnerul**, care se plimbă prin local cu tava: pe la bar, pe la masa a
   doua, și pe la masa noastră din când în când. Nu așteaptă să fie chemat —
   face turul lui oricum. Se oprește puțin la fiecare popas, apoi merge mai
-  departe. Un ciclu propriu, independent de al mesei principale.
-- **Barmanul**, care se plimbă în spatele tejghelei: șterge un pahar, se mută la
-  celălalt capăt, se apleacă după o sticlă. Nu iese niciodată din spatele
-  barului.
+  departe. Costum clasic alb-negru, șorț lung, mustață neagră, păr brunet.
+- **Barmanul**, care se plimbă în spatele tejghelei ștergând un pahar: cămașă
+  albă cu mânecile suflecate, bretele, papion, barbă. Nu iese niciodată din
+  spatele barului.
 
-Contractul e cel de la masa mare (`deseneaza`, `actualizeaza`, `reactie`), ca să
-nu apară un al doilea fel de a face un personaj. Diferența e doar că pe ăștia
-nu-i cheamă nimeni: nu primesc evenimente de la mașina de stări a jocului.
+Contractul e cel de la masa mare (`deseneaza`, `actualizeaza`), ca să nu apară
+un al doilea fel de a face un personaj. Diferența e doar că pe ăștia nu-i cheamă
+nimeni: nu primesc evenimente de la mașina de stări a jocului, și un test
+verifică asta — după o mână întreagă, niciunul nu știe cine a câștigat.
+
+Toți patru sunt croiți pe același trup de bază, fiindcă sunt fundal: nu trebuie
+să fie cineva anume. Fiecare desenează peste el ce are în plus — mâna de aur,
+șorțul și tava, bretelele și paharul.
+
+Adâncimea o dă tot ordinea desenării, ca la Faza 7: barmanul e prins între raft
+și tejghea, cei doi șahiști între piciorul mesei și blat, iar chelnerul se
+desenează înainte sau după masa noastră, după cum e mai departe sau mai aproape
+decât ea.
+
+Mișcarea dintr-un loc în altul nu mai e a cărților: `mutaObiect` /
+`actualizeazaObiect` mută la fel și piesele de șah.
 
 **Verificare:** localul e viu, dar dacă te uiți la masa celor trei, nimic din ce
 se întâmplă în spate nu te trage cu ochiul.
+
+**Rămas de aici:** reptilianul era prea mic față de ceilalți doi și a fost mărit
+la 13×25U — acum e al doilea ca mărime, după draconian.
 
 ## Faza 9 — Comanda și sunetul
 
@@ -260,7 +278,6 @@ care ai comandat are un pahar din care soarbe. Partida n-a stat nicio clipă.
 
 ## Ce rămâne de hotărât la fazele 7–9
 
-- Ce fel de creaturi sunt cei doi clienți, chelnerul și barmanul.
 - Cum arată meniul de comandă: pahare desenate lângă personaj, sau un rând de
   cuvinte jos.
 - Cum ceri meniul: clic pe personaj, sau apare singur când trece chelnerul pe

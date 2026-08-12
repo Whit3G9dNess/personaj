@@ -24,7 +24,7 @@ funcționează deja.
 | 8 | Lumea din local: clienții, chelnerul, barmanul | ✅ gata |
 | 9 | Comanda, bucătăria și sunetul | ✅ gata |
 | 10 | Partida adevărată: joci tu cărțile clovnului | ✅ gata |
-| 11 | Partida cu cap: trei levate, cărți întoarse, jokerul | 📝 scrisă, neîncepută |
+| 11 | Partida cu cap: trei levate, cărți întoarse, jokerul | ✅ gata |
 | 12 | Localul reașezat: masă pătrată, dealer, bucătar, chiuvetă | ✅ gata |
 
 ---
@@ -433,6 +433,21 @@ din ce merge. Apoi **2** și **3**, care merg împreună: fără cărți întoar
 jokerul e mort de fiecare dată când deschizi tu levata, fiindcă ceilalți îl văd
 și nu-și mai dau zecele. **4** și **5** sunt condimente, se pun oricând mai
 încolo.
+
+**Stadiu: 1, 2 și 3 sunt gata.** Ce s-a mai văzut pe drum, scris aici ca să nu
+se redescopere:
+
+- Cărțile întoarse schimbă și judecata adversarilor: până acum reptilianul se
+  uita la ce e pe masă și punea cea mai mică dintre cele care bat. Cu cărțile cu
+  fața în jos ar fi trișat, așa că acum joacă din ce are în mână și din a câta
+  levată e — își ține tăria pentru ultima. Tot de-aia modelului nu i se mai
+  spune ce s-a jucat, doar câți au pus înaintea lui.
+- Clovnul își arunca cărțile în aer când pierdea. Cu trei levate, ar fi rămas
+  fără ce juca după prima — acum gestul e al sfârșitului de mână și mătură
+  cărțile de pe masă, nu pe cele din mâna lui.
+- Reacțiile mari („castigaMana", „pierdeMana") se trimit după a treia levată,
+  celui cu cele mai multe și celui cu cele mai puține. De aici se poate lega,
+  mai încolo, și punctul **4**: cine pierde mâna face cinste.
 
 **Rămâne pe dinafară:** jetoane, mize, cash-out, scor scris pe ecran, magazin,
 mâncare care dă bonusuri la cărți, alte cărți speciale în afară de joker, 3D.

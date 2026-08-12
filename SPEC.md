@@ -8,10 +8,15 @@ O scenă animată, într-un singur fișier `index.html`, desenată în canvas 2D
 sonorizată în WebAudio. Fără biblioteci, fără build, fără fișiere externe — nici
 imagini, nici sunete: se deschide direct în browser.
 
-Cărțile au valori de la 1 la 10 și cea mai mare ia mâna. **Mâna clovnului o joci
-tu**: o vezi jos, în fața mesei, și alegi ce pune pe masă. Ceilalți doi joacă
-singuri. Dacă nu alegi nimic, joacă și el după douăsprezece secunde — scena
-rămâne bună și dacă doar te uiți la ea.
+Cărțile au valori de la 1 la 10 și cea mai mare ia levata. O mână ține **trei
+levate**: se împart trei cărți și se joacă toate, una pe levată, abia apoi se
+împart altele — de aici vine singura întrebare care contează, *dau zecele acum,
+sau îl țin?* Cărțile se pun **cu fața în jos** și se întorc toate odată, deci
+nimeni nu știe ce vine.
+
+**Mâna clovnului o joci tu**: o vezi jos, în fața mesei, și alegi ce pune pe
+masă. Ceilalți doi joacă singuri. Dacă nu alegi nimic, joacă și el după
+douăsprezece secunde — scena rămâne bună și dacă doar te uiți la ea.
 
 ## 2. Personajele
 
@@ -65,13 +70,27 @@ Cei trei joacă la o masă dintr-un bar.
 
 ## 4. Ciclul unei mâini
 
-1. Se împart cărțile (animație de distribuire, câte una pe rând).
-2. Fiecare personaj „se gândește" — un timp diferit pentru fiecare.
-3. Fiecare pune o carte pe masă, în ordine. Când e rândul clovnului, masa te
-   așteaptă pe tine.
-4. Cea mai mare carte ia mâna; câștigătorul trage cărțile spre el.
+Se împart trei cărți fiecăruia (animație de distribuire, câte una pe rând), apoi
+se joacă **trei levate** din ele. O levată ține așa:
+
+1. Fiecare personaj „se gândește" — un timp diferit pentru fiecare.
+2. Fiecare pune o carte pe masă, **cu fața în jos**, în ordine. Când e rândul
+   clovnului, masa te așteaptă pe tine.
+3. Când sunt toate jos, se **întorc pe rând** și se vede ce a jucat fiecare.
+4. Cea mai mare carte ia levata; câștigătorul trage cărțile spre el și deschide
+   levata următoare.
 5. Reacții: clovnul exagerează, draconianul scoate foc, reptilianul tace.
-6. Pauză scurtă, apoi se reia de la 1.
+6. Pauză scurtă, apoi urmează levata următoare.
+
+După a treia levată se vede cine a luat mai multe: ăla a câștigat mâna, iar cel
+cu cele mai puține o pierde — atunci clovnul mătură cărțile de pe masă în aer.
+Pe urmă se împart cărți noi și se ia de la capăt.
+
+**Jokerul.** Cam la fiecare a treia mână, una dintre cărțile împărțite e un
+joker: n-are cifră, are căciula bufonului. El **bate zecele**, dar pierde în
+fața oricărei alte cărți. Fiind mai mulți la masă, regula se spune așa ca să nu
+se învârtă în cerc: jokerul ia levata **doar dacă pe masă e un zece**; dacă nu
+e, el e cea mai mică de acolo. Așa zecele redevine riscant, și apare cacealmaua.
 
 Bucla merge la nesfârșit. Dacă nu atingi nimic, joacă și el în locul tău.
 

@@ -87,7 +87,17 @@ gol; apeși pe sticlă și îți torni singur. După ce
 comanda ajunge pe masă, se bea și se mănâncă din ea din când în când. Sunetul
 pornește la primul clic, fiindcă browserele nu-l lasă altfel.
 
-**Partida o joci tu.** Cărțile au valori de la 1 la 10 și cea mai mare ia mâna.
+**Partida o joci tu.** Cărțile au valori de la 1 la 10 și cea mai mare ia levata.
+O mână ține trei levate: primești trei cărți și le joci pe toate, una pe levată,
+abia apoi se împart altele — așa că întrebarea e mereu aceeași, *dau zecele
+acum, sau îl țin pentru mai încolo?* Cărțile se pun cu fața în jos și se întorc
+toate odată, deci nu vezi ce a jucat celălalt decât la sfârșit.
+
+Din trei în trei mâini, cam așa, cuiva îi pică un **joker**: n-are cifră, are
+căciula bufonului, și bate zecele — dar pierde în fața oricărei alte cărți, și
+ia levata doar dacă chiar a căzut un zece pe masă. E o cacealma, nu o carte
+mare.
+
 Mâna clovnului o vezi jos, în fața mesei — când îți vine rândul, cărțile se
 ridică puțin și se aprinde o lumină caldă sub ele. Dai clic pe una și o pune pe
 masă. Dacă nu te hotărăști în douăsprezece secunde, joacă el — scena rămâne bună
@@ -99,5 +109,6 @@ Dealerul împarte și, cam la una din șapte mâini, zice „hai că joc și eu 
 Draconianul și reptilianul joacă singuri. Dacă ai **Ollama** pornit pe
 calculator, sunt conduși de modelul de acolo, fiecare cu firea lui; altfel, de o
 judecată scrisă în cod — draconianul trântește cea mai mare carte, reptilianul
-câștigă cu cât mai puțin. Nu trebuie să instalezi nimic: fără Ollama, scena
-merge exact la fel de repede.
+își drămuiește mâna și ține tăria pentru ultima levată. Niciunul nu trage cu
+ochiul la cărțile întoarse de pe masă: joacă din ce are în mână, ca și tine. Nu
+trebuie să instalezi nimic: fără Ollama, scena merge exact la fel de repede.

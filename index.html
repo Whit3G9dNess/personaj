@@ -69,8 +69,9 @@ function calculeazaGeometria() {
   // Masa: blat pătrat, turtit de unghiul din care o privim.
   /* Cât de mare e masa hotărăște tot restul: prea lată, și cei patru se
      depărtează unul de altul până nu mai par la aceeași masă, iar cel din spate
-     ajunge cu capul în bar. */
-  masa.rx = Math.min(W * 0.21, H * 0.35);
+     ajunge cu capul în bar; prea mică, și nu mai încap cărțile pe ea fără să se
+     ascundă în spatele clovnului, care stă între noi și blat. */
+  masa.rx = Math.min(W * 0.24, H * 0.40);
   masa.ry = masa.rx * 0.42;
 
   latCarte   = 4.4 * U;
@@ -645,11 +646,33 @@ function deseneazaCarte(c) {
     ctx.fillStyle = "#f7ecd8";
     dreptunghiRotunjit(-l / 2, -i / 2, l, i, 0.7 * U);
     ctx.fill();
-    // Valoarea, scrisă mare la mijloc: după ea se ia mâna.
-    ctx.fillStyle = "#8a2f2a";
-    ctx.font = "bold " + Math.round(3.2 * U) + "px system-ui, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(String(c.valoare === undefined ? "" : c.valoare), 0, 1.15 * U);
+    if (c.joker) {
+      // Jokerul n-are cifră: are căciula bufonului, cu două vârfuri și clopoței.
+      const s = k * U;
+      ctx.fillStyle = "#8a2f2a";
+      ctx.beginPath();
+      ctx.moveTo(-1.5 * s, 0.9 * s);
+      ctx.lineTo(-1.7 * s, -1.5 * s);
+      ctx.lineTo(-0.5 * s, -0.2 * s);
+      ctx.lineTo(0.5 * s, -0.2 * s);
+      ctx.lineTo(1.7 * s, -1.5 * s);
+      ctx.lineTo(1.5 * s, 0.9 * s);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#e8a13c";
+      for (const sx of [-1.7, 1.7]) {
+        elipsa(sx * s, -1.7 * s, 0.42 * s, 0.42 * s);
+        ctx.fill();
+      }
+      elipsa(0, 1.4 * s, 0.9 * s, 0.32 * s);      // gulerul de sub căciulă
+      ctx.fill();
+    } else {
+      // Valoarea, scrisă mare la mijloc: după ea se ia levata.
+      ctx.fillStyle = "#8a2f2a";
+      ctx.font = "bold " + Math.round(3.2 * U) + "px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(String(c.valoare === undefined ? "" : c.valoare), 0, 1.15 * U);
+    }
     ctx.strokeStyle = "rgba(120, 90, 60, 0.5)";
     ctx.lineWidth = 0.18 * U;
     dreptunghiRotunjit(-l / 2 + 0.5 * U, -i / 2 + 0.5 * U, l - U, i - U, 0.4 * U);
@@ -819,14 +842,16 @@ function deseneazaParticule() {
 const personaje = [
   {
     nume: "Clovnul",
-    loc: { kx: 0.08, ky: 1.42, scara: 1.00, unghi: Math.PI / 2 },   // în față, cu spatele la privitor
+    loc: { kx: 0.08, ky: 1.42, scara: 1.00, unghi: Math.PI / 2,     // în față, cu spatele la privitor
+           cartiSpre: -0.26, cartiSus: -0.34 },
     esteJucatorul: true, inFata: true,
     ritm: 1.9, latime: 11, inaltime: 20,
     gandire: 0.9, haos: 0.75                   // repede, dar niciodată la fel
   },
   {
     nume: "Draconianul",
-    loc: { kx: -0.32, ky: -0.64, scara: 0.82, unghi: -Math.PI / 2 },  // pe latura din spate
+    loc: { kx: -0.32, ky: -0.45, scara: 0.80, unghi: -Math.PI / 2,  // pe latura din spate
+           cartiSpre: -0.30, cartiSus: -0.22 },
     ritm: 0.9, latime: 15, inaltime: 24,
     gandire: 1.6, haos: 0.25                   // masiv și lent
   },
@@ -854,7 +879,7 @@ const DEALER = {
 
 const dealerul = {
   nume: "Dealerul",
-  loc: { kx: -1.02, ky: 0.55, scara: 0.90, unghi: Math.PI },
+  loc: { kx: -1.02, ky: 0.55, scara: 0.90, unghi: Math.PI, cartiSpre: -0.12, cartiSus: 0.15 },
   ritm: 1.1, latime: 9.5, inaltime: 19,
   // Când intră și el în mână, joacă repede și fără ezitări: e meseria lui.
   gandire: 0.8, haos: 0.12,
@@ -942,12 +967,16 @@ function aseazaPersonaj(p) {
   const c = Math.cos(p.unghi), s = Math.sin(p.unghi);
 
   // Punctul unde își ține mâna de cărți și unde pune cartea jucată.
-  p.manaX = cx + masa.rx * 0.78 * c;
   p.manaY = cy + masa.ry * 0.78 * s;
-  /* Cartea jucată. Celui din față i-ar cădea drept peste cap — el stă între noi
-     și masă —, așa că a lui se așază puțin într-o parte, la vedere. */
-  p.masaX = cx + masa.rx * (0.32 * c - (p.inFata ? 0.26 : 0));
-  p.masaY = cy + masa.ry * (0.32 * s - (p.inFata ? 0.34 : 0));
+  /* Cartea jucată și mâna lui. Clovnul stă între noi și masă, iar capul lui
+     acoperă mijlocul blatului — cine pune cartea drept în mijloc (el însuși, sau
+     cel din spate) o pune de fapt în spatele lui și nu se mai vede nimic. De
+     aceea fiecare loc își dă cărțile puțin într-o parte, în dreptul lui:
+     `cartiSpre` pe orizontală, `cartiSus` pe verticală. */
+  const spre = p.loc.cartiSpre || 0;
+  p.manaX = cx + masa.rx * (0.78 * c + spre);
+  p.masaX = cx + masa.rx * (0.32 * c + spre);
+  p.masaY = cy + masa.ry * (0.32 * s + (p.loc.cartiSus || 0));
 
   // Cărțile lui sunt rotite spre el, dar atenuat — privim masa de sus, dar
   // sub un unghi mic, așa că o rotire completă ar arăta fals.
@@ -999,6 +1028,9 @@ function trimiteEveniment(p, tip, cine) {
   else if (tip === "pierdere"){ p.reactieAmpl = -1.4; p.reactieDurata = 1.2; p.reactieFrecventa = 2.4; }
   else if (tip === "gandeste"){ p.reactieAmpl =  0.35; p.reactieDurata = 0.8; p.reactieFrecventa = 4; }
   else if (tip === "bea")     { p.reactieAmpl =  0.5;  p.reactieDurata = 0.7; p.reactieFrecventa = 6; }
+  // Sfârșitul mâinii zguduie mai tare decât o levată pierdută pe drum.
+  else if (tip === "castigaMana") { p.reactieAmpl =  3.4; p.reactieDurata = 1.6; p.reactieFrecventa = 12; }
+  else if (tip === "pierdeMana")  { p.reactieAmpl = -2.0; p.reactieDurata = 1.5; p.reactieFrecventa = 2.2; }
 
   if (tip === "vecinCastiga") p.ultimulVecinCastigator = cine ? cine.nume : null;
   else p.reactieTimp = p.reactieDurata;
@@ -1197,6 +1229,23 @@ function deseneazaClovn(p, ctx, t) {
 
 // Când pierde mâna, clovnul își aruncă în aer cărțile rămase. Cad înapoi
 // singure: la starea „pauză" tot ce e pe masă se întoarce oricum la teanc.
+/* Cărțile levatei, măturate de pe masă. Se cheamă când clovnul pierde mâna:
+   mai are trei levate de jucat cu ce are în mână, deci nu-și mai poate arunca
+   mâna în aer după fiecare — ar rămâne fără ce juca. */
+function aruncaCartileDePeMasa() {
+  for (let i = 0; i < cartiPeMasa.length; i++) {
+    const c = cartiPeMasa[i];
+    c.fataInSus = true;
+    c.proprietar = null;
+    c.marime = 1;
+    mutaObiect(c,
+      c.x + intreg(-6, 6) * U,
+      c.y - intreg(10, 16) * U,
+      c.rot + intreg(-1.8, 1.8),
+      0.55, i * 0.06);
+  }
+}
+
 function aruncaCartileInAer(p) {
   for (let i = 0; i < p.mana.length; i++) {
     const c = p.mana[i];
@@ -1218,7 +1267,7 @@ function aruncaCartileInAer(p) {
 const clovnul = personaje[0];
 clovnul.deseneaza = function (context, t) { deseneazaClovn(this, context, t); };
 clovnul.reactie = function (tip, cine) {
-  if (tip === "pierdere") { aruncaCartileInAer(this); vizita.vede("carti"); }
+  if (tip === "pierdeMana") { aruncaCartileDePeMasa(); vizita.vede("carti"); }
   else if (tip === "vecinCastiga" && cine) {
     // Se răsucește spre cel care a luat mâna, ca să-i vadă mutra.
     this.privesteSpre = cine.x < this.x ? -1 : 1;
@@ -3534,10 +3583,16 @@ function deseneazaMeniu() {
    ========================================================================== */
 
 /* Ciclul, la nesfârșit:
-     impartire → gandire → jucare → castigator → reactie → pauza → impartire
+     impartire → [ gandire → jucare → intoarcere → castigator → reactie →
+                   pauza ] × 3 → impartire
 
    Din Faza 10 mâna nu se mai joacă de la sine: cărțile au valori, cea mai mare
-   ia mâna, iar cărțile clovnului le pui tu. */
+   ia mâna, iar cărțile clovnului le pui tu.
+
+   Din Faza 11 o mână ține trei levate, nu una: se împart trei cărți și se joacă
+   toate trei, una pe levată, abia apoi se împart altele. De aici vine singura
+   întrebare care contează — dau zecele acum, sau îl țin? Cărțile se pun cu fața
+   în jos și se întorc toate odată, ca să nu știe nimeni ce vine. */
 
 const CARTI_IN_MANA = 3;
 const RABDARE = 12;        // câte secunde te așteaptă masa până joacă el în locul tău
@@ -3630,28 +3685,41 @@ const AI = {
 };
 
 // Ce vede un personaj când îi vine rândul.
+/* Ce știe cel care e la rând. Cărțile de pe masă stau cu fața în jos, deci nu
+   i se spune ce s-a jucat — doar câți au pus înaintea lui. Altfel l-am pune să
+   joace cu cărțile celorlalți pe față. */
 function situatiaMesei(p) {
-  const mana = p.mana.map(function (c) { return c.valoare; }).join(", ");
+  const mana = p.mana.map(function (c) {
+    return c.joker ? "joker" : c.valoare;
+  }).join(", ");
   const masa = cartiPeMasa.length
-    ? cartiPeMasa.map(function (c) { return c.valoare; }).join(", ")
+    ? cartiPeMasa.length + " cărți puse cu fața în jos, nu știi care"
     : "nimic încă";
-  return "Ai în mână cărțile: " + mana + ". Pe masă s-a jucat: " + masa +
-         ". Cea mai mare carte ia mâna. Ce carte joci? Răspunde doar cu numărul.";
+  return "Ai în mână cărțile: " + mana + ". Pe masă e: " + masa +
+         ". E levata " + (levata + 1) + " din " + CARTI_IN_MANA +
+         ". Cea mai mare carte ia levata, dar jokerul (0) bate zecele. " +
+         "Ce carte joci? Răspunde doar cu numărul.";
 }
 
 /* Judecata din cod: firea fiecăruia, scrisă în trei rânduri. E și rezerva de
-   care atârnă totul când modelul nu răspunde. */
+   care atârnă totul când modelul nu răspunde.
+
+   Cărțile de pe masă stau întoarse, deci nimeni nu se mai uită la ele: fiecare
+   joacă din ce are în mână și din a câta levată e. */
 function alegeDinCod(p) {
   if (!p.mana.length) return 0;
   const valori = p.mana.map(function (c) { return c.valoare; })
                        .sort(function (a, b) { return a - b; });
-  let max = 0;
-  for (const c of cartiPeMasa) if (c.valoare > max) max = c.valoare;
+  const areJoker = p.mana.some(function (c) { return c.joker; });
+  const ultima = levata >= CARTI_IN_MANA - 1;
+
+  // Jokerul e o cacealma: dat prea devreme, se irosește. Cine calculează îl
+  // ține pentru levata în care e mai probabil să cadă un zece — ultima.
+  if (areJoker && p !== draconianul && (ultima || intreg(0, 1) < 0.3)) return 0;
 
   if (p === reptilianul) {
-    // Cea mai mică dintre cele care bat; dacă nu poate bate, scapă de cea mai mică.
-    for (const v of valori) if (v > max) return v;
-    return valori[0];
+    // Își drămuiește mâna: întâi cele mici, tăria o ține pentru la urmă.
+    return valori[Math.min(levata, valori.length - 1)];
   }
   if (p === draconianul) {
     // Trântește cea mai mare de cele mai multe ori. Nu-l duce capul la altceva.
@@ -3671,8 +3739,10 @@ let tStare = 0;        // de cât timp durează starea curentă
 let cronometru = 0;    // pentru pașii dinăuntrul unei stări
 let impartite = 0;
 let jucate = 0;
+let levata = 0;        // a câta levată din mâna asta, de la 0 la CARTI_IN_MANA-1
 let startator = 0;     // cine primește prima carte și joacă primul
-let castigator = null;
+let castigator = null;          // cine a luat levata de acum
+let castigatorulMainii = null;  // cine a luat cele mai multe levate din mână
 
 /* Cine joacă mâna asta. De obicei cei trei; din când în când, dealerul zice o
    vorbă și intră și el. Rar — altfel n-ar mai fi dealer, ar fi al patrulea. */
@@ -3695,7 +3765,14 @@ function alegeJucatoriiMainii() {
     dealerul.vorbaTimp = 4.5;
   }
   if (startator >= jucatori.length) startator = 0;
+
+  /* Jokerul: cam la fiecare a treia mână, o carte din pachet iese joker, și îi
+     pică cui se nimerește. Mai des, ar decide el toată partida. */
+  const cate = CARTI_IN_MANA * jucatori.length;
+  jokerLaCartea = Math.random() < 0.34 ? Math.floor(Math.random() * cate) : -1;
 }
+
+let jokerLaCartea = -1;   // a câta carte împărțită iese joker; -1 = niciuna
 let durataGandire = 1.5;
 let laRand = null;             // cine e la rând acum
 let raspunsModel = null;       // ce a apucat să spună modelul pentru el
@@ -3709,8 +3786,10 @@ function schimbaStarea(noua) {
 
   if (noua === "impartire") {
     impartite = 0;
+    levata = 0;
     cronometru = 0.25;
     alegeJucatoriiMainii();
+    for (const p of jucatori) p.levateLuate = 0;
   }
   else if (noua === "gandire") {
     for (const p of jucatori) trimiteEveniment(p, "gandeste");
@@ -3726,10 +3805,11 @@ function schimbaStarea(noua) {
   }
   else if (noua === "castigator") {
     castigator = alegeCastigator();
-    // Cărțile de pe masă se strâng spre câștigător.
+    castigator.levateLuate = (castigator.levateLuate || 0) + 1;
+    // Cărțile de pe masă se strâng spre câștigător. Rămân cu fața în sus cât
+    // alunecă spre el: abia s-au dezvelit, e momentul în care se văd.
     for (let i = 0; i < cartiPeMasa.length; i++) {
       const c = cartiPeMasa[i];
-      c.fataInSus = false;
       // Trase la el, deci ale lui: dacă e cel din față, dispar în spatele lui.
       c.proprietar = castigator;
       mutaObiect(c, castigator.manaX, castigator.manaY, castigator.rotCarte, 0.55, i * 0.06);
@@ -3739,30 +3819,57 @@ function schimbaStarea(noua) {
     for (const p of jucatori) {
       trimiteEveniment(p, p === castigator ? "castig" : "pierdere");
     }
-    // Și, separat, ce s-a întâmplat la masă: cine a luat mâna. Fiecare face ce
+    // Și, separat, ce s-a întâmplat la masă: cine a luat levata. Fiecare face ce
     // vrea cu informația asta — sau nimic, ca reptilianul.
     for (const p of jucatori) {
       if (p !== castigator) trimiteEveniment(p, "vecinCastiga", castigator);
     }
+
+    /* La a treia levată se încheie și mâna: atunci se vede cine a luat mai
+       multe și cine a rămas cu mâinile goale. Astea sunt reacțiile mari. */
+    if (levata + 1 >= CARTI_IN_MANA) {
+      let celMaiBun = jucatori[0], celMaiSlab = jucatori[0];
+      for (const p of jucatori) {
+        if (p.levateLuate > celMaiBun.levateLuate) celMaiBun = p;
+        if (p.levateLuate < celMaiSlab.levateLuate) celMaiSlab = p;
+      }
+      castigatorulMainii = celMaiBun;
+      trimiteEveniment(celMaiBun, "castigaMana");
+      if (celMaiSlab !== celMaiBun) trimiteEveniment(celMaiSlab, "pierdeMana");
+    }
   }
   else if (noua === "pauza") {
-    // Tot ce a rămas se întoarce la teanc, la vedere.
-    for (const c of carti) {
-      c.fataInSus = false;
-      c.proprietar = null;
-      mutaObiect(c, teanc.x, teanc.y, -0.12, 0.5, Math.random() * 0.12);
+    // Numai la sfârșitul mâinii se golește masa: între levate, fiecare rămâne
+    // cu ce i-a mai rămas în mână.
+    if (levata + 1 >= CARTI_IN_MANA) {
+      for (const c of carti) {
+        c.fataInSus = false;
+        c.proprietar = null;
+        mutaObiect(c, teanc.x, teanc.y, -0.12, 0.5, Math.random() * 0.12);
+      }
     }
   }
 }
 
-// Mâna e a celui care a pus cea mai mare carte. La egalitate, a celui care a
-// pus-o primul.
+/* Levata e a celui care a pus cea mai mare carte. La egalitate, a celui care a
+   pus-o primul.
+
+   Jokerul face excepția: bate zecele, dar pierde în fața oricărei alte cărți.
+   Fiind mai mulți la masă, regula trebuie spusă așa ca să nu se învârtă în cerc
+   (joker bate 10, 10 bate 7, 7 bate joker): jokerul ia levata doar dacă pe masă
+   e un zece; dacă nu e, el e cea mai mică de pe masă. */
 function alegeCastigator() {
+  const joker = cartiPeMasa.find(function (c) { return c.joker; });
+  const zece = cartiPeMasa.some(function (c) { return c.valoare === 10; });
+  if (joker && zece) return joker.jucatDe;
+
   let cea = null;
   for (const c of cartiPeMasa) {
+    if (c.joker) continue;
     if (!cea || c.valoare > cea.valoare) cea = c;
   }
-  return (cea && cea.jucatDe) || jucatori[startator % jucatori.length];
+  return (cea && cea.jucatDe) || (joker && joker.jucatDe) ||
+         jucatori[startator % jucatori.length];
 }
 
 // Începe rândul cuiva: ori te întreabă pe tine, ori întreabă modelul.
@@ -3798,7 +3905,7 @@ function joacaCartea(p, valoare) {
   if (i < 0) i = 0;
   const c = p.mana.splice(i, 1)[0];
 
-  c.fataInSus = true;
+  c.fataInSus = false;      // cu fața în jos: se întoarce la sfârșitul levatei
   c.proprietar = null;      // de acum e a mesei, se vede de oriunde
   c.marime = 1;             // și are mărimea celorlalte de pe blat
   c.jucatDe = p;
@@ -3827,6 +3934,11 @@ function actualizeazaJocul(dt) {
       const p = jucatori[(startator + impartite) % jucatori.length];
       const c = creeazaCarte(teanc.x, teanc.y, -0.12);
       c.valoare = Math.floor(intreg(1, 11));      // de la 1 la 10
+      if (impartite === jokerLaCartea) {
+        // Jokerul n-are cifră: în socoteli e cea mai mică de pe masă.
+        c.joker = true;
+        c.valoare = 0;
+      }
       c.proprietar = p;
       carti.push(c);
       p.mana.push(c);
@@ -3864,8 +3976,21 @@ function actualizeazaJocul(dt) {
       }
     }
     else if (cronometru <= -0.5) {
-      schimbaStarea("castigator");
+      schimbaStarea("intoarcere");
     }
+  }
+
+  else if (stare === "intoarcere") {
+    /* Se întorc pe rând, în ordinea în care au fost puse. Aici e toată tensiunea
+       levatei: până acum nimeni n-a știut ce a pus celălalt. */
+    const cate = Math.min(cartiPeMasa.length, Math.floor(tStare / 0.22) + 1);
+    for (let i = 0; i < cate; i++) {
+      if (!cartiPeMasa[i].fataInSus) {
+        cartiPeMasa[i].fataInSus = true;
+        sunet.canta("poc");
+      }
+    }
+    if (tStare > 0.22 * cartiPeMasa.length + 0.8) schimbaStarea("castigator");
   }
 
   else if (stare === "castigator") {
@@ -3878,12 +4003,27 @@ function actualizeazaJocul(dt) {
 
   else if (stare === "pauza") {
     if (tStare > 0.9) {
-      // Masa se golește și mâna următoare începe de la câștigător.
+      // Cine a luat levata deschide levata următoare.
+      startator = jucatori.indexOf(castigator);
+      if (startator < 0) startator = 0;
+
+      if (levata + 1 < CARTI_IN_MANA) {
+        /* Mai sunt cărți în mâini: cele jucate au ajuns la câștigător și ies
+           din scenă, iar masa se așteaptă la levata următoare. */
+        for (const c of cartiPeMasa) {
+          const i = carti.indexOf(c);
+          if (i >= 0) carti.splice(i, 1);
+        }
+        cartiPeMasa.length = 0;
+        levata++;
+        schimbaStarea("gandire");
+        return;
+      }
+
+      // S-a jucat și ultima: masa se golește și se împart cărți noi.
       carti.length = 0;
       cartiPeMasa.length = 0;
       for (const p of jucatori) p.mana.length = 0;
-      startator = jucatori.indexOf(castigator);
-      if (startator < 0) startator = 0;
       schimbaStarea("impartire");
     }
   }

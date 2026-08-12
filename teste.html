@@ -263,7 +263,12 @@ return {
   redimensioneaza: redimensioneaza,
   stare: function () { return stare; },
   castigator: function () { return castigator; },
+  castigatorulMainii: function () { return typeof castigatorulMainii !== "undefined" ? castigatorulMainii : null; },
   startator: function () { return startator; },
+  jucatori: function () { return typeof jucatori !== "undefined" ? jucatori : personaje; },
+  levata: function () { return typeof levata !== "undefined" ? levata : 0; },
+  mergiLaLevata: function (n) { levata = n; },
+  CARTI_IN_MANA: typeof CARTI_IN_MANA !== "undefined" ? CARTI_IN_MANA : 3,
   U: function () { return U; },
   cx: function () { return cx; },
   cy: function () { return cy; },
@@ -290,6 +295,7 @@ return {
   actualizeazaComanda: typeof actualizeazaComanda !== "undefined" ? actualizeazaComanda : null,
   AI: typeof AI !== "undefined" ? AI : null,
   alegeDinCod: typeof alegeDinCod !== "undefined" ? alegeDinCod : null,
+  alegeCastigator: typeof alegeCastigator !== "undefined" ? alegeCastigator : null,
   asteaptaJucator: function () { return typeof asteaptaJucator !== "undefined" && asteaptaJucator; },
   laRand: function () { return typeof laRand !== "undefined" ? laRand : null; },
   sah: typeof sah !== "undefined" ? sah : null,
@@ -518,10 +524,11 @@ function testeCiclu() {
     let maini = 0, cuDealer = 0, douaLaRand = false, inainte = false, aVorbit = 0;
     let stareAnt = s.stare();
 
-    for (let i = 0; i < 60 * 700 && maini < 25; i++) {
+    // O mână ține trei levate, deci se numără împărțirile, nu levatele.
+    for (let i = 0; i < 60 * 1400 && maini < 25; i++) {
       s.avanseaza(1 / 60);
       const st = s.stare();
-      if (st === "gandire" && stareAnt !== "gandire") {
+      if (st === "gandire" && stareAnt === "impartire") {
         maini++;
         const joaca = s.dealerul.mana.length > 0;
         if (joaca) {
@@ -556,27 +563,75 @@ function testeCiclu() {
     for (const p of s.personaje) egal(p.mana.length, 2, "mâna lui " + p.nume);
   });
 
-  test("ciclul trece prin toate stările și se reia", function () {
+  test("o levată trece prin toate stările, iar mâna ține trei levate", function () {
     const s = porneste();
     const vazute = [];
     let anterioara = "";
-    for (let i = 0; i < 60 * 40; i++) {
+    for (let i = 0; i < 60 * 300; i++) {
       s.avanseaza(1 / 60);
       if (s.stare() !== anterioara) { vazute.push(s.stare()); anterioara = s.stare(); }
-      if (vazute.length >= 7) break;
+      if (vazute.length >= 20) break;
     }
-    egal(vazute.join(" → "),
-         "impartire → gandire → jucare → castigator → reactie → pauza → impartire",
-         "ordinea stărilor");
+    const levata = "gandire → jucare → intoarcere → castigator → reactie → pauza";
+    egal(vazute.slice(0, 7).join(" → "), "impartire → " + levata, "ordinea stărilor");
+
+    // După prima levată nu se împarte din nou: se joacă a doua din aceleași mâini.
+    egal(vazute.slice(7, 13).join(" → "), levata, "a doua levată");
+    egal(vazute.slice(13, 19).join(" → "), levata, "a treia levată");
+    egal(vazute[19], "impartire", "abia după a treia levată se împart cărți noi");
   });
 
-  test("câștigătorul mâinii împarte mâna următoare", function () {
+  test("o mână ține exact trei levate, câte o carte din mână la fiecare", function () {
     const s = porneste();
-    s.panaLaStarea("reactie");
+    s.panaLaStarea("gandire");
+    for (const p of s.personaje) egal(p.mana.length, 3, p.nume + " la începutul mâinii");
+
+    for (let levata = 1; levata <= 3; levata++) {
+      let paza = 0;
+      while (s.stare() !== "intoarcere" && paza++ < 60 * 60) s.avanseaza(1 / 60);
+      adevarat(paza < 60 * 60, "nu s-a jucat levata " + levata);
+      for (const p of s.personaje) {
+        egal(p.mana.length, 3 - levata, p.nume + " după levata " + levata);
+      }
+      egal(s.cartiPeMasa.length, s.jucatori().length, "cărți pe masă la levata " + levata);
+      paza = 0;
+      while (s.stare() !== "gandire" && s.stare() !== "impartire" && paza++ < 60 * 60) {
+        s.avanseaza(1 / 60);
+      }
+    }
+    egal(s.stare(), "impartire", "după a treia levată se împart cărți noi");
+  });
+
+  test("cărțile se pun cu fața în jos și se întorc toate odată", function () {
+    const s = porneste();
+    let paza = 0;
+    while (s.cartiPeMasa.length === 0 && paza++ < 60 * 90) s.avanseaza(1 / 60);
+    adevarat(s.cartiPeMasa.length > 0, "n-a jucat nimeni nicio carte");
+
+    // Cât se joacă levata, tot ce e pe masă stă întors.
+    paza = 0;
+    while (s.stare() === "jucare" && paza++ < 60 * 60) {
+      s.avanseaza(1 / 60);
+      for (const c of s.cartiPeMasa) {
+        egal(c.fataInSus, false, "o carte jucată s-a văzut înainte de vreme");
+      }
+    }
+
+    egal(s.stare(), "intoarcere", "după ce au pus toți, cărțile se întorc");
+    paza = 0;
+    while (s.stare() === "intoarcere" && paza++ < 60 * 60) s.avanseaza(1 / 60);
+    for (const c of s.cartiPeMasa) {
+      egal(c.fataInSus, true, "o carte a rămas întoarsă după ce s-a dezvelit levata");
+    }
+  });
+
+  test("cine ia levata deschide levata următoare", function () {
+    const s = porneste();
+    s.panaLaStarea("reactie", 90);
     const c = s.castigator();
     adevarat(c, "nu a fost ales niciun câștigător");
-    s.panaLaStarea("impartire");
-    egal(s.personaje[s.startator()].nume, c.nume, "startatorul mâinii următoare");
+    s.panaLaStarea("jucare", 90);
+    egal(s.jucatori()[s.startator()].nume, c.nume, "cine deschide levata următoare");
   });
 
   test("cărțile nu sar: se interpolează spre țintă", function () {
@@ -679,30 +734,30 @@ function testeClovn() {
              "reacția „joaca” nu schimbă cu nimic desenul");
   });
 
-  test("când pierde, aruncă în aer cărțile rămase în mână", function () {
-    // Câștigătorul e ales la întâmplare, așa că încercăm semințe până dăm de o
-    // mână pe care clovnul o pierde.
-    let s = null, clovn = null;
-    for (let samanta = 1; samanta <= 12 && !s; samanta++) {
-      const incercare = porneste({ samanta: samanta });
-      incercare.panaLaStarea("castigator");
-      if (incercare.castigator() !== incercare.personaj("Clovnul")) {
-        s = incercare;
-        clovn = s.personaj("Clovnul");
-      }
+  test("când pierde mâna, mătură cărțile de pe masă în aer", function () {
+    const s = porneste();
+    const clovn = s.personaj("Clovnul");
+
+    // Ducem scena până la ultima levată, cu cărțile jucate încă pe masă.
+    let paza = 0;
+    while (!(s.stare() === "castigator" && s.levata() === 2) && paza++ < 60 * 300) {
+      s.avanseaza(1 / 60);
     }
-    adevarat(s, "din 12 mâni, clovnul le-a câștigat pe toate");
+    adevarat(paza < 60 * 300, "n-a ajuns la ultima levată");
 
-    const inMana = clovn.mana.slice();
-    adevarat(inMana.length > 0, "clovnul trebuie să mai aibă cărți în mână");
-    const inaltimiInainte = inMana.map(function (c) { return c.y; });
+    const peMasa = s.cartiPeMasa.slice();
+    adevarat(peMasa.length > 0, "n-a rămas nicio carte pe masă");
+    const inainte = peMasa.map(function (c) { return c.y; });
 
+    // Îl facem pe el cel mai slab al mâinii, ca să-i vină reacția.
+    for (const p of s.jucatori()) p.levateLuate = p === clovn ? 0 : 2;
     s.schimbaStarea("reactie");
-    for (let i = 0; i < inMana.length; i++) {
-      adevarat(inMana[i].y1 < inaltimiInainte[i] - 2 * s.U(),
+
+    for (let i = 0; i < peMasa.length; i++) {
+      adevarat(peMasa[i].y1 < inainte[i] - 2 * s.U(),
                "cartea " + i + " trebuie aruncată în sus (țintă y=" +
-               Math.round(inMana[i].y1) + ", pornire y=" + Math.round(inaltimiInainte[i]) + ")");
-      egal(inMana[i].proprietar, null, "cartea aruncată nu mai e în mâna nimănui");
+               Math.round(peMasa[i].y1) + ", pornire y=" + Math.round(inainte[i]) + ")");
+      egal(peMasa[i].proprietar, null, "cartea aruncată nu mai e în mâna nimănui");
     }
   });
 }
@@ -2609,15 +2664,85 @@ function testePartida() {
          "a câștigat altcineva decât cel cu cartea " + ceaMare.valoare);
   });
 
-  test("reptilianul joacă socotit", function () {
+  test("jokerul bate zecele", function () {
+    const s = porneste();
+    const [a, b, c] = s.personaje;
+    s.cartiPeMasa.length = 0;
+    s.cartiPeMasa.push({ valoare: 10, jucatDe: a },
+                       { valoare: 7, jucatDe: b },
+                       { valoare: 0, joker: true, jucatDe: c });
+    egal(s.alegeCastigator(), c, "jokerul trebuia să fure zecele");
+  });
+
+  test("fără zece pe masă, jokerul e cea mai mică de acolo", function () {
+    const s = porneste();
+    const [a, b, c] = s.personaje;
+    s.cartiPeMasa.length = 0;
+    s.cartiPeMasa.push({ valoare: 9, jucatDe: a },
+                       { valoare: 2, jucatDe: b },
+                       { valoare: 0, joker: true, jucatDe: c });
+    egal(s.alegeCastigator(), a, "fără zece, ia levata cea mai mare cifră");
+
+    // Nici măcar în fața unui unu nu iese.
+    s.cartiPeMasa.length = 0;
+    s.cartiPeMasa.push({ valoare: 1, jucatDe: b },
+                       { valoare: 0, joker: true, jucatDe: c });
+    egal(s.alegeCastigator(), b, "jokerul a bătut un unu, deși n-avea ce fura");
+  });
+
+  test("jokerul apare rar, și numai câte unul", function () {
+    const s = porneste();
+    let maini = 0, cuJoker = 0, stareAnt = s.stare();
+
+    for (let i = 0; i < 60 * 1400 && maini < 20; i++) {
+      s.avanseaza(1 / 60);
+      const st = s.stare();
+      if (st === "gandire" && stareAnt === "impartire") {
+        maini++;
+        const jokeri = s.carti.filter(function (c) { return c.joker; });
+        adevarat(jokeri.length <= 1, "au ieșit " + jokeri.length + " jokeri într-o mână");
+        if (jokeri.length) {
+          cuJoker++;
+          egal(jokeri[0].valoare, 0, "jokerul trebuie să valoreze zero în socoteli");
+        }
+      }
+      stareAnt = st;
+    }
+
+    adevarat(maini >= 8, "n-au trecut destule mâini: " + maini);
+    adevarat(cuJoker > 0, "n-a ieșit niciun joker în " + maini + " mâini");
+    adevarat(cuJoker < maini * 0.7, "iese prea des: " + cuJoker + " din " + maini);
+  });
+
+  test("jokerul se cunoaște după căciula de bufon, nu după o cifră", function () {
+    const s = porneste();
+    const c = s.creeazaCarte(s.cx(), s.cy(), 0);
+    c.joker = true;
+    c.valoare = 0;
+    c.fataInSus = true;
+
+    s.goleste();
+    s.deseneazaCarte(c);
+    const scrise = texte(s.desene);
+    egal(scrise.length, 0, "jokerul n-are voie să aibă cifră scrisă pe el: " + scrise.join(","));
+    adevarat(formeDeCuloare(s.desene, "#e8a13c").length >= 2, "n-are clopoței");
+  });
+
+  test("reptilianul își drămuiește mâna, fără să tragă cu ochiul", function () {
     const s = porneste();
     const r = s.personaj("Reptilianul");
     r.mana = [{ valoare: 2 }, { valoare: 6 }, { valoare: 9 }];
+
+    // Cărțile de pe masă stau întoarse: orice ar fi sub ele, el joacă la fel.
     s.cartiPeMasa.length = 0;
-    s.cartiPeMasa.push({ valoare: 5 });
-    egal(s.alegeDinCod(r), 6, "trebuie să pună cea mai mică dintre cele care bat");
-    s.cartiPeMasa[0].valoare = 10;
-    egal(s.alegeDinCod(r), 2, "dacă tot nu poate bate, scapă de cea mai mică");
+    s.cartiPeMasa.push({ valoare: 10 });
+    s.mergiLaLevata(0);
+    egal(s.alegeDinCod(r), 2, "în prima levată scoate cea mai mică");
+    s.cartiPeMasa[0].valoare = 3;
+    egal(s.alegeDinCod(r), 2, "s-a uitat la ce e pe masă, deși e cu fața în jos");
+
+    s.mergiLaLevata(2);
+    egal(s.alegeDinCod(r), 9, "tăria o ține pentru ultima levată");
   });
 
   test("modelul alege cartea, dacă răspunde la timp", function () {

@@ -60,8 +60,10 @@ cărțile au grosime, iar când cineva ia mâna ceilalți doi află: clovnul se
 răsucește să-i vadă mutra, draconianul mârâie un fum pe nări, reptilianul nu
 face nimic.
 
-Localul e gata și populat: cei trei stau pe scaune la o masă cu picior și blat
-gros, în spate e tejgheaua barului cu raftul de sticle și un barman care șterge
+Localul e gata și populat: cei trei stau pe scaune la o masă pătrată cu blat gros
+și picior în X — clovnul în față, draconianul în spate, reptilianul în dreapta,
+iar pe latura din stânga un dealer în vestă și papion, care împarte cărțile fără
+să joace. În spate e tejgheaua barului cu raftul de sticle și un barman care șterge
 un pahar, iar în stânga, mai departe, la a doua masă, un om cu o mână de argint
 joacă șah cu unul făcut tot din aur. La a treia masă, cea din față, vin din când
 în când doi inși — de fiecare dată alții —, stau de vorbă la o sticlă de vin
@@ -75,8 +77,11 @@ nimic, dacă n-ai chef. Alegi câte vrei odată: apeși pe fiecare fel și se bi
 apeși încă o dată și se șterge, iar jos scrie cât face tot. Când ai terminat,
 zici **„doar atât"** și pleacă cu comanda, sau **„mă mai gândesc"** — atunci
 duce ce-ai ales până acum și îți lasă meniul în față, pentru încă un rând.
-Berea se toarnă la bar și se aude cum se umple paharul; mâncarea se face la
-aragazul din capătul barului, cu fum cu tot. Vinul vine cu sticla lui, pusă pe
+Berea o toarnă barmanul, la mijlocul tejghelei, și se aude cum se umple paharul;
+mâncarea o face bucătarul, în dreapta, la aragaz și la masa de amestecat, cu fum
+cu tot — și durează, cum durează la orice bucătărie. Ce se golește nu rămâne pe
+masă: trece chelnerul, strânge vasele și le duce la chiuveta din stânga barului,
+unde le spală spălătorul de vase. Vinul vine cu sticla lui, pusă pe
 mijlocul mesei — în golul de lângă clovn, ca să se vadă toată —, și cu paharul
 gol; apeși pe sticlă și îți torni singur. După ce
 comanda ajunge pe masă, se bea și se mănâncă din ea din când în când. Sunetul
@@ -87,6 +92,9 @@ Mâna clovnului o vezi jos, în fața mesei — când îți vine rândul, cărț
 ridică puțin și se aprinde o lumină caldă sub ele. Dai clic pe una și o pune pe
 masă. Dacă nu te hotărăști în douăsprezece secunde, joacă el — scena rămâne bună
 și dacă doar te uiți la ea.
+
+Dealerul împarte și, cam la una din șapte mâini, zice „hai că joc și eu o rundă"
+și intră și el în joc — dar niciodată de două ori la rând.
 
 Draconianul și reptilianul joacă singuri. Dacă ai **Ollama** pornit pe
 calculator, sunt conduși de modelul de acolo, fiecare cu firea lui; altfel, de o

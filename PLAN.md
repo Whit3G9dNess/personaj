@@ -24,6 +24,8 @@ funcționează deja.
 | 8 | Lumea din local: clienții, chelnerul, barmanul | ✅ gata |
 | 9 | Comanda, bucătăria și sunetul | ✅ gata |
 | 10 | Partida adevărată: joci tu cărțile clovnului | ✅ gata |
+| 11 | Partida cu cap: trei levate, cărți întoarse, jokerul | 📝 scrisă, neîncepută |
+| 12 | Localul reașezat: masă pătrată, dealer, bucătar, chiuvetă | ✅ gata |
 
 ---
 
@@ -386,6 +388,105 @@ ea, în afară de numele-ajutor de la siluete, care au dispărut la Faza 5.
 **Verificare:** chemi chelnerul, comanzi o bere, o auzi turnată și, peste puțin
 timp, cel pentru care ai comandat are un pahar din care soarbe. Ceri mici cu
 piure și vezi fumul ieșind de la aragaz cât se fac. Partida n-a stat nicio clipă.
+
+---
+
+## Faza 11 — Partida cu cap
+
+Până acum se împart trei cărți, se joacă una și celelalte două se aruncă. Faza
+asta le pune pe toate trei în joc, ca să fie ceva de hotărât, nu doar de apăsat.
+
+**1. Toate trei levatele, apoi se împart altele.** O mână are trei levate: fiecare
+pune pe rând câte o carte, cea mai mare ia levata, iar cine a luat-o deschide
+levata următoare. Abia după a treia se împart cărți noi. De aici vine singura
+întrebare care contează: *dau zecele acum, sau îl țin?*
+
+**2. Cărțile se pun cu fața în jos și se întorc toate odată.** Fiecare pune la
+rândul lui, ca până acum — gândirea pe rând rămâne —, dar cartea stă cu spatele
+în sus până cad toate trei. Atunci se întorc deodată și se vede cine a luat
+levata. Fără asta, cel care joacă ultimul știe tot, iar cel care deschide nu
+poate păcăli pe nimeni. Cărțile știu deja să stea întoarse: `fataInSus`.
+
+**3. Jokerul.** Singura carte specială din tot jocul, în locul unei cărți
+obișnuite, o dată la vreo trei mâini — uneori ție, uneori lor.
+
+- Jokerul **bate zecele**.
+- În fața oricărei alte cărți, **pierde**.
+- Fiindcă suntem trei la masă și altfel se învârte în cerc (joker bate 10, 10
+  bate 7, 7 bate joker): jokerul ia levata **doar dacă pe masă e un zece**;
+  dacă nu e niciun zece, el e cea mai mică carte de pe masă.
+
+Așa, zecele redevine riscant și apare cacealmaua: arunci jokerul sperând că
+cineva își dă zecele tocmai în levata aia.
+
+**4. Cine pierde mâna face cinste.** Personajul care a luat cele mai puține
+levate comandă singur ceva pentru masă. Așa se leagă partida de restaurant prin
+poveste, nu prin monede.
+
+**5. Ce-au băut și mâncat le schimbă firea.** Draconianul după două beri joacă și
+mai la nimereală, reptilianul cu burta plină se gândește mai mult. Se vede din
+cum joacă, nu dintr-o cifră pe ecran. Se leagă de `promptSistem` și `temperature`
+din `personaje.json`.
+
+Ordinea de lucru: **1** întâi, singură — schimbă cel mai mult și nu strică nimic
+din ce merge. Apoi **2** și **3**, care merg împreună: fără cărți întoarse,
+jokerul e mort de fiecare dată când deschizi tu levata, fiindcă ceilalți îl văd
+și nu-și mai dau zecele. **4** și **5** sunt condimente, se pun oricând mai
+încolo.
+
+**Rămâne pe dinafară:** jetoane, mize, cash-out, scor scris pe ecran, magazin,
+mâncare care dă bonusuri la cărți, alte cărți speciale în afară de joker, 3D.
+Toate cer cifre pe ecran, ecrane de ales și salvare — adică fix ce spune SPEC §7
+că nu face scena asta. Dacă vrem jocul acela, e alt fișier, nu ăsta.
+
+**De hotărât mai încolo:** dacă se împart 4 cărți din care arunci una și joci cu
+3. Ar da o decizie chiar la împărțire, dar întâi vedem cum se simte cu 3.
+
+**Verificare:** o mână ține trei levate; dacă ai jucat zecele în prima, în a
+treia te descurci cu ce ți-a rămas. Cărțile stau întoarse până cad toate trei.
+Un joker jucat peste un zece ia levata; același joker, când pe masă nu e niciun
+zece, n-o ia.
+
+---
+
+## Faza 12 — Localul reașezat
+
+Scena s-a înghesuit: masa e mică, mijlocul ei e acoperit de capul clovnului, iar
+barmanul face și de băut, și de mâncare, și tot pe masă rămâne totul până se
+plictisește privitorul. Faza asta desface localul pe zone, ca într-un local
+adevărat.
+
+**1. Masa: pătrată, mai mare, mutată spre dreapta.** Blat gros pătrat, cu picior
+în X, văzut tot ușor de sus. Mutată la dreapta, ca să rămână loc în stânga
+pentru dealer și pentru restul localului.
+
+**2. Patru locuri, nu trei.** Clovnul rămâne în față (mâna lui e mâna ta),
+draconianul trece pe latura din spate, iar reptilianul pe cea din dreapta. Locul
+din stânga e al **dealerului**: el împarte și, mai încolo, întoarce cartea mesei.
+De obicei nu joacă — dar cam la una din șapte mâini zice „hai că joc și eu o
+rundă" și intră și el, niciodată de două ori la rând.
+
+**3. Barul se împarte în trei.** De la stânga la dreapta:
+
+| Loc | Cine | Ce face |
+|-----|------|---------|
+| stânga de tot | spălătorul de vase | chiuveta: spală ce aduce chelnerul |
+| mijloc | barmanul | numai de băut: sucuri, bere, vin |
+| dreapta de tot | bucătarul | aragazul și zona de amestecat: mâncare și deserturi |
+
+**4. Vasele se strâng.** Când s-a terminat mâncarea din farfurie sau băutura din
+pahar, vine chelnerul, le ia de pe masă și le duce la chiuvetă. Masa rămâne
+curată de la sine, fără să apeși nimic.
+
+**5. Mâncarea se face mai încet.** Aragazul și amestecatul cer timp: **20 s**
+pentru un fel de mâncare, **15 s** pentru un desert, băutura rămâne scurtă.
+
+**De hotărât:** ce regulă are cartea întoarsă de dealer — „atu" (cifra ei bate
+orice în mâna aia) sau „pe dos" (dacă e pară, cea mai mică ia levata).
+
+**Verificare:** masa e pătrată și are patru inși în jur; comanzi mici cu piure și
+se face la dreapta, la bucătar, nu la mijloc; termini paharul și, peste puțin
+timp, nu mai e pe masă — e la chiuvetă, în stânga.
 
 ---
 

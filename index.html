@@ -33,7 +33,11 @@ let U = 0;
 let cx = 0, cy = 0;
 
 // Geometria localului, recalculată la fiecare redimensionare.
-const masa  = { rx: 0, ry: 0 };   // razele elipsei mesei
+/* Masa e pătrată, dar o privim ușor de sus: pe ecran iese un patrulater turtit,
+   cu latura din spate mai scurtă decât cea dinspre noi. `rx` e jumătate din
+   lățimea ei, `ry` jumătate din adâncimea văzută. */
+const masa  = { rx: 0, ry: 0 };
+const SPATE_MASA = 0.88;          // cât de scurtă e latura din spate față de cea din față
 const teanc = { x: 0, y: 0 };     // unde stă teancul de cărți
 const bar = { x0: 0, x1: 0, y: 0, inalt: 0, raft: 0 };   // tejgheaua din fundal
 const masa2 = { x: 0, y: 0, rx: 0, ry: 0 };              // a doua masă, în stânga-spate
@@ -54,23 +58,26 @@ function redimensioneaza() {
   U  = Math.min(W, H) / 100;
 
   // Masa noastră nu stă în mijlocul ecranului: e trasă spre dreapta, ca să
-  // rămână loc în stânga pentru a doua masă.
-  cx = W * 0.56;
+  // rămână loc în stânga pentru dealer și pentru celelalte mese.
+  cx = W * 0.57;
   cy = H * 0.62;
 
   calculeazaGeometria();
 }
 
 function calculeazaGeometria() {
-  // Masa: elipsă turtită, ca și cum am privi-o ușor de sus.
-  masa.rx = Math.min(W * 0.26, H * 0.40);
+  // Masa: blat pătrat, turtit de unghiul din care o privim.
+  // Lățimea e ținută în frâu de latura din dreapta: acolo stă reptilianul, cu
+  // coadă cu tot, și trebuie să încapă tot pe ecran.
+  masa.rx = Math.min(W * 0.26, H * 0.44);
   masa.ry = masa.rx * 0.42;
 
   latCarte   = 4.4 * U;
   inaltCarte = 6.4 * U;
 
-  teanc.x = cx - masa.rx * 0.34;
-  teanc.y = cy + masa.ry * 0.06;
+  // Teancul stă în fața dealerului, în stânga: el împarte.
+  teanc.x = cx - masa.rx * 0.58;
+  teanc.y = cy + masa.ry * 0.10;
 
   // Barul: o tejghea de-a latul fundalului, cu raftul de sticle deasupra.
   bar.x0 = W * 0.03;
@@ -81,19 +88,23 @@ function calculeazaGeometria() {
   bar.raftSus = bar.y - 16.5 * U;      // polița de sus
   bar.blat = bar.y - 1.2 * U;          // blatul de lucru din spatele barului
 
-  // A doua masă: în stânga și mai departe, deci mai mică.
-  masa2.rx = masa.rx * 0.55;
+  /* Celelalte două mese stau în stânga noastră. Masa mare fiind lată, ele ar
+     ieși din ecran dacă le-am măsura numai față de ea — de aceea sunt și
+     împinse înapoi în ecran, cât să încapă cu tot cu cine stă la ele. */
+  masa2.rx = masa.rx * 0.46;
   masa2.ry = masa2.rx * 0.42;
-  masa2.x = cx - masa.rx * 1.72;
-  masa2.y = cy - masa.ry * 1.45;
+  masa2.x = Math.max(cx - masa.rx * 1.80, masa2.rx * 1.35);
+  masa2.y = cy - masa.ry * 1.55;
 
-  // A treia masă: tot în stânga, dar în față — deci mai mare decât a doua.
-  masa3.rx = masa.rx * 0.62;
+  // A treia: tot în stânga, dar în față. Stă mai jos decât dealerul, ca să nu
+  // se calce în picioare cu el.
+  masa3.rx = masa.rx * 0.50;
   masa3.ry = masa3.rx * 0.42;
-  masa3.x = cx - masa.rx * 1.60;
-  masa3.y = cy + masa.ry * 1.20;
+  masa3.x = Math.max(cx - masa.rx * 1.78, masa3.rx * 1.25);
+  masa3.y = cy + masa.ry * 1.55;
 
   for (const p of personaje) aseazaPersonaj(p);
+  aseazaPersonaj(dealerul);
   asazaFundalul();
 }
 
@@ -137,6 +148,32 @@ function dreptunghiRotunjit(x, y, lat, inalt, raza) {
   ctx.lineTo(x, y + r);
   ctx.arcTo(x, y, x + r, y, r);
   ctx.closePath();
+}
+
+/* Poligon cu colțuri rotunjite, pentru blatul pătrat al mesei. Aceeași idee ca
+   la dreptunghi, dar cu vârfuri oarecare: se merge din colț în colț cu arcTo. */
+function poligonRotunjit(puncte, raza) {
+  const n = puncte.length;
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const a = puncte[i], b = puncte[(i + 1) % n], c = puncte[(i + 2) % n];
+    if (i === 0) {
+      ctx.moveTo((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+    }
+    ctx.arcTo(b[0], b[1], (b[0] + c[0]) / 2, (b[1] + c[1]) / 2, raza);
+  }
+  ctx.closePath();
+}
+
+// Cele patru colțuri ale blatului, la `k` din mărimea lui (1 = marginea).
+function colturileMesei(k, dy) {
+  const rx = masa.rx * k, ry = masa.ry * k, y = cy + (dy || 0);
+  return [
+    [cx - rx,                y + ry],
+    [cx + rx,                y + ry],
+    [cx + rx * SPATE_MASA,   y - ry],
+    [cx - rx * SPATE_MASA,   y - ry]
+  ];
 }
 
 /* ==========================================================================
@@ -209,9 +246,12 @@ function deseneazaBarFundal() {
     ctx.fillRect(bar.x0, politza, bar.x1 - bar.x0, 0.25 * U);
   }
 
-  // Blatul de lucru din spatele barului — pe el are barmanul ce-i trebuie.
+  // Blatul de lucru din spatele barului, cu cele trei zone pe el: chiuveta în
+  // stânga, robinetele la mijloc, aragazul și masa de amestecat în dreapta.
   ctx.fillStyle = LOCAL.blatSpate;
   ctx.fillRect(bar.x0, bar.blat, bar.x1 - bar.x0, 1.2 * U);
+  deseneazaChiuveta();
+  deseneazaMasaDeAmestec();
   deseneazaAragaz();
 
   // Lămpile care atârnă peste tejghea.
@@ -428,16 +468,22 @@ function deseneazaMasa() {
   elipsa(cx, cy + masa.ry * 0.25, masa.rx * 1.9, masa.ry * 2.1);
   ctx.fill();
 
-  // Piciorul mesei: o coloană până la talpă, amândouă în umbră.
+  // Piciorul: două bare încrucișate în X sub blat, cu talpa pe podea.
   ctx.fillStyle = LOCAL.piciorMasa;
-  dreptunghiRotunjit(cx - 2.4 * U, cy, 4.8 * U, masa.ry * 1.5, 1.2 * U);
-  ctx.fill();
-  elipsa(cx, cy + masa.ry * 1.5, 8 * U, 3 * U);
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.save();
+    ctx.translate(cx, cy + masa.ry * 0.95);
+    ctx.rotate(s * 0.62);
+    dreptunghiRotunjit(-1.6 * U, -masa.ry * 1.15, 3.2 * U, masa.ry * 2.3, 0.7 * U);
+    ctx.fill();
+    ctx.restore();
+  }
+  elipsa(cx, cy + masa.ry * 1.95, 9 * U, 2.6 * U);
   ctx.fill();
 
-  // Grosimea blatului: aceeași elipsă, coborâtă și întunecată.
+  // Grosimea blatului: același patrulater, coborât și întunecat.
   ctx.fillStyle = LOCAL.muchieMasa;
-  elipsa(cx, cy + 2.6 * U, masa.rx, masa.ry);
+  poligonRotunjit(colturileMesei(1, 2.6 * U), 2.2 * U);
   ctx.fill();
 
   // Blatul, luminat din centru-sus de lampa de deasupra.
@@ -449,13 +495,13 @@ function deseneazaMasa() {
   blat.addColorStop(0.45, "#5f3d21");
   blat.addColorStop(1.0, "#2b1a0d");
   ctx.fillStyle = blat;
-  elipsa(cx, cy, masa.rx, masa.ry);
+  poligonRotunjit(colturileMesei(1, 0), 2.2 * U);
   ctx.fill();
 
   // Muchia lucioasă de sus, unde cade lumina direct.
   ctx.strokeStyle = "rgba(255, 205, 140, 0.16)";
   ctx.lineWidth = 0.45 * U;
-  elipsa(cx, cy, masa.rx * 0.995, masa.ry * 0.99);
+  poligonRotunjit(colturileMesei(0.99, 0), 2.2 * U);
   ctx.stroke();
 }
 
@@ -696,29 +742,92 @@ function deseneazaParticule() {
      - gura, ...          : puncte de pe corp în unități U, mutate odată cu scena
    Desenul propriu-zis al fiecăruia stă mai jos, în secțiunile 5b, 5c și 5d. */
 
+/* Locul fiecăruia e dat în lățimi și adâncimi de masă față de mijlocul blatului:
+   `kx` pe orizontală, `ky` pe verticală. Masa fiind pătrată, are patru laturi —
+   în față ești tu, în stânga dealerul, iar ceilalți doi în spate și în dreapta.
+   Cine stă mai aproape de privitor e desenat mai mare. */
 const personaje = [
   {
     nume: "Clovnul",
-    unghi: Math.PI / 2,                        // în față, cu spatele la privitor
+    loc: { kx: 0.08, ky: 1.20, scara: 1.12 },    // în față, cu spatele la privitor
+    esteJucatorul: true, inFata: true,
     ritm: 1.9, latime: 11, inaltime: 20,
     gandire: 0.9, haos: 0.75                   // repede, dar niciodată la fel
   },
   {
     nume: "Draconianul",
-    unghi: Math.PI / 2 + (2 * Math.PI) / 3,    // stânga-spate
+    loc: { kx: -0.32, ky: -0.75, scara: 0.82 },  // pe latura din spate
     ritm: 0.9, latime: 15, inaltime: 24,
     gandire: 1.6, haos: 0.25                   // masiv și lent
   },
   {
     nume: "Reptilianul",
-    unghi: Math.PI / 2 + (4 * Math.PI) / 3,    // dreapta-spate
+    loc: { kx: 1.06, ky: 0.20, scara: 0.96 },    // pe latura din dreapta
     ritm: 1.2, latime: 13, inaltime: 25,
     gandire: 1.3, haos: 0.04                   // constant, niciodată grăbit
   }
 ];
 
+/* Dealerul stă pe latura din stânga și nu joacă: el împarte cărțile și
+   întoarce cartea mesei. E om, ca cei din local, nu personaj de basm ca ceilalți
+   trei — de asta e croit din același trup ca barmanul și chelnerul. */
+const DEALER = {
+  vesta:    "#23262e",
+  camasa:   "#eceae4",
+  pantalon: "#1c1f25",
+  piele:    "#c99a6e",
+  par:      "#241a14",
+  papion:   "#8a2f2a"
+};
+
+const dealerul = {
+  nume: "Dealerul",
+  loc: { kx: -1.06, ky: 0.24, scara: 0.94 },
+  ritm: 1.1, latime: 9.5, inaltime: 19,
+  imparte: 0                                   // cât timp mai mișcă mâinile
+};
+
+dealerul.deseneaza = function (context, t) {
+  const lat = this.latime * U, inalt = this.inaltime * U;
+
+  trupDeOm(this, {
+    pantalon: DEALER.pantalon, camasa: DEALER.camasa, maneca: DEALER.camasa,
+    piele: DEALER.piele, par: DEALER.par
+  }, t);
+
+  // Vesta închisă la culoare, peste cămașa albă.
+  ctx.fillStyle = DEALER.vesta;
+  dreptunghiRotunjit(-lat * 0.30, -inalt * 0.99, lat * 0.60, inalt * 0.52, lat * 0.16);
+  ctx.fill();
+  ctx.fillStyle = DEALER.camasa;                 // deschizătura vestei
+  ctx.beginPath();
+  ctx.moveTo(0, -inalt * 0.99);
+  ctx.lineTo(lat * 0.11, -inalt * 0.99);
+  ctx.lineTo(0, -inalt * 0.66);
+  ctx.lineTo(-lat * 0.11, -inalt * 0.99);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = DEALER.papion;
+  elipsa(0, -inalt - lat * 0.06, lat * 0.10, lat * 0.05);
+  ctx.fill();
+
+  // Mâna dinspre masă, întinsă spre teanc. Cât împarte, se mișcă.
+  const misca = this.imparte > 0 ? Math.sin(t * 26) * 0.5 * U : 0;
+  ctx.fillStyle = DEALER.piele;
+  elipsa(lat * 0.42, -inalt * 0.52 + misca, lat * 0.13, lat * 0.11);
+  ctx.fill();
+};
+
+// Dealerul nu joacă, deci nu are ce reacție să aibă la mâna altuia.
+dealerul.reactie = function () {};
+
+dealerul.actualizeaza = function (dt) {
+  if (this.imparte > 0) this.imparte -= dt;
+  if (this.vorbaTimp > 0) this.vorbaTimp -= dt;
+};
+
 // Fiecare personaj primește starea lui internă de animație.
-for (const p of personaje) {
+for (const p of personaje.concat([dealerul])) {
   p.faza = Math.random() * Math.PI * 2;
   p.mana = [];
   p.reactieTimp = 0;
@@ -730,18 +839,18 @@ for (const p of personaje) {
 // Calculează, pentru un personaj, toate punctele de care are nevoie scena:
 // unde stă, unde își ține cărțile, unde pune cartea pe masă.
 function aseazaPersonaj(p) {
+  /* Fiecare își are locul lui pe una din laturi, dat în `loc`. Cei de pe
+     laturile din spate și din lături sunt desenați înaintea blatului, care le
+     acoperă poalele — de asta par așezați. Cel din față stă dincolo de marginea
+     dinspre noi, cu spătarul scaunului peste picioare. */
+  p.x = cx + masa.rx * p.loc.kx;
+  p.y = cy + masa.ry * p.loc.ky;
+  p.scara = p.loc.scara;
+
+  // Încotro îi vine locul, socotit din mijlocul blatului: după unghiul ăsta se
+  // așază cărțile lui, umbra și scaunul.
+  p.unghi = Math.atan2(p.y - cy, p.x - cx);
   const c = Math.cos(p.unghi), s = Math.sin(p.unghi);
-
-  /* Locurile nu stau pe un cerc: privim masa de sus, sub un unghi mic, și cele
-     două părți nu se văd la fel. Cei din spate sunt trași înăuntru, ca blatul
-     să le acopere poalele — de asta par așezați. Cel din față stă dincolo de
-     marginea dinspre noi, cu spătarul scaunului peste picioare. */
-  const inFata = s >= 0;
-  p.x = cx + masa.rx * (inFata ? 1.00 : 0.86) * c;
-  p.y = cy + masa.ry * (inFata ? 1.18 : 0.55) * s;
-
-  // Personajele din față sunt mai aproape de privitor, deci mai mari.
-  p.scara = 0.80 + 0.30 * (0.5 + 0.5 * s);
 
   // Punctul unde își ține mâna de cărți și unde pune cartea jucată.
   p.manaX = cx + masa.rx * 0.78 * c;
@@ -762,7 +871,7 @@ function aseazaPersonaj(p) {
 }
 
 // Cel din față ești tu: stă cu spatele la privitor, deci mâna lui e mâna ta.
-function esteAlTau(p) { return Math.sin(p.unghi) >= 0; }
+function esteAlTau(p) { return p.esteJucatorul === true; }
 
 /* Așază în evantai cărțile din mână. Ale tale stau jos, în fața mesei, cu fața
    în sus — de acolo alegi. Ale celorlalți rămân strânse lângă ei, pe blat. */
@@ -1611,7 +1720,9 @@ function deseneazaSah() {
 const chelnerul = {
   nume: "Chelnerul",
   latime: 8.5, inaltime: 18.5, scara: 0.6, faza: 1.3,
-  x: 0, y: 0, spre: 1, asteptare: 0, pas: 0, directie: 1, drum: []
+  x: 0, y: 0, spre: 1, asteptare: 0, pas: 0, directie: 1, drum: [],
+  strange: null,         // vasele goale pe care s-a dus să le ia
+  tava: 0                // câte duce acum la chiuvetă
 };
 
 chelnerul.actualizeaza = function (dt) {
@@ -1723,6 +1834,131 @@ const barmanul = {
   tinta: null            // unde are treabă acum; null = se plimbă
 };
 
+/* --- Bucătarul și spălătorul de vase -------------------------------------- */
+
+/* Barmanul nu mai face totul. În dreapta, la aragaz și la masa de amestecat,
+   stă bucătarul: numai el gătește, și de-aia durează. În stânga de tot, la
+   chiuvetă, stă spălătorul: la el ajung vasele goale strânse de pe mese. */
+
+const BUCATAR = {
+  bluza:    "#eef0ee",
+  pantalon: "#3a3f47",
+  sort:     "#d9d3c4",
+  piele:    "#b9825a",
+  par:      "#2a1d16",
+  boneta:   "#f6f7f5",
+  tigaie:   "#26282c"
+};
+
+const SPALATOR = {
+  camasa:   "#5f7f8a",
+  pantalon: "#2e353c",
+  sort:     "#9fb0a6",
+  piele:    "#8a5a3a",
+  par:      "#1a1410",
+  apa:      "rgba(150, 205, 220, 0.55)"
+};
+
+const bucatarul = {
+  nume: "Bucătarul",
+  latime: 9.5, inaltime: 18.5, scara: 0.85, faza: 1.1,
+  x: 0, y: 0, pas: 0, directie: -1,
+  amesteca: 0,           // cât timp mai are de amestecat la ceaun
+  tinta: null
+};
+
+bucatarul.actualizeaza = function (dt) {
+  const unde = this.tinta !== null ? this.tinta : aragaz.x - 6 * U;
+  mergiSpre(this, unde, null, 16 * U, dt);
+  this.amesteca += dt;
+};
+
+bucatarul.ajuns = function () {
+  return this.tinta === null || Math.abs(this.x - this.tinta) < 4 * U;
+};
+
+bucatarul.deseneaza = function (context, t) {
+  context.save();
+  context.translate(this.x, this.y);
+  context.scale(this.scara, this.scara);
+  const lat = this.latime * U, inalt = this.inaltime * U;
+
+  trupDeOm(this, {
+    pantalon: BUCATAR.pantalon, camasa: BUCATAR.bluza, maneca: BUCATAR.bluza,
+    piele: BUCATAR.piele, par: BUCATAR.par
+  }, t);
+
+  // Șorțul lung, legat peste bluză.
+  ctx.fillStyle = BUCATAR.sort;
+  dreptunghiRotunjit(-lat * 0.28, -inalt * 0.56, lat * 0.56, inalt * 0.42, lat * 0.06);
+  ctx.fill();
+
+  // Boneta înaltă de bucătar: după ea se recunoaște de la distanță.
+  ctx.fillStyle = BUCATAR.boneta;
+  dreptunghiRotunjit(-lat * 0.20, -inalt - lat * 0.62, lat * 0.40, lat * 0.16, lat * 0.04);
+  ctx.fill();
+  dreptunghiRotunjit(-lat * 0.17, -inalt - lat * 1.05, lat * 0.34, lat * 0.46, lat * 0.14);
+  ctx.fill();
+
+  // Mâna cu lingura: cât gătește, amestecă.
+  const roteste = comanda.stare === "seFace" ? Math.sin(this.amesteca * 7) : 0;
+  ctx.save();
+  ctx.translate(lat * 0.34, -inalt * 0.62);
+  ctx.rotate(roteste * 0.5);
+  ctx.fillStyle = BUCATAR.tigaie;
+  dreptunghiRotunjit(-lat * 0.05, -lat * 0.30, lat * 0.10, lat * 0.42, lat * 0.04);
+  ctx.fill();
+  ctx.restore();
+
+  context.restore();
+};
+
+const spalatorul = {
+  nume: "Spălătorul de vase",
+  latime: 9, inaltime: 17.5, scara: 0.85, faza: 2.4,
+  x: 0, y: 0, pas: 0, directie: 1,
+  freaca: 0
+};
+
+spalatorul.actualizeaza = function (dt) {
+  if (chiuveta.vase > 0) {
+    this.freaca += dt;
+    chiuveta.spalat += dt;
+    if (chiuveta.spalat >= 4) {          // un vas spălat la fiecare patru secunde
+      chiuveta.vase--;
+      chiuveta.spalat = 0;
+    }
+  } else {
+    chiuveta.spalat = 0;
+  }
+};
+
+spalatorul.deseneaza = function (context, t) {
+  context.save();
+  context.translate(this.x, this.y);
+  context.scale(this.scara, this.scara);
+  const lat = this.latime * U, inalt = this.inaltime * U;
+
+  trupDeOm(this, {
+    pantalon: SPALATOR.pantalon, camasa: SPALATOR.camasa, maneca: SPALATOR.camasa,
+    piele: SPALATOR.piele, par: SPALATOR.par
+  }, t);
+
+  ctx.fillStyle = SPALATOR.sort;
+  dreptunghiRotunjit(-lat * 0.26, -inalt * 0.60, lat * 0.52, inalt * 0.44, lat * 0.06);
+  ctx.fill();
+
+  // Mâinile în chiuvetă. Când are ce spăla, freacă.
+  const freacat = chiuveta.vase > 0 ? Math.sin(this.freaca * 9) * 0.6 * U : 0;
+  ctx.fillStyle = SPALATOR.piele;
+  for (let s = -1; s <= 1; s += 2) {
+    elipsa(s * lat * 0.30, -inalt * 0.50 + s * freacat, lat * 0.12, lat * 0.10);
+    ctx.fill();
+  }
+
+  context.restore();
+};
+
 /* Merge spre un punct cu pas constant. Întoarce true când a ajuns.
    Tot ce umblă prin local trece pe aici — nimeni nu sare dintr-un loc în altul. */
 function mergiSpre(p, x, y, viteza, dt) {
@@ -1744,11 +1980,12 @@ function mergiSpre(p, x, y, viteza, dt) {
 barmanul.actualizeaza = function (dt) {
   // Se plimbă încet de la un capăt la altul al tejghelei, fără să iasă din ea.
   // Când are de lucru, `tinta` îl cheamă undeva anume — dar tot pe jos ajunge.
+  // Se plimbă numai prin zona lui, la mijlocul tejghelei: de gătit se ocupă
+  // bucătarul, de spălat spălătorul.
   this.mers += dt * 0.22;
-  const mijloc = (bar.x0 + bar.x1) / 2;
   const unde = this.tinta !== null
     ? this.tinta
-    : mijloc + Math.sin(this.mers) * (bar.x1 - bar.x0) * 0.20;
+    : bar.robinete + Math.sin(this.mers) * (bar.x1 - bar.x0) * 0.09;
 
   this.y = bar.y + bar.inalt * 0.55;
   mergiSpre(this, unde, null, 20 * U, dt);
@@ -2084,6 +2321,36 @@ function deseneazaMasa3Blat() {
   }
 }
 
+// O bulă de vorbă deasupra cuiva. O folosesc și musafirii, și dealerul.
+function bulaDeVorba(p, text) {
+  ctx.font = Math.round(2.6 * U) + "px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  const lat = ctx.measureText(text).width + 3.4 * U;
+  const jos = p.y - p.inaltime * U * p.scara - 5 * U;
+
+  // Bula nu are voie să iasă din ecran, oricât de aproape de margine ar sta el.
+  const mijloc = Math.max(lat / 2 + U, Math.min(p.x, W - lat / 2 - U));
+
+  ctx.fillStyle = "rgba(22, 16, 11, 0.88)";
+  dreptunghiRotunjit(mijloc - lat / 2, jos - 4.2 * U, lat, 4.6 * U, 0.9 * U);
+  ctx.fill();
+  ctx.beginPath();                       // coada bulei
+  ctx.moveTo(p.x - 1.1 * U, jos + 0.3 * U);
+  ctx.lineTo(p.x + 1.1 * U, jos + 0.3 * U);
+  ctx.lineTo(p.x, jos + 2 * U);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#e8dcc4";
+  ctx.fillText(text, mijloc, jos - 1.2 * U);
+}
+
+// Ce zice dealerul când se bagă și el într-o mână.
+function deseneazaVorbaDealerului() {
+  if (!(dealerul.vorbaTimp > 0) || !dealerul.vorba) return;
+  bulaDeVorba(dealerul, dealerul.vorba);
+}
+
 // Vorba celui care vorbește acum, scrisă deasupra lui.
 function deseneazaVorba() {
   if (vizita.vorbeste < 0 || vizita.stare !== "asezati") return;
@@ -2113,6 +2380,13 @@ function deseneazaVorba() {
 
 /* --- Așezarea lor în local ------------------------------------------------ */
 
+/* Unde se oprește chelnerul când vine la masa noastră: în colțul din față-
+   stânga, între dealer și clovn. Pe latura din stânga stă dealerul, deci nu
+   poate veni de-acolo. */
+function loculLaMasa() {
+  return { x: cx - masa.rx * 0.92, y: cy + masa.ry * 1.45 };
+}
+
 function asazaFundalul() {
   // Destul de sus cât să li se vadă mai mult de jumătate de om peste blat.
   omulCuMana.x = masa2.x - masa2.rx * 0.80;
@@ -2125,7 +2399,7 @@ function asazaFundalul() {
     { x: masa2.x + masa2.rx * 0.1, y: masa2.y + masa2.ry * 2.4, pauza: 3.0 },     // la masa a doua
     { x: masa3.x + masa3.rx * 0.9, y: masa3.y - masa3.ry * 1.2, pauza: 3.0,       // la masa a treia
       laMasa3: true },
-    { x: cx - masa.rx * 1.15, y: cy + masa.ry * 0.25, pauza: 2.6 },               // pe la noi
+    { x: loculLaMasa().x, y: loculLaMasa().y, pauza: 2.6 },                       // pe la noi
     { x: W * 0.66, y: bar.y + bar.inalt + 7 * U, pauza: 1.6 }                     // înapoi spre bar
   ];
   if (!chelnerul.pornit) {
@@ -2135,12 +2409,24 @@ function asazaFundalul() {
   }
   chelnerul.scara = scaraDupaAdancime(chelnerul.y);
 
-  barmanul.x = (bar.x0 + bar.x1) / 2;
+  /* Barul are trei zone, fiecare cu omul ei: chiuveta în stânga de tot,
+     robinetele la mijloc, bucătăria în dreapta de tot. Nimeni nu face treaba
+     altuia. */
+  bar.chiuveta = bar.x0 + 14 * U;
+  bar.robinete = (bar.x0 + bar.x1) / 2;
+
+  barmanul.x = bar.robinete;
   barmanul.y = bar.y + bar.inalt * 0.55;
 
-  // Aragazul stă pe blatul de lucru, la capătul din dreapta al barului.
-  aragaz.x = bar.x1 - 20 * U;
+  // Aragazul și masa de amestecat, pe blatul de lucru din dreapta.
+  aragaz.x = bar.x1 - 13 * U;
   aragaz.y = bar.blat;
+  bar.amestec = aragaz.x - 17 * U;
+
+  bucatarul.x = aragaz.x - 6 * U;
+  bucatarul.y = bar.y + bar.inalt * 0.55;
+  spalatorul.x = bar.chiuveta;
+  spalatorul.y = bar.y + bar.inalt * 0.55;
 
   if (!vizita.musafiri.length) {
     vizita.musafiri.push(creeazaMusafir("Musafirul din stânga"),
@@ -2157,7 +2443,7 @@ function asazaFundalul() {
   }
 
   if (!fundal.length) {
-    fundal.push(omulCuMana, omulDeAur, chelnerul, barmanul,
+    fundal.push(omulCuMana, omulDeAur, chelnerul, barmanul, bucatarul, spalatorul,
                 vizita.musafiri[0], vizita.musafiri[1]);
   }
   asazaSahul();
@@ -2279,8 +2565,8 @@ const OPTIUNI = [
   { id: "ciorba",    nume: "ciorbă de burtă", cantitate: "400 ml", pret: "24 lei", fel: "mancare", culoare: "#c8a76a" },
   { id: "cartofi",   nume: "cartofi prăjiți", cantitate: "200 g",  pret: "16 lei", fel: "mancare", culoare: "#d8a52a" },
   { sectiune: "Deserturi" },
-  { id: "papanasi",  nume: "papanași",        cantitate: "250 g",  pret: "22 lei", fel: "mancare", culoare: "#e8dfc0" },
-  { id: "inghetata", nume: "înghețată",       cantitate: "150 g",  pret: "14 lei", fel: "mancare", culoare: "#efe7ea" },
+  { id: "papanasi",  nume: "papanași",        cantitate: "250 g",  pret: "22 lei", fel: "mancare", desert: true, culoare: "#e8dfc0" },
+  { id: "inghetata", nume: "înghețată",       cantitate: "150 g",  pret: "14 lei", fel: "mancare", desert: true, culoare: "#efe7ea" },
   { sectiune: "De băut" },
   { id: "suc",       nume: "Prigat",          cantitate: "0,5 l",  pret: "9 lei",  fel: "baut",    culoare: "#e07b1f" },
   { id: "bere",      nume: "bere",            cantitate: "0,5 l",  pret: "12 lei", fel: "baut",    culoare: "#d8a52a" },
@@ -2327,6 +2613,8 @@ const comanda = {
 };
 const pahare = [];
 const aragaz = { x: 0, y: 0, fum: 0 };
+// Chiuveta din stânga barului: aici ajung vasele goale strânse de pe mese.
+const chiuveta = { vase: 0, spalat: 0 };
 
 // Zona în care apeși ca să chemi chelnerul pentru cineva.
 function apasatPe(p, x, y) {
@@ -2342,6 +2630,7 @@ function toarnaDinSticla(sticla) {
   });
   if (!pahar || sticla.nivel <= 0) return;
   sticla.nivel = Math.max(0, sticla.nivel - 0.34);
+  if (sticla.nivel <= 0) sticla.golit = true;   // sticla goală se strânge de pe masă
   pahar.nivel = 1;
   pahar.cronometru = intreg(4, 9);
   sunet.canta("turnat");
@@ -2391,9 +2680,10 @@ function cheamaChelnerul(p) {
   comanda.stare = "vine";
   comanda.pentru = p;
   comanda.ce = null;
+  const loc = loculLaMasa();
   chelnerul.misiune = {
-    x: cx - masa.rx * 1.15,
-    y: cy + masa.ry * 0.25,
+    x: loc.x,
+    y: loc.y,
     apoi: function () { deschideMeniul(p); }
   };
 }
@@ -2414,7 +2704,10 @@ function asazaMeniul() {
   if (x0 + latRand > W - 2 * U) x0 = p.x - p.latime * U * 0.8 - latRand;
   x0 = Math.max(2 * U, x0);
 
+  // Meniul nu are voie să ajungă peste mâna ta, de jos: ai nevoie și de una, și
+  // de alta în același timp, fiindcă partida merge înainte cât ții meniul.
   let y0 = p.y - p.inaltime * U * p.scara - 3 * U;
+  y0 = Math.min(y0, H - 18 * U - inaltTot);
   y0 = Math.max(2 * U, Math.min(y0, H - inaltTot - 2 * U));
 
   meniu.sus = y0;
@@ -2471,9 +2764,19 @@ function alege(o) {
   trimiteLaBar(p, lista);
 }
 
-// Unde stă barmanul cât face felul ăsta: la aragaz sau la robinete.
-function loculBarmanului(o) {
-  return o.fel === "mancare" ? aragaz.x - 3 * U : aragaz.x - 20 * U;
+// Cine face felul ăsta: bucătarul, dacă e de mâncare, altfel barmanul.
+function omulCare(o) {
+  return o.fel === "mancare" ? bucatarul : barmanul;
+}
+
+// Unde stă el cât îl face: la aragaz, respectiv la robinete.
+function loculDeLucru(o) {
+  return o.fel === "mancare" ? aragaz.x - 6 * U : bar.robinete;
+}
+
+// Unde așteaptă chelnerul comanda: în fața celui care o face.
+function loculDeAsteptare(o) {
+  return { x: loculDeLucru(o) - 4 * U, y: bar.y + bar.inalt + 7 * U };
 }
 
 function trimiteLaBar(p, lista) {
@@ -2492,13 +2795,22 @@ function trimiteLaBar(p, lista) {
   comanda.index = 0;
   comanda.ce = lista[0];
   comanda.stare = "laBar";
-  // Barmanul pornește din clipa asta, ca să fie acolo când ajunge chelnerul.
-  barmanul.tinta = loculBarmanului(comanda.ce);
+  // Cine îl face pornește din clipa asta, ca să fie acolo când ajunge chelnerul.
+  omulCare(comanda.ce).tinta = loculDeLucru(comanda.ce);
+  const loc = loculDeAsteptare(comanda.ce);
   chelnerul.misiune = {
-    x: aragaz.x - 18 * U,
-    y: bar.y + bar.inalt + 7 * U,
+    x: loc.x,
+    y: loc.y,
     apoi: function () { comanda.stare = "asteaptaBarman"; }
   };
+}
+
+/* Cât ține un fel. Mâncarea se gătește pe îndelete — pusă pe foc, amestecată,
+   scoasă în farfurie —, desertul ceva mai repede, băutura cât să se umple un
+   pahar. */
+function catDureaza(o) {
+  if (o.fel !== "mancare") return 2.6;
+  return o.desert ? 15 : 20;
 }
 
 function incepeLaBar() {
@@ -2507,30 +2819,33 @@ function incepeLaBar() {
   // Al doilea fel din același rând se face mai repede: plita e caldă, iar
   // paharele stau deja scoase pe tejghea.
   const graba = comanda.index === 0 ? 1 : 0.6;
-  if (comanda.ce.fel === "mancare") {
-    comanda.cronometru = 6 * graba;
-    sunet.canta("sfarait");
-  } else {
-    comanda.cronometru = 2.6 * graba;
-    sunet.canta("turnat");
-  }
+  comanda.cronometru = catDureaza(comanda.ce) * graba;
+  sunet.canta(comanda.ce.fel === "mancare" ? "sfarait" : "turnat");
 }
 
-// Barmanul le face pe rând. Când s-a terminat lista, pleacă tava spre masă.
+// Se fac pe rând, fiecare la omul lui. Când s-a terminat lista, pleacă tava.
 function urmatorulFel() {
   comanda.index++;
   if (comanda.index >= comanda.lista.length) { duceLaMasa(); return; }
+  const inainte = comanda.ce;
   comanda.ce = comanda.lista[comanda.index];
-  barmanul.tinta = loculBarmanului(comanda.ce);
-  comanda.stare = "asteaptaBarman";
+  if (omulCare(inainte) !== omulCare(comanda.ce)) omulCare(inainte).tinta = null;
+  omulCare(comanda.ce).tinta = loculDeLucru(comanda.ce);
+  const loc = loculDeAsteptare(comanda.ce);
+  chelnerul.misiune = {
+    x: loc.x, y: loc.y,
+    apoi: function () { comanda.stare = "asteaptaBarman"; }
+  };
 }
 
 function duceLaMasa() {
   comanda.stare = "adus";
-  barmanul.tinta = null;          // își reia plimbarea, pe jos
+  barmanul.tinta = null;          // își reiau treaba lor, pe jos
+  bucatarul.tinta = null;
+  const loc = loculLaMasa();
   chelnerul.misiune = {
-    x: cx - masa.rx * 1.15,
-    y: cy + masa.ry * 0.25,
+    x: loc.x,
+    y: loc.y,
     apoi: puneComandaPeMasa
   };
 }
@@ -2542,9 +2857,13 @@ function asazaPeMasa(obiect) {
   let cate = 0;
   // Sticlele nu se numără aici: ele stau în mijloc, nu în dreptul nimănui.
   for (const x of pahare) if (x.pentru === p && x !== obiect && x.tip !== "sticla") cate++;
-  const a = p.unghi + 0.40 + cate * 0.38;
-  obiect.x = cx + masa.rx * 0.66 * Math.cos(a);
-  obiect.y = cy + masa.ry * 0.66 * Math.sin(a);
+
+  // În dreptul lui, pe blat, iar al doilea lucru alături de primul — de-a lungul
+  // laturii la care stă, nu învârtite pe după masă.
+  const c = Math.cos(p.unghi), s = Math.sin(p.unghi);
+  const pas = (0.6 + cate) * 6.2 * U;
+  obiect.x = cx + masa.rx * 0.62 * c - s * pas;
+  obiect.y = cy + masa.ry * 0.62 * s + c * pas * 0.42;
 }
 
 /* Sticla nu stă lângă cel care a cerut-o, ci pe mijlocul blatului, la vedere,
@@ -2614,8 +2933,9 @@ function puneComandaPeMasa() {
 }
 
 function actualizeazaComanda(dt) {
-  // Chelnerul a ajuns la bar, dar nu se toarnă nimic până nu vine și barmanul.
-  if (comanda.stare === "asteaptaBarman" && barmanul.ajuns()) incepeLaBar();
+  // Chelnerul a ajuns la bar, dar nu se face nimic până nu vine și omul care
+  // are treaba asta — barmanul la robinete, bucătarul la aragaz.
+  if (comanda.stare === "asteaptaBarman" && omulCare(comanda.ce).ajuns()) incepeLaBar();
 
   if (comanda.stare === "seFace") {
     comanda.cronometru -= dt;
@@ -2638,14 +2958,117 @@ function actualizeazaComanda(dt) {
       const inghititura = pahar.pentru === draconianul ? 0.5 :
                           pahar.pentru === clovnul ? 0.34 : 0.2;
       pahar.nivel = Math.max(0, pahar.nivel - inghititura);
+      if (pahar.nivel <= 0) pahar.golit = true;
       pahar.cronometru = intreg(5, 11);
       sunet.canta("sorbit");
       trimiteEveniment(pahar.pentru, "bea");
     }
   }
+
+  actualizeazaStransul();
+}
+
+/* --- Strânsul vaselor ----------------------------------------------------- */
+
+/* Ce s-a golit nu rămâne pe masă la nesfârșit: când chelnerul n-are altceva de
+   făcut, trece pe la noi, le ia pe toate deodată și le duce la chiuvetă. Masa
+   se curăță singură, fără să apeși nimic. */
+
+function vaseDeStrans() {
+  return pahare.filter(function (p) { return p.golit; });
+}
+
+function actualizeazaStransul() {
+  if (chelnerul.strange || chelnerul.misiune) return;
+  if (comanda.stare !== "nimic" || meniu.deschis) return;   // are treabă mai bună
+  const vase = vaseDeStrans();
+  if (!vase.length) return;
+
+  chelnerul.strange = vase;
+  const loc = loculLaMasa();
+  chelnerul.misiune = { x: loc.x, y: loc.y, apoi: ridicaVasele };
+}
+
+function ridicaVasele() {
+  for (const v of chelnerul.strange) {
+    const i = pahare.indexOf(v);
+    if (i >= 0) pahare.splice(i, 1);
+  }
+  chelnerul.tava = chelnerul.strange.length;
+  sunet.canta("poc");
+  chelnerul.misiune = {
+    x: bar.chiuveta + 4 * U,
+    y: bar.y + bar.inalt + 7 * U,
+    apoi: lasaVaseleLaChiuveta
+  };
+}
+
+function lasaVaseleLaChiuveta() {
+  chiuveta.vase += chelnerul.tava;
+  chelnerul.tava = 0;
+  chelnerul.strange = null;
+  sunet.canta("poc");                 // le pune în chiuvetă și își reia tura
 }
 
 /* --- Desenul comenzii ----------------------------------------------------- */
+
+/* Chiuveta din stânga barului: o albie de tablă cu robinet. Când are vase în
+   ea, se vede teancul și un pic de apă. */
+function deseneazaChiuveta() {
+  const l = 12 * U, i = 3.4 * U, x = bar.chiuveta, y = bar.blat;
+
+  ctx.fillStyle = "#3d444c";
+  dreptunghiRotunjit(x - l / 2, y - i, l, i, 0.4 * U);
+  ctx.fill();
+  ctx.fillStyle = "#2a3036";                            // adâncitura albiei
+  dreptunghiRotunjit(x - l / 2 + 0.7 * U, y - i + 0.6 * U, l - 1.4 * U, i - 1 * U, 0.3 * U);
+  ctx.fill();
+
+  // Robinetul, îndoit deasupra albiei.
+  ctx.strokeStyle = "#8d959c";
+  ctx.lineWidth = 0.5 * U;
+  ctx.beginPath();
+  ctx.moveTo(x - l * 0.36, y - i);
+  ctx.lineTo(x - l * 0.36, y - i - 3.4 * U);
+  ctx.lineTo(x - l * 0.10, y - i - 3.4 * U);
+  ctx.stroke();
+
+  if (chiuveta.vase > 0) {
+    // Vasele puse la muiat: câte unul peste altul, câte se văd.
+    ctx.fillStyle = "#e6e2d6";
+    const cate = Math.min(chiuveta.vase, 5);
+    for (let k = 0; k < cate; k++) {
+      elipsa(x + (k - (cate - 1) / 2) * 2.1 * U, y - i * 0.55, 1.5 * U, 0.7 * U);
+      ctx.fill();
+    }
+    ctx.fillStyle = SPALATOR.apa;
+    dreptunghiRotunjit(x - l / 2 + 0.7 * U, y - i * 0.75, l - 1.4 * U, i * 0.45, 0.3 * U);
+    ctx.fill();
+  }
+}
+
+/* Masa de amestecat, lângă aragaz: acolo taie, amestecă și pune în farfurie —
+   de-aia durează mai mult mâncarea decât un pahar de suc. */
+function deseneazaMasaDeAmestec() {
+  const l = 11 * U, i = 2.6 * U, x = bar.amestec, y = bar.blat;
+
+  ctx.fillStyle = "#4a3423";                            // tocătorul de lemn
+  dreptunghiRotunjit(x - l / 2, y - i * 0.55, l, i * 0.55, 0.3 * U);
+  ctx.fill();
+
+  ctx.fillStyle = "#c9ced6";                            // castronul de amestecat
+  elipsa(x - l * 0.22, y - i * 0.75, 2.6 * U, 1.2 * U);
+  ctx.fill();
+  ctx.fillStyle = "#8f6a3f";
+  elipsa(x - l * 0.22, y - i * 0.85, 1.9 * U, 0.75 * U);
+  ctx.fill();
+
+  ctx.fillStyle = "#d8cfc0";                            // farfuriile pregătite
+  for (let k = 0; k < 2; k++) {
+    elipsa(x + l * 0.28, y - i * 0.5 - k * 0.5 * U, 2.2 * U, 0.8 * U);
+    ctx.fill();
+  }
+}
 
 function deseneazaAragaz() {
   const l = 13 * U, i = 4.5 * U;
@@ -3056,6 +3479,10 @@ function alegeDinCod(p) {
     return intreg(0, 1) < 0.6 ? valori[valori.length - 1]
                               : valori[Math.floor(intreg(0, valori.length)) % valori.length];
   }
+  if (p === dealerul) {
+    // Joacă cuminte, de la mijlocul mâinii: nici nu se dă mare, nici nu aruncă.
+    return valori[Math.floor(valori.length / 2)];
+  }
   // Clovnul, când nu te hotărăști tu: la nimereală, ca tot ce face el.
   return valori[Math.floor(intreg(0, valori.length)) % valori.length];
 }
@@ -3067,6 +3494,29 @@ let impartite = 0;
 let jucate = 0;
 let startator = 0;     // cine primește prima carte și joacă primul
 let castigator = null;
+
+/* Cine joacă mâna asta. De obicei cei trei; din când în când, dealerul zice o
+   vorbă și intră și el. Rar — altfel n-ar mai fi dealer, ar fi al patrulea. */
+let jucatori = personaje.slice();
+
+const VORBE_DEALER = [
+  "Hai că joc și eu o rundă.",
+  "Băieți, joc și eu de data asta.",
+  "Una singură, și mă opresc.",
+  "Ia să văd și eu cum e de partea ailaltă."
+];
+
+function alegeJucatoriiMainii() {
+  // Niciodată două mâini la rând: dacă tocmai a jucat, împarte și-atât.
+  const intra = !dealerul.joaca && Math.random() < 0.15;
+  dealerul.joaca = intra;
+  jucatori = intra ? personaje.concat([dealerul]) : personaje.slice();
+  if (intra) {
+    dealerul.vorba = alegeDin(VORBE_DEALER);
+    dealerul.vorbaTimp = 4.5;
+  }
+  if (startator >= jucatori.length) startator = 0;
+}
 let durataGandire = 1.5;
 let laRand = null;             // cine e la rând acum
 let raspunsModel = null;       // ce a apucat să spună modelul pentru el
@@ -3081,12 +3531,13 @@ function schimbaStarea(noua) {
   if (noua === "impartire") {
     impartite = 0;
     cronometru = 0.25;
+    alegeJucatoriiMainii();
   }
   else if (noua === "gandire") {
-    for (const p of personaje) trimiteEveniment(p, "gandeste");
+    for (const p of jucatori) trimiteEveniment(p, "gandeste");
     // Masa așteaptă cât are nevoie cel mai lent dintre ei.
     durataGandire = 0.6;
-    for (const p of personaje) durataGandire = Math.max(durataGandire, timpDeGandire(p) * 0.9);
+    for (const p of jucatori) durataGandire = Math.max(durataGandire, timpDeGandire(p) * 0.9);
   }
   else if (noua === "jucare") {
     jucate = 0;
@@ -3106,12 +3557,12 @@ function schimbaStarea(noua) {
     }
   }
   else if (noua === "reactie") {
-    for (const p of personaje) {
+    for (const p of jucatori) {
       trimiteEveniment(p, p === castigator ? "castig" : "pierdere");
     }
     // Și, separat, ce s-a întâmplat la masă: cine a luat mâna. Fiecare face ce
     // vrea cu informația asta — sau nimic, ca reptilianul.
-    for (const p of personaje) {
+    for (const p of jucatori) {
       if (p !== castigator) trimiteEveniment(p, "vecinCastiga", castigator);
     }
   }
@@ -3132,7 +3583,7 @@ function alegeCastigator() {
   for (const c of cartiPeMasa) {
     if (!cea || c.valoare > cea.valoare) cea = c;
   }
-  return (cea && cea.jucatDe) || personaje[startator % personaje.length];
+  return (cea && cea.jucatDe) || jucatori[startator % jucatori.length];
 }
 
 // Începe rândul cuiva: ori te întreabă pe tine, ori întreabă modelul.
@@ -3149,7 +3600,9 @@ function incepeRandul(p) {
 
   asteaptaJucator = false;
   cronometru = 0.35 + timpDeGandire(p) * 0.5;
-  if (AI.activ) {
+  // Modelul e întrebat doar pentru cine are o fire scrisă în `personaje.json`.
+  // Dealerul n-are: el joacă după judecata din cod.
+  if (AI.activ && p.promptSistem) {
     const cerut = p;
     AI.intreaba(p, situatiaMesei(p), function (valoare) {
       // Numai dacă tot el e la rând și chiar are cartea aia în mână.
@@ -3191,18 +3644,19 @@ function actualizeazaJocul(dt) {
   cronometru -= dt;
 
   if (stare === "impartire") {
-    if (cronometru <= 0 && impartite < CARTI_IN_MANA * personaje.length) {
-      const p = personaje[(startator + impartite) % personaje.length];
+    if (cronometru <= 0 && impartite < CARTI_IN_MANA * jucatori.length) {
+      const p = jucatori[(startator + impartite) % jucatori.length];
       const c = creeazaCarte(teanc.x, teanc.y, -0.12);
       c.valoare = Math.floor(intreg(1, 11));      // de la 1 la 10
       c.proprietar = p;
       carti.push(c);
       p.mana.push(c);
       rearanjeazaMana(p, 0.42);
+      dealerul.imparte = 0.22;             // i se mișcă mâna la fiecare carte
       impartite++;
       cronometru = 0.17;
     }
-    if (impartite >= CARTI_IN_MANA * personaje.length && cronometru <= -0.45) {
+    if (impartite >= CARTI_IN_MANA * jucatori.length && cronometru <= -0.45) {
       schimbaStarea("gandire");
     }
   }
@@ -3212,8 +3666,8 @@ function actualizeazaJocul(dt) {
   }
 
   else if (stare === "jucare") {
-    if (jucate < personaje.length) {
-      const p = personaje[(startator + jucate) % personaje.length];
+    if (jucate < jucatori.length) {
+      const p = jucatori[(startator + jucate) % jucatori.length];
       if (laRand !== p) {
         incepeRandul(p);
       } else if (asteaptaJucator) {
@@ -3248,8 +3702,8 @@ function actualizeazaJocul(dt) {
       // Masa se golește și mâna următoare începe de la câștigător.
       carti.length = 0;
       cartiPeMasa.length = 0;
-      for (const p of personaje) p.mana.length = 0;
-      startator = personaje.indexOf(castigator);
+      for (const p of jucatori) p.mana.length = 0;
+      startator = jucatori.indexOf(castigator);
       if (startator < 0) startator = 0;
       schimbaStarea("impartire");
     }
@@ -3288,6 +3742,8 @@ function deseneazaManaTa() {
 function actualizeazaTot(dt) {
   actualizeazaJocul(dt);
   for (const p of personaje) actualizeazaPersonaj(p, dt);
+  actualizeazaPersonaj(dealerul, dt);
+  dealerul.actualizeaza(dt);
   for (const c of carti) actualizeazaObiect(c, dt);
   actualizeazaParticule(dt);
   actualizeazaFundal(dt);
@@ -3300,9 +3756,11 @@ function actualizeazaTot(dt) {
 function deseneazaTot() {
   deseneazaFundal();
 
-  // Barul, cu barmanul prins între raft și tejghea.
+  // Barul, cu cei trei din spatele lui prinși între raft și tejghea.
   deseneazaBarFundal();
+  spalatorul.deseneaza(ctx, t);
   barmanul.deseneaza(ctx, t);
+  bucatarul.deseneaza(ctx, t);
   deseneazaTejghea();
 
   // Masa a doua, cu cei doi jucători de șah prinși între picior și blat.
@@ -3322,8 +3780,9 @@ function deseneazaTot() {
 
   if (!inSpateleMesei2 && chelnerul.y < cy) chelnerul.deseneaza(ctx, t);
 
-  for (const p of personaje) {
-    if (Math.sin(p.unghi) < 0) {          // cei din spate
+  // Cei de pe laturile din spate și din lături: masa le acoperă poalele.
+  for (const p of personaje.concat([dealerul])) {
+    if (!p.inFata) {
       deseneazaScaun(p);
       deseneazaSpatar(p);
       deseneazaPersonaj(p, t);
@@ -3333,7 +3792,7 @@ function deseneazaTot() {
   deseneazaMasa();
 
   for (const p of personaje) {
-    if (esteAlTau(p)) {                   // cel din față
+    if (p.inFata) {                       // cel din față
       deseneazaScaun(p);
       deseneazaPersonaj(p, t);
       deseneazaSpatar(p);
@@ -3362,6 +3821,7 @@ function deseneazaTot() {
   // să le vezi limpede, nu prin vignetă.
   deseneazaManaTa();
   deseneazaVorba();
+  deseneazaVorbaDealerului();
   deseneazaMeniu();
 }
 

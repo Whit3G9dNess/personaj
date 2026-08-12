@@ -30,17 +30,27 @@ Umanoid-crocodil: bot lung, solzi verzi-măslinii, postură dreaptă, îmbrăcat
 Calm, calculat, cel mai bun jucător dintre cei trei. Aproape nu se mișcă;
 clipește rar, cu pleoapa laterală. Când câștigă, nu arată nimic.
 
+### 2.4 Dealerul
+Om, nu personaj de basm: cămașă albă, vestă închisă la culoare, papion. Stă pe
+latura din stânga și nu joacă — el împarte cărțile și întoarce cartea mesei.
+Din când în când zice o vorbă și intră și el într-o mână, dar rar.
+
 ## 3. Scena
 
 Cei trei joacă la o masă dintr-un bar.
 
-- Masă rotundă cu blat gros și picior, văzută ușor de sus, într-o lumină caldă
-  de deasupra. Cei trei stau pe scaune, la masă.
-- Sunt așezați la 120° unul de altul; camera fixă.
+- Masă pătrată cu blat gros și picior în X, văzută ușor de sus, într-o lumină
+  caldă de deasupra. Cei trei stau pe scaune, la masă.
+- Masa are patru laturi și fiecare latură are pe cineva: în față clovnul (cu
+  spatele la noi), în spate draconianul, în dreapta reptilianul, iar în stânga
+  **dealerul**. Camera e fixă.
 - În centru: teancul de cărți și mâna jucată curent.
 - În fundal, de-a latul scenei: barul — tejghea cu panou verde, două polițe
-  luminate cu sticle, lămpi atârnate deasupra, plante, scaune înalte trase la
-  tejghea și un barman care se plimbă în spatele ei.
+  luminate cu sticle, lămpi atârnate deasupra, plante și scaune înalte trase la
+  tejghea. În spatele ei sunt trei zone, fiecare cu omul ei: **chiuveta** în
+  stânga de tot, cu spălătorul de vase; **robinetele** la mijloc, cu barmanul,
+  care face numai de băut; **bucătăria** în dreapta de tot — aragaz și masă de
+  amestecat —, cu bucătarul. Nimeni nu face treaba altuia.
 - În stânga-spate, mai departe și mai mică: a doua masă, la care doi clienți
   joacă șah — un om cu o mână de argint și unul făcut tot din aur.
 - În stânga-față: a treia masă, goală mai tot timpul. Din când în când vin doi
@@ -86,10 +96,16 @@ La sfârșit alegi cum se încheie:
 - **„nimic, mulțumesc"** — o opțiune ca oricare alta: dă din cap și își vede de
   tura lui.
 
-Chelnerul duce comanda la bar; barmanul toarnă sau gătește la aragaz, cu fum și
-sfârâit, felurile unul după altul. Se aude cum se umple paharul. Pe urmă vin
-toate odată pe masă, fiecare la locul lui lângă cel care le-a cerut, și se
-consumă din ele din când în când, fiecare cum îi e felul.
+Chelnerul duce comanda la bar, la omul ei: băutura o toarnă barmanul, la mijloc,
+cât să se umple un pahar; mâncarea o face bucătarul, în dreapta, cu fum și
+sfârâit — și durează, fiindcă se gătește și se amestecă: **20 de secunde un fel
+de mâncare, 15 un desert**. Felurile se fac unul după altul, apoi vin toate
+odată pe masă, fiecare la locul lui lângă cel care le-a cerut, și se consumă din
+ele din când în când, fiecare cum îi e felul.
+
+Ce s-a golit nu rămâne pe masă: când n-are altceva de făcut, chelnerul trece,
+strânge vasele goale și le duce la chiuveta din stânga barului, unde le spală
+spălătorul de vase. Masa se curăță singură.
 
 Vinul face excepție: vine cu sticla și cu paharul gol. Sticla stă pe mijlocul
 mesei, la vedere — nu chiar în buric, ci în golul de lângă clovn, ca să nu-i

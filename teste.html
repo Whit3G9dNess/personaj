@@ -273,6 +273,7 @@ return {
   bar: typeof bar !== "undefined" ? bar : null,
   masa2: typeof masa2 !== "undefined" ? masa2 : null,
   masa3: typeof masa3 !== "undefined" ? masa3 : null,
+  dealerul: typeof dealerul !== "undefined" ? dealerul : null,
   vizita: typeof vizita !== "undefined" ? vizita : null,
   fundal: typeof fundal !== "undefined" ? fundal : null,
   meniu: typeof meniu !== "undefined" ? meniu : null,
@@ -281,6 +282,9 @@ return {
   pahare: typeof pahare !== "undefined" ? pahare : null,
   deseneazaPahare: typeof deseneazaPahare !== "undefined" ? deseneazaPahare : null,
   aragaz: typeof aragaz !== "undefined" ? aragaz : null,
+  chiuveta: typeof chiuveta !== "undefined" ? chiuveta : null,
+  catDureaza: typeof catDureaza !== "undefined" ? catDureaza : null,
+  vaseDeStrans: typeof vaseDeStrans !== "undefined" ? vaseDeStrans : null,
   sunet: typeof sunet !== "undefined" ? sunet : null,
   apasa: typeof apasa !== "undefined" ? apasa : null,
   actualizeazaComanda: typeof actualizeazaComanda !== "undefined" ? actualizeazaComanda : null,
@@ -462,11 +466,30 @@ function testeUtilitare() {
     aproape(mic.U(), 5);
   });
 
-  test("cele trei locuri sunt la 120° unul de altul", function () {
+  test("masa e pătrată și are câte cineva pe fiecare latură", function () {
     const s = porneste();
-    const u = s.personaje.map(function (p) { return p.unghi; });
-    aproape(s.normalizeazaUnghi(u[1] - u[0]), 2 * Math.PI / 3, 1e-9);
-    aproape(s.normalizeazaUnghi(u[2] - u[1]), 2 * Math.PI / 3, 1e-9);
+    const clovn = s.personaj("Clovnul");
+    const dracon = s.personaj("Draconianul");
+    const rept = s.personaj("Reptilianul");
+    adevarat(s.dealerul, "lipsește dealerul");
+
+    adevarat(clovn.y > s.cy() + s.masa.ry, "clovnul nu stă în fața mesei");
+    adevarat(dracon.y < s.cy(), "draconianul nu stă pe latura din spate");
+    adevarat(rept.x > s.cx() + s.masa.rx * 0.9, "reptilianul nu stă pe latura din dreapta");
+    adevarat(s.dealerul.x < s.cx() - s.masa.rx * 0.9, "dealerul nu stă pe latura din stânga");
+
+    // Cei trei jucători s-au mutat spre dreapta: dealerul e cel mai din stânga.
+    for (const p of s.personaje) {
+      adevarat(p.x > s.dealerul.x, p.nume + " stă mai în stânga decât dealerul");
+    }
+  });
+
+  test("dealerul nu e jucător: n-are mână de cărți", function () {
+    const s = porneste();
+    egal(s.personaje.length, 3, "la masă joacă trei");
+    adevarat(s.personaje.indexOf(s.dealerul) < 0, "dealerul s-a băgat printre jucători");
+    s.panaLaStarea("gandire");
+    egal(s.dealerul.mana.length, 0, "dealerului i s-au împărțit cărți");
   });
 }
 
@@ -474,6 +497,34 @@ function testeUtilitare() {
 
 function testeCiclu() {
   sectiune("6.2 Ciclul unei mâini");
+
+  test("dealerul intră în joc rar, și niciodată de două ori la rând", function () {
+    const s = porneste();
+    let maini = 0, cuDealer = 0, douaLaRand = false, inainte = false, aVorbit = 0;
+    let stareAnt = s.stare();
+
+    for (let i = 0; i < 60 * 700 && maini < 25; i++) {
+      s.avanseaza(1 / 60);
+      const st = s.stare();
+      if (st === "gandire" && stareAnt !== "gandire") {
+        maini++;
+        const joaca = s.dealerul.mana.length > 0;
+        if (joaca) {
+          cuDealer++;
+          if (inainte) douaLaRand = true;
+          if (s.dealerul.vorbaTimp > 0 && s.dealerul.vorba) aVorbit++;
+        }
+        inainte = joaca;
+      }
+      stareAnt = st;
+    }
+
+    adevarat(maini >= 10, "n-au apucat să treacă destule mâini: " + maini);
+    adevarat(cuDealer > 0, "dealerul n-a jucat niciodată în " + maini + " mâini");
+    adevarat(cuDealer < maini / 2, "joacă prea des: " + cuDealer + " mâini din " + maini);
+    adevarat(!douaLaRand, "a jucat două mâini una după alta");
+    egal(aVorbit, cuDealer, "de fiecare dată când intră trebuie să și spună ceva");
+  });
 
   test("după împărțire fiecare personaj are trei cărți", function () {
     const s = porneste();
@@ -1151,23 +1202,30 @@ function testeLocalul() {
     }
   });
 
-  test("celor din spate le intră poalele sub blat, cel din față stă în fața mesei", function () {
+  test("fiecare stă lipit de latura lui: nici peste blat, nici departe de el", function () {
     const s = porneste();
-    const U = s.U();
-    for (const p of s.personaje) {
-      if (Math.sin(p.unghi) < 0) {
-        // Blatul e o elipsă: la x-ul lui, marginea de sus e mai jos decât la mijloc.
-        const k = (p.x - s.cx()) / s.masa.rx;
-        adevarat(Math.abs(k) < 1, p.nume + " stă în afara blatului, la " + k.toFixed(2) + " raze");
-        const sus = s.cy() - s.masa.ry * Math.sqrt(1 - k * k);
-        adevarat(p.y > sus + 4 * U,
-                 p.nume + " abia atinge blatul: baza la y=" + Math.round(p.y) +
-                 ", marginea blatului la " + Math.round(sus));
-      } else {
-        adevarat(p.y > s.cy() + s.masa.ry,
-                 p.nume + " ar trebui să stea în fața marginii mesei, nu peste blat");
-      }
+    const U = s.U(), cx = s.cx(), cy = s.cy();
+
+    // Cel din spate: baza lui cade pe blat, deci poalele îi intră sub el.
+    const dracon = s.personaj("Draconianul");
+    adevarat(Math.abs(dracon.x - cx) < s.masa.rx * 0.88,
+             "draconianul stă în afara laturii din spate");
+    adevarat(dracon.y > cy - s.masa.ry + 4 * U && dracon.y < cy,
+             "draconianului nu-i intră poalele sub blat: baza la y=" + Math.round(dracon.y));
+
+    // Cei de pe laturi stau lângă marginea blatului — dacă ar sta peste ea,
+    // blatul i-ar acoperi cu totul, nu doar de la brâu în jos.
+    for (const p of [s.personaj("Reptilianul"), s.dealerul]) {
+      const k = Math.abs(p.x - cx) / s.masa.rx;
+      adevarat(k > 1 && k < 1.3, p.nume + " stă la " + k.toFixed(2) +
+               " lățimi de mijloc — ori peste blat, ori prea departe de el");
+      adevarat(Math.abs(p.y - cy) < s.masa.ry,
+               p.nume + " nu e în dreptul mesei, ci mai în față sau mai în spate");
     }
+
+    // Cel din față stă dincolo de marginea dinspre noi.
+    const clovn = s.personaj("Clovnul");
+    adevarat(clovn.y > cy + s.masa.ry, "clovnul ar trebui să stea în fața marginii mesei");
   });
 
   test("fiecare are scaunul lui, sub el", function () {
@@ -1257,14 +1315,50 @@ function testeLumeaDinLocal() {
     adevarat(rept.latime > clovn.latime, "și trebuie să fie și mai lat decât clovnul");
   });
 
-  test("localul are patru oameni ai lui, cu același contract", function () {
+  test("localul are oamenii lui, toți cu același contract", function () {
     const s = porneste();
     adevarat(s.fundal, "lipsește lumea din local");
-    egal(s.fundal.length, 6, "personaje de fundal");
+    egal(s.fundal.length, 8, "personaje de fundal");
+    for (const nume of ["Chelnerul", "Barmanul", "Bucătarul", "Spălătorul de vase"]) {
+      dinFundal(s, nume);
+    }
     for (const p of s.fundal) {
       egal(typeof p.deseneaza, "function", p.nume + ".deseneaza");
       egal(typeof p.actualizeaza, "function", p.nume + ".actualizeaza");
     }
+  });
+
+  test("barul are trei zone, fiecare cu omul ei", function () {
+    const s = porneste();
+    const spalator = dinFundal(s, "Spălătorul de vase");
+    const barman = dinFundal(s, "Barmanul");
+    const bucatar = dinFundal(s, "Bucătarul");
+
+    adevarat(spalator.x < barman.x && barman.x < bucatar.x,
+             "de la stânga la dreapta: chiuveta, robinetele, bucătăria");
+    adevarat(Math.abs(spalator.x - s.bar.chiuveta) < 3 * s.U(),
+             "spălătorul nu stă la chiuvetă");
+    adevarat(Math.abs(bucatar.x - s.aragaz.x) < 10 * s.U(),
+             "bucătarul nu stă la aragaz");
+    adevarat(s.bar.chiuveta < s.bar.x0 + (s.bar.x1 - s.bar.x0) * 0.25,
+             "chiuveta nu e în stânga de tot");
+    adevarat(s.aragaz.x > s.bar.x0 + (s.bar.x1 - s.bar.x0) * 0.75,
+             "bucătăria nu e în dreapta de tot");
+  });
+
+  test("barmanul nu se mai plimbă prin toată tejgheaua", function () {
+    const s = porneste();
+    const barman = dinFundal(s, "Barmanul");
+    let stanga = barman.x, dreapta = barman.x;
+    for (let i = 0; i < 60 * 60; i++) {
+      s.avanseaza(1 / 60);
+      stanga = Math.min(stanga, barman.x);
+      dreapta = Math.max(dreapta, barman.x);
+    }
+    const lat = s.bar.x1 - s.bar.x0;
+    adevarat(stanga > s.bar.x0 + lat * 0.25 && dreapta < s.bar.x0 + lat * 0.75,
+             "a ieșit din zona lui: a umblat între " + Math.round(stanga) +
+             " și " + Math.round(dreapta));
   });
 
   test("cei doi stau la masa a doua, față în față", function () {
@@ -1741,20 +1835,31 @@ function testeComanda() {
     egal(s.sunet.ultimul, "turnat", "nu s-a auzit turnatul");
   });
 
-  test("comanzi mici cu piure: barmanul se duce la aragaz și iese fum", function () {
+  test("comanzi mici cu piure: bucătarul se duce la aragaz și iese fum", function () {
     const s = porneste();
     cheamaChelnerul(s, "Draconianul");
     comandaDinMeniu(s, "mici");
 
     let paza = 0;
     while (s.comanda.stare !== "seFace" && paza++ < 60 * 60) s.avanseaza(1 / 60);
-    const barman = s.fundal.find(function (p) { return p.nume === "Barmanul"; });
-    adevarat(Math.abs(barman.x - s.aragaz.x) < 6 * s.U(),
-             "barmanul nu s-a dus la aragaz");
+    const bucatar = s.fundal.find(function (p) { return p.nume === "Bucătarul"; });
+    adevarat(Math.abs(bucatar.x - s.aragaz.x) < 10 * s.U(),
+             "bucătarul nu s-a dus la aragaz");
     egal(s.sunet.ultimul, "sfarait", "nu se aude nimic la aragaz");
 
     s.avanseaza(1.5);
     adevarat(s.particule.some(function (f) { return f.fum; }), "aragazul nu scoate fum");
+  });
+
+  test("mâncarea ține mai mult decât băutura, iar desertul între ele", function () {
+    const s = porneste();
+    const feluri = {};
+    for (const o of s.meniu.optiuni) if (o.id) feluri[o.id] = o;
+    const durata = s.catDureaza;
+    adevarat(durata, "lipsește socoteala timpilor");
+    egal(durata(feluri.mici), 20, "mâncarea");
+    egal(durata(feluri.papanasi), 15, "desertul");
+    adevarat(durata(feluri.bere) < 5, "băutura trebuie să fie scurtă");
   });
 
   test("din comanda adusă se și consumă, până se termină", function () {
@@ -1784,6 +1889,43 @@ function testeComanda() {
     adevarat(Object.keys(vazute).length > 1,
              "masa a înghețat cât timp chelnerul era pe drum (a stat în „" +
              stareInainte + "”)");
+  });
+
+  test("paharul golit e strâns de pe masă și dus la chiuvetă", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    comandaDinMeniu(s, "suc");
+    panaAjungePeMasa(s);
+    egal(s.pahare.length, 1, "n-a ajuns sucul pe masă");
+
+    // Îl bea până la fund.
+    let paza = 0;
+    while (s.pahare.length && s.pahare[0].nivel > 0 && paza++ < 60 * 200) s.avanseaza(1 / 60);
+    adevarat(paza < 60 * 200, "nu l-a băut niciodată");
+
+    paza = 0;
+    while (s.pahare.length && paza++ < 60 * 200) s.avanseaza(1 / 60);
+    egal(s.pahare.length, 0, "paharul gol a rămas pe masă");
+
+    paza = 0;
+    while (s.chiuveta.vase === 0 && paza++ < 60 * 200) s.avanseaza(1 / 60);
+    adevarat(s.chiuveta.vase > 0, "n-a ajuns niciun vas la chiuvetă");
+
+    // Și spălătorul îl spală, ca să nu se strângă teanc la nesfârșit.
+    paza = 0;
+    while (s.chiuveta.vase > 0 && paza++ < 60 * 60) s.avanseaza(1 / 60);
+    egal(s.chiuveta.vase, 0, "vasele stau nespălate în chiuvetă");
+  });
+
+  test("paharul de vin, adus gol, nu e strâns înainte să bei din el", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    comandaDinMeniu(s, "vin");
+    panaAjungePeMasa(s);
+    egal(s.pahare.length, 2, "trebuia să vină sticla și paharul");
+    egal(s.vaseDeStrans().length, 0, "paharul gol de vin a fost luat drept vas murdar");
+    s.avanseaza(20);
+    egal(s.pahare.length, 2, "i-a luat vinul de pe masă înainte să apuce să-l bea");
   });
 
   test("aragazul stă la capătul barului, pe blatul de lucru", function () {

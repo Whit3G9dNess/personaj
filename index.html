@@ -402,15 +402,12 @@ function deseneazaMasa2Sub() {
   elipsa(masa2.x, masa2.y + masa2.ry * 1.5, 4.5 * U, 1.7 * U);
   ctx.fill();
 
-  // Cele două scaune, deocamdată goale. Clienții vin la Faza 8.
-  ctx.fillStyle = LOCAL.scaunDeparte;
-  for (let s = -1; s <= 1; s += 2) {
-    elipsa(masa2.x + s * masa2.rx * 0.80, masa2.y + masa2.ry * 0.3, masa2.rx * 0.24, masa2.rx * 0.09);
-    ctx.fill();
-    dreptunghiRotunjit(masa2.x + s * masa2.rx * 0.80 - masa2.rx * 0.20,
-                       masa2.y - masa2.ry * 1.5, masa2.rx * 0.40, masa2.ry * 1.6, 0.6 * U);
-    ctx.fill();
-  }
+  // Scaunele lor, văzute din profil ca și ale celor de la masa noastră: stau
+  // unul în fața altuia, deci fiecare se vede dintr-o parte.
+  omulCuMana.culoareScaun = LOCAL.scaunDeparte;
+  omulDeAur.culoareScaun = LOCAL.scaunDeparte;
+  deseneazaScaunLateral(omulCuMana);
+  deseneazaScaunLateral(omulDeAur);
 }
 
 function deseneazaMasa2Blat() {
@@ -455,15 +452,22 @@ function deseneazaScaunLateral(p) {
   const l = p.latime * U;
   const d = p.asezatSpre || 1;                  // încotro îi vin genunchii
   const sezut = -(p.scaunInalt || 4.8) * U;
+  // Scaunele de la mesele din fund sunt mai stinse: sunt departe, în penumbră.
+  const lemn = p.culoareScaun || LOCAL.scaun;
+  const umbra = p.culoareScaun || LOCAL.scaunUmbra;
 
-  ctx.fillStyle = LOCAL.scaunUmbra;             // picioarele scaunului
+  ctx.fillStyle = umbra;                        // picioarele scaunului
   for (const k of [-0.28, 0.22]) {
     dreptunghiRotunjit(d * k * l - 0.3 * U, sezut, 0.6 * U, -sezut, 0.2 * U);
     ctx.fill();
   }
 
-  ctx.fillStyle = LOCAL.scaun;                  // scândura de șezut
-  dreptunghiRotunjit(d * -0.34 * l, sezut - 0.8 * U, 0.56 * l, 0.9 * U, 0.25 * U);
+  /* Scândura de șezut ține de la spatele lui până sub genunchi. Se măsoară de
+     la capătul din stânga, oricare ar fi acela — altfel, la cine stă întors
+     invers, scaunul îi iese tot în fața ochilor. */
+  ctx.fillStyle = lemn;
+  dreptunghiRotunjit(Math.min(-d * 0.34 * l, d * 0.22 * l), sezut - 0.8 * U,
+                     0.56 * l, 0.9 * U, 0.25 * U);
   ctx.fill();
 
   /* Spătarul, pe muchie, în spatele lui. Stă tras înăuntru, ca să se ghicească
@@ -471,7 +475,7 @@ function deseneazaScaunLateral(p) {
   const spatar = (p.inaltime || 18) * U * 0.42;
   dreptunghiRotunjit(d * -0.34 * l, sezut - spatar, 1.1 * U, spatar, 0.35 * U);
   ctx.fill();
-  ctx.fillStyle = LOCAL.scaunUmbra;
+  ctx.fillStyle = umbra;
   dreptunghiRotunjit(d * -0.34 * l, sezut - spatar * 0.55, 1.1 * U, 0.7 * U, 0.2 * U);
   ctx.fill();
 
@@ -940,8 +944,10 @@ function aseazaPersonaj(p) {
   // Punctul unde își ține mâna de cărți și unde pune cartea jucată.
   p.manaX = cx + masa.rx * 0.78 * c;
   p.manaY = cy + masa.ry * 0.78 * s;
-  p.masaX = cx + masa.rx * 0.32 * c;
-  p.masaY = cy + masa.ry * 0.32 * s;
+  /* Cartea jucată. Celui din față i-ar cădea drept peste cap — el stă între noi
+     și masă —, așa că a lui se așază puțin într-o parte, la vedere. */
+  p.masaX = cx + masa.rx * (0.32 * c - (p.inFata ? 0.26 : 0));
+  p.masaY = cy + masa.ry * (0.32 * s - (p.inFata ? 0.34 : 0));
 
   // Cărțile lui sunt rotite spre el, dar atenuat — privim masa de sus, dar
   // sub un unghi mic, așa că o rotire completă ar arăta fals.
@@ -1437,12 +1443,14 @@ function deseneazaReptilian(p, ctx, t) {
   const lat = p.latime * U;
   const inalt = p.inaltime * U;
 
-  // --- Coada, ieșită într-o parte pe după scaun.
+  /* --- Coada, ieșită într-o parte pe după scaun. Așezat, îi iese de la șold:
+     lăsată la tălpi, ar mătura podeaua pe sub scaun. */
+  const coada = p.asezatSpre ? -inalt * 0.30 : 0;
   ctx.fillStyle = REPT.solziJos;
   ctx.beginPath();
-  ctx.moveTo(lat * 0.20, -inalt * 0.10);
-  ctx.quadraticCurveTo(lat * 0.95, -inalt * 0.06, lat * 1.15, -inalt * 0.24);
-  ctx.quadraticCurveTo(lat * 0.85, inalt * 0.04, lat * 0.20, -0.4 * U);
+  ctx.moveTo(lat * 0.20, coada - inalt * 0.10);
+  ctx.quadraticCurveTo(lat * 0.95, coada - inalt * 0.06, lat * 1.15, coada - inalt * 0.24);
+  ctx.quadraticCurveTo(lat * 0.85, coada + inalt * 0.04, lat * 0.20, coada - 0.4 * U);
   ctx.closePath();
   ctx.fill();
 
@@ -1701,7 +1709,9 @@ function braterezemate(p, stangaCuloare, dreaptaCuloare, culoareManeca) {
 
 const omulCuMana = {
   nume: "Omul cu mâna de argint",
-  latime: 8, inaltime: 17, scara: 0.95, faza: 0.7, x: 0, y: 0
+  latime: 8, inaltime: 17, scara: 0.95, faza: 0.7, x: 0, y: 0,
+  asezatLateral: true, asezatSpre: 1, scaunInalt: 4.4,  // stă în stânga mesei, cu fața spre ea
+  culoareScaun: null                                   // se pune după ce se știu culorile localului
 };
 omulCuMana.deseneaza = function (context, t) {
   context.save();
@@ -1709,8 +1719,10 @@ omulCuMana.deseneaza = function (context, t) {
   context.scale(this.scara, this.scara);
   trupDeOm(this, {
     pantalon: OM.haina, camasa: OM.camasa, maneca: OM.camasa,
-    piele: OM.piele, par: OM.par, faraBrate: true
+    piele: OM.piele, par: OM.par, faraBrate: true,
+    asezat: this.asezatSpre                 // stă la masă, cu genunchii spre ea
   }, t);
+  context.translate(0, this.coborare || 0);
   // Una dintre mâini e de argint. E singurul lucru care sclipește la el.
   braterezemate(this, OM.piele, ARGINT.corp, OM.camasa);
   context.restore();
@@ -1719,7 +1731,9 @@ omulCuMana.actualizeaza = function () {};
 
 const omulDeAur = {
   nume: "Omul de aur",
-  latime: 8, inaltime: 17.5, scara: 0.95, faza: 2.1, x: 0, y: 0
+  latime: 8, inaltime: 17.5, scara: 0.95, faza: 2.1, x: 0, y: 0,
+  asezatLateral: true, asezatSpre: -1, scaunInalt: 4.4, // în dreapta mesei, cu fața spre ea
+  culoareScaun: null
 };
 omulDeAur.deseneaza = function (context, t) {
   context.save();
@@ -1730,8 +1744,10 @@ omulDeAur.deseneaza = function (context, t) {
   // Tot din aur: haine, piele, păr. Turnat dintr-o bucată, fără nimic pe el.
   trupDeOm(this, {
     pantalon: AUR.corp, camasa: AUR.corp, maneca: AUR.corp,
-    piele: AUR.corp, par: AUR.umbra, faraBrate: true
+    piele: AUR.corp, par: AUR.umbra, faraBrate: true,
+    asezat: this.asezatSpre                 // și el stă pe scaunul lui
   }, t);
+  context.translate(0, this.coborare || 0);
   braterezemate(this, AUR.corp, AUR.corp, AUR.corp);
 
   // O dungă de lumină pe trup, prinsă în metal — nu un punct răzleț.
@@ -2301,7 +2317,9 @@ function creeazaMusafir(nume) {
   const m = {
     nume: nume, paleta: null, semn: "nimic",
     latime: 8.5, inaltime: 17.5, scara: 0.92, faza: 0,
-    x: 0, y: 0, pas: 0, directie: 1, tintaX: 0, tintaY: 0
+    x: 0, y: 0, pas: 0, directie: 1, tintaX: 0, tintaY: 0,
+    asezatLateral: true, scaunInalt: 4.4,
+    asezatSpre: 0            // în picioare cât umblă; se așază când ajung la masă
   };
   m.actualizeaza = function () {};      // de el se ocupă ciclul vizitei
   m.deseneaza = function (context, t) {
@@ -2309,7 +2327,12 @@ function creeazaMusafir(nume) {
     context.save();
     context.translate(this.x, this.y);
     context.scale(this.scara, this.scara);
-    trupDeOm(this, this.paleta, t);
+    // Așezați la masă, se văd din profil; pe drum merg în picioare, ca oricine.
+    const paleta = Object.assign({}, this.paleta, {
+      asezat: vizita.stare === "asezati" ? this.asezatSpre : 0
+    });
+    trupDeOm(this, paleta, t);
+    context.translate(0, this.coborare || 0);
 
     const lat = this.latime * U, inalt = this.inaltime * U;
     ctx.fillStyle = this.paleta.accesoriu;
@@ -2430,13 +2453,9 @@ function deseneazaMasa3Sub() {
   elipsa(masa3.x, masa3.y + masa3.ry * 1.5, 6 * U, 2.2 * U);
   ctx.fill();
 
-  ctx.fillStyle = LOCAL.scaunDeparte;
-  for (let s = -1; s <= 1; s += 2) {
-    elipsa(masa3.x + s * masa3.rx * 0.80, masa3.y + masa3.ry * 0.4, masa3.rx * 0.22, masa3.rx * 0.08);
-    ctx.fill();
-    dreptunghiRotunjit(masa3.x + s * masa3.rx * 0.80 - masa3.rx * 0.19,
-                       masa3.y - masa3.ry * 1.4, masa3.rx * 0.38, masa3.ry * 1.5, 0.6 * U);
-    ctx.fill();
+  // Scaunele lor, de profil: stau față în față, ca și șahiștii de la masa a doua.
+  if (vizita.musafiri.length) {
+    for (const m of vizita.musafiri) deseneazaScaunLateral(m);
   }
 }
 
@@ -2583,6 +2602,9 @@ function asazaFundalul() {
   if (!vizita.musafiri.length) {
     vizita.musafiri.push(creeazaMusafir("Musafirul din stânga"),
                          creeazaMusafir("Musafirul din dreapta"));
+    // Se privesc peste masă: unul cu genunchii spre dreapta, celălalt spre stânga.
+    vizita.musafiri[0].asezatSpre = 1;
+    vizita.musafiri[1].asezatSpre = -1;
     imbracaMusafirii();
   }
   // Dacă tocmai stau la masă, îi mutăm odată cu masa la redimensionare.
@@ -3954,6 +3976,16 @@ function deseneazaTot() {
 
   deseneazaMasa();
 
+  /* Tot ce stă pe blat se desenează înaintea celui din față: el e între noi și
+     masă, deci trebuie să acopere el cărțile, nu ele pe el. Altfel îi cad
+     cărțile jucate peste pălărie. */
+  deseneazaTeanc();
+  deseneazaPahare();
+  for (const c of carti) {
+    if (c.proprietar && esteAlTau(c.proprietar)) continue;   // mâna ta, mai jos
+    deseneazaCarte(c);
+  }
+
   for (const p of personaje) {
     if (p.inFata) {                       // cel din față
       deseneazaScaun(p);
@@ -3969,12 +4001,6 @@ function deseneazaTot() {
   for (const m of vizita.musafiri) m.deseneaza(ctx, t);
   deseneazaMasa3Blat();
 
-  deseneazaTeanc();
-  deseneazaPahare();
-  for (const c of carti) {
-    if (c.proprietar && esteAlTau(c.proprietar)) continue;   // mâna ta, mai jos
-    deseneazaCarte(c);
-  }
   deseneazaParticule();
 
   deseneazaLumina();

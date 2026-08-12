@@ -484,6 +484,21 @@ function testeUtilitare() {
     }
   });
 
+  test("dealerul stă pe scaun, nu în picioare lângă el", function () {
+    const s = porneste();
+    const d = s.deseneaza(s.dealerul, 0);
+    const picioare = formeDeCuloare(d, "#1c1f25");
+    adevarat(picioare.length >= 2, "nu i se văd picioarele");
+
+    // Așezat înseamnă coapsa întinsă spre masă: o formă mai lată decât înaltă,
+    // în dreapta lui. În picioare n-ar avea așa ceva.
+    const coapsa = picioare.find(function (f) {
+      return f.limite.cx > s.dealerul.x &&
+             (f.limite.x1 - f.limite.x0) > (f.limite.y1 - f.limite.y0);
+    });
+    adevarat(coapsa, "n-are coapsa întinsă spre masă — pare că stă în picioare");
+  });
+
   test("dealerul nu e jucător: n-are mână de cărți", function () {
     const s = porneste();
     egal(s.personaje.length, 3, "la masă joacă trei");
@@ -1193,12 +1208,16 @@ function testeLocalul() {
     adevarat(muchie[0].limite.cy > s.cy(), "grosimea trebuie să iasă pe sub blat");
   });
 
-  test("cei trei stau la masă, nu în picioare pe lângă ea", function () {
+  test("stau toți la masă, nu în picioare pe lângă ea", function () {
     const s = porneste();
-    for (const p of s.personaje) {
-      const d = Math.hypot((p.x - s.cx()) / s.masa.rx, (p.y - s.cy()) / s.masa.ry);
-      adevarat(d < 1.25, p.nume + " stă la " + d.toFixed(2) +
-                         " raze de centru — prea departe ca să ajungă la masă");
+    // Masa fiind pătrată, ce contează nu e depărtarea de mijloc, ci de latura
+    // la care stă fiecare: cine se depărtează de ea nu mai ajunge la blat.
+    for (const p of s.personaje.concat([s.dealerul])) {
+      const dx = (Math.abs(p.x - s.cx()) - s.masa.rx) / s.masa.rx;
+      const dy = (Math.abs(p.y - s.cy()) - s.masa.ry) / s.masa.ry;
+      const departe = Math.max(dx, dy);
+      adevarat(departe < 0.45, p.nume + " stă la " + departe.toFixed(2) +
+                               " de marginea laturii lui — prea departe ca să ajungă la masă");
     }
   });
 
@@ -1326,6 +1345,40 @@ function testeLumeaDinLocal() {
       egal(typeof p.deseneaza, "function", p.nume + ".deseneaza");
       egal(typeof p.actualizeaza, "function", p.nume + ".actualizeaza");
     }
+  });
+
+  test("chelnerul nu calcă niciodată pe masa noastră", function () {
+    const s = porneste();
+    const ch = dinFundal(s, "Chelnerul");
+    let peBlat = 0;
+    for (let i = 0; i < 60 * 240; i++) {
+      s.avanseaza(1 / 60);
+      // Cât e mai jos de mijlocul mesei, e desenat în fața ei: acolo n-are voie
+      // să calce pe blat.
+      const inLatime = Math.abs(ch.x - s.cx()) < s.masa.rx;
+      const peBlatAcum = inLatime && ch.y > s.cy() && ch.y < s.cy() + s.masa.ry;
+      if (peBlatAcum) peBlat++;
+    }
+    egal(peBlat, 0, "a umblat " + peBlat + " cadre peste blat");
+  });
+
+  test("spălătorul face bulbuci cât spală", function () {
+    const s = porneste();
+    s.chiuveta.vase = 2;
+    s.avanseaza(1.5);
+    const bulbuci = s.particule.filter(function (f) { return f.bulbuc; });
+    adevarat(bulbuci.length > 0, "nu iese niciun bulbuc din chiuvetă");
+    for (const b of bulbuci) {
+      adevarat(Math.abs(b.x - s.bar.chiuveta) < 8 * s.U(), "bulbucul nu iese din chiuvetă");
+      adevarat(b.vy < 0, "bulbucii trebuie să urce");
+    }
+
+    // Fără vase în chiuvetă nu are ce spăla, deci nu mai face bulbuci.
+    s.chiuveta.vase = 0;
+    s.particule.length = 0;
+    s.avanseaza(2);
+    egal(s.particule.filter(function (f) { return f.bulbuc; }).length, 0,
+         "face bulbuci și când chiuveta e goală");
   });
 
   test("barul are trei zone, fiecare cu omul ei", function () {
@@ -1889,6 +1942,44 @@ function testeComanda() {
     adevarat(Object.keys(vazute).length > 1,
              "masa a înghețat cât timp chelnerul era pe drum (a stat în „" +
              stareInainte + "”)");
+  });
+
+  test("vasele nu se teleportează: chelnerul le duce el, pe tavă", function () {
+    const s = porneste();
+    cheamaChelnerul(s, "Clovnul");
+    comandaDinMeniu(s, "suc");
+    panaAjungePeMasa(s);
+
+    const ch = dinFundal(s, "Chelnerul");
+    let paza = 0;
+    while (s.pahare.length && paza++ < 60 * 300) s.avanseaza(1 / 60);
+    egal(s.pahare.length, 0, "paharul n-a fost luat de pe masă");
+
+    // Din clipa în care l-a luat de pe masă și până îl lasă la chiuvetă, îl
+    // duce în mână — și se vede pe tavă.
+    adevarat(ch.tava > 0, "l-a luat de pe masă, dar nu duce nimic");
+    const laMasa = Math.abs(ch.x - s.cx());
+    egal(s.chiuveta.vase, 0, "vasul a ajuns la chiuvetă înainte să plece cu el");
+
+    let vazutPeTava = false;
+    paza = 0;
+    while (s.chiuveta.vase === 0 && paza++ < 60 * 200) {
+      s.avanseaza(1 / 60);
+      if (ch.tava > 0) {
+        s.goleste();
+        ch.deseneaza(s.panza.ctx, 0);
+        const farfurii = s.desene.filter(function (d) {
+          return d.op === "fill" && typeof d.stil === "string" &&
+                 (d.stil.toLowerCase() === "#efe7d6" || d.stil.toLowerCase() === "#e6e2d6");
+        });
+        if (farfurii.length) vazutPeTava = true;
+      }
+    }
+    adevarat(vazutPeTava, "n-a dus nimic vizibil pe tavă");
+    adevarat(s.chiuveta.vase > 0, "n-a ajuns la chiuvetă");
+    adevarat(Math.abs(ch.x - s.bar.chiuveta) < 12 * s.U(),
+             "a lăsat vasele fără să ajungă la spălător");
+    adevarat(laMasa < s.masa.rx * 1.6, "nu era la masă când le-a ridicat");
   });
 
   test("paharul golit e strâns de pe masă și dus la chiuvetă", function () {

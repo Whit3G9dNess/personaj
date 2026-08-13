@@ -286,6 +286,10 @@ return {
   inchideChat: typeof inchideChat !== "undefined" ? inchideChat : null,
   alegeVorbitorul: typeof alegeVorbitorul !== "undefined" ? alegeVorbitorul : null,
   iiZiciCeva: typeof iiZiciCeva !== "undefined" ? iiZiciCeva : null,
+  pomenirea: typeof pomenirea !== "undefined" ? pomenirea : null,
+  faraPomenire: typeof faraPomenire !== "undefined" ? faraPomenire : null,
+  parereaLui: typeof parereaLui !== "undefined" ? parereaLui : null,
+  potriviri: typeof potriviri !== "undefined" ? potriviri : null,
   areFereastra: typeof areFereastra !== "undefined" ? areFereastra : null,
   vizita: typeof vizita !== "undefined" ? vizita : null,
   fundal: typeof fundal !== "undefined" ? fundal : null,
@@ -2935,6 +2939,110 @@ function testeVorba() {
   });
 }
 
+/* --- 6.15 Faza 14: pomenit pe altul --------------------------------------- */
+
+function testePomenire() {
+  sectiune("6.15 Faza 14 — Pomenit pe altul");
+
+  test("semnul și numele: pomenirea se prinde oricum ai scrie-o", function () {
+    const s = porneste();
+    adevarat(s.pomenirea, "nu se poate pomeni nimeni");
+
+    const cazuri = [
+      ["ce crezi de @draconian?",            "Draconianul"],
+      ["ce crezi de /draconian?",            "Draconianul"],
+      ["@Draconianul e la masă",             "Draconianul"],
+      ["zi-mi de @barman",                   "Barmanul"],
+      ["@spalator ce zice?",                 "Spălătorul de vase"],
+      ["@Spălătorul de vase e obosit",       "Spălătorul de vase"],
+      ["cum joacă @omul de aur?",            "Omul de aur"],
+      ["dar @aur?",                          "Omul de aur"],
+      ["@clovn ce-i cu el?",                 "Clovnul"]
+    ];
+    for (const [scris, cine] of cazuri) {
+      const p = s.pomenirea(scris);
+      adevarat(p, "n-a prins nicio pomenire în „" + scris + "”");
+      egal(p && p.nume, cine, "în „" + scris + "” a înțeles altceva");
+    }
+  });
+
+  test("semnul singur nu e pomenire", function () {
+    const s = porneste();
+    egal(s.pomenirea("ce mai faci?"), null, "a pomenit pe cineva din senin");
+    egal(s.pomenirea("@nimeni de aici"), null, "a pomenit pe cine nu există");
+    egal(s.pomenirea("scrie-mi pe ceva@undeva.ro"), null,
+         "semnul din mijlocul unui cuvânt nu pomenește pe nimeni");
+    egal(s.pomenirea("@"), null, "semnul singur nu înseamnă nimeni");
+  });
+
+  test("modelul citește vorba curată, fără semn", function () {
+    const s = porneste();
+    egal(s.faraPomenire("ce crezi de @draconian?"), "ce crezi de Draconianul?",
+         "semnul a rămas în vorba trimisă mai departe");
+    egal(s.faraPomenire("ce mai faci?"), "ce mai faci?", "a schimbat o vorbă fără pomenire");
+  });
+
+  test("toți cei cu nume pot fi pomeniți și au ce zice despre alții", function () {
+    const s = porneste();
+    for (const nume in s.FIRI) {
+      const f = s.FIRI[nume];
+      adevarat(f.despre && f.despre.length > 10, nume + " n-are scris cine e, văzut din afară");
+      adevarat(f.porecle && f.porecle.length >= 1, nume + " n-are nicio poreclă de scris scurt");
+      // Clovnul ești tu: el nu răspunde, deci n-are de ce să aibă păreri.
+      if (!f.fire) continue;
+      adevarat(f.pareri && f.pareri.length >= 2, nume + " n-are păreri despre alții");
+      for (const parere of f.pareri) {
+        adevarat(parere.indexOf("{cine}") >= 0, nume + " are o părere fără loc pentru nume");
+      }
+    }
+    adevarat(s.FIRI["Clovnul"], "pe clovn nu-l poți pomeni, deși e la masă");
+    egal(s.FIRI["Clovnul"].fire, null, "clovnul ești tu: n-are voie să aibă fire");
+  });
+
+  test("fără Ollama, răspunsul e tot despre cel pomenit", function () {
+    const s = porneste();
+    s.AI.activ = false;
+    s.deschideChat(null);
+    const barman = s.vorbitori().find(function (p) { return p.nume === "Barmanul"; });
+    s.alegeVorbitorul(barman);
+    s.iiZiciCeva("ce crezi de @draconian?");
+
+    egal(s.chat.vorbe.length, 2, "n-a răspuns nimeni");
+    const zis = s.chat.vorbe[1].text;
+    egal(s.chat.vorbe[1].cine, "Barmanul", "a răspuns altcineva decât cel întrebat");
+    adevarat(zis.indexOf("Draconianul") >= 0,
+             "răspunsul nu e despre cine am întrebat: „" + zis + "”");
+  });
+
+  test("ce scrii rămâne scris cu semn cu tot", function () {
+    const s = porneste();
+    s.AI.activ = false;
+    s.deschideChat(null);
+    s.iiZiciCeva("ce crezi de @draconian?");
+    egal(s.chat.vorbe[0].text, "ce crezi de @draconian?", "mi-a schimbat vorba în fereastră");
+  });
+
+  test("pomenit chiar cel cu care vorbești, răspunde ca de obicei", function () {
+    const s = porneste();
+    s.AI.activ = false;
+    s.deschideChat(null);
+    const barman = s.vorbitori().find(function (p) { return p.nume === "Barmanul"; });
+    s.alegeVorbitorul(barman);
+    s.iiZiciCeva("@barman, ce mai faci?");
+    adevarat(s.FIRI["Barmanul"].rezerva.indexOf(s.chat.vorbe[1].text) >= 0,
+             "și-a dat cu părerea despre el însuși: „" + s.chat.vorbe[1].text + "”");
+  });
+
+  test("lista de sub semn arată pe cine poți pomeni", function () {
+    const s = porneste();
+    adevarat(s.potriviri, "nu se deschide nicio listă");
+    adevarat(s.potriviri("").length > 1, "lista e goală când n-ai scris încă nimic");
+    egal(s.potriviri("drac")[0], "Draconianul", "n-a găsit pe cine scriam");
+    egal(s.potriviri("spal")[0], "Spălătorul de vase", "poreclele fără diacritice nu se caută");
+    egal(s.potriviri("qqq").length, 0, "a găsit pe cineva care nu există");
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -2966,6 +3074,7 @@ function testeVorba() {
   testeMusafiri();
   testePartida();
   testeVorba();
+  testePomenire();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

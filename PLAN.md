@@ -27,6 +27,7 @@ funcționează deja.
 | 11 | Partida cu cap: trei levate, cărți întoarse, jokerul | ✅ gata |
 | 12 | Localul reașezat: masă pătrată, dealer, bucătar, chiuvetă | ✅ gata |
 | 13 | Vorba cu ei: chat cu oricine din local | ✅ gata |
+| 14 | Pomenit pe altul: `@cineva` în vorbă | ✅ gata |
 
 ---
 
@@ -547,6 +548,45 @@ meniu.
 
 **Verificare:** apeși iconița, alegi barmanul, scrii „ce mai faci?" și îți
 răspunde el, nu draconianul. Închizi fereastra și scena e neatinsă.
+
+---
+
+## Faza 14 — Pomenit pe altul
+
+Vorbești cu barmanul și vrei să-l întrebi de draconian. Acum n-ai cum: modelul
+primește doar firea celui întrebat, iar „ăla mare și verde" nu-i spune nimic.
+Faza asta adaugă **pomenirea**: scrii `@draconian` (sau `/draconian`) în vorbă și
+cel întrebat știe despre cine e vorba.
+
+1. **Cum scrii.** Un `@` sau un `/` și numele: *„barmanule, ce crezi de
+   @draconian?"*. Semnul deschide o listă mică deasupra casetei, cu cine e în
+   local; scrii mai departe și lista se strânge, apeși pe unul (sau Tab, sau
+   Enter) și numele se completează singur. Cât e lista deschisă, Enter alege din
+   ea, nu trimite vorba.
+2. **Pe cine poți pomeni.** Pe oricine are nume în local, plus pe tine: clovnul
+   n-are fire, fiindcă pe el îl joci tu, dar poate fi vorbit de rău. Numele merge
+   scris fără diacritice și scurtat — `@barman`, `@aur`, `@spalator` — și de
+   aceea fiecare primește câteva porecle scrise lângă fire.
+3. **Ce primește modelul.** Pe lângă firea celui întrebat, o singură propoziție
+   despre cel pomenit — cine e, văzut din afară — și îndemnul să-și spună
+   părerea. Pomenirea se curăță din întrebare: modelul citește „ce crezi de
+   Draconianul?", nu semnul.
+4. **Fără Ollama.** Regula de aur: fiecare primește și câteva păreri scrise de
+   mână, cu un gol în loc de nume — *„Cu {cine} nu mă pun"* —, ca răspunsul să
+   fie tot despre cine ai întrebat, nu o vorbă la nimereală din rezervă.
+5. **Ce se vede.** Numele pomenit rămâne scris aprins în fereastră, ca să se
+   vadă la cine te-ai referit.
+
+**Datele.** `despre`, `porecle` și `pareri` intră în `FIRI`, lângă fire, și se
+oglindesc în `personaje.json`. Clovnul capătă și el intrare, cu `fire: null` —
+`vorbitori()` cerne după fire, nu după intrare, ca să nu ajungi să vorbești cu
+tine însuți.
+
+**Rămâne pe dinafară:** cel pomenit nu află că s-a vorbit de el și nu se întoarce
+spre masă; pomenirea nu-l cheamă în discuție. O pomenire pe vorbă, prima.
+
+**Verificare:** îi scrii barmanului „ce crezi de @draconian?" și răspunsul e
+despre draconian; fără Ollama, tot despre el e, nu o replică oarecare.
 
 ---
 

@@ -158,6 +158,11 @@ Răspunde fiecare cum îi e firea, iar ce spune se aude și în local: îi apare
 deasupra capului, ca vorbele de la masa a treia. Răspunsurile le scrie modelul
 din Ollama; fără el, fiecare are câteva vorbe ale lui, scrise în cod.
 
+**Poți pomeni pe altul.** Scrii `@` (sau `/`) și numele — `@draconian`, `@aur`,
+`@spalator` — și se deschide o listă din care alegi. Cel întrebat află atunci
+cine e cel pomenit și își spune părerea despre el. Pe clovn poate să-l pomenească
+oricine, deși cu el nu se poate vorbi: el ești tu.
+
 Partida merge înainte cât ții fereastra deschisă.
 
 ## 5. Reguli de implementare

@@ -1,6 +1,13 @@
 {
-  "versiune": 2,
-  "descriere": "Fișa tuturor personajelor cu nume din local: firea cu care le răspunde modelul, replicile de rezervă când modelul tace, locul lor în scenă și dimensiunile. Fișierul e oglinda scenei, nu sursa ei: nu se citește la pornire, fiindcă `index.html` se deschide direct de pe file://, unde fetch cade. Adevărul e în cod; aici scrie ca să se vadă toată distribuția pe o pagină.",
+  "versiune": 3,
+  "descriere": "Fișa tuturor personajelor cu nume din local: firea cu care le răspunde modelul, replicile de rezervă când modelul tace, ce se spune despre ei când îi pomenește cineva, locul lor în scenă și dimensiunile. Fișierul e oglinda scenei, nu sursa ei: nu se citește la pornire, fiindcă `index.html` se deschide direct de pe file://, unde fetch cade. Adevărul e în cod; aici scrie ca să se vadă toată distribuția pe o pagină.",
+  "campuri": {
+    "fire": "Cine e, spus lui: pleacă la model ca prompt de sistem. Clovnul n-are — pe el îl joci tu.",
+    "rezerva": "Ce zice când modelul tace.",
+    "despre": "Cine e, spus altora: intră în prompt când îl pomenește cineva cu `@`.",
+    "porecle": "Numele scurte după care îl găsești când scrii `@`, fără diacritice.",
+    "pareri": "Ce zice despre altul fără model; `{cine}` se umple cu numele celui pomenit."
+  },
   "implicit": {
     "model": "gemma4:e2b",
     "url": "http://localhost:11434/api/chat",
@@ -20,6 +27,12 @@
       "fire": null,
       "notaFire": "N-are fire scrisă și nu apare în lista de vorbitori: pe el îl joci tu. Cărțile lui sunt cărțile tale, iar dacă nu te hotărăști în douăsprezece secunde joacă singur.",
       "rezerva": [],
+      "despre": "Clovnul e cel din fața ta, în costum cârpit: gălăgios, teatral, și nu stă locului o clipă.",
+      "porecle": [
+        "clovn",
+        "clovnul",
+        "bufon"
+      ],
       "descriere": {
         "aspect": "Costum cârpit din petice colorate (roșu, galben, turcoaz), guler cu volane, pălărie strâmbă, nas rotund, pantofi mari.",
         "personalitate": "Amuzant, jucăuș. Nu stă locului.",
@@ -32,7 +45,12 @@
       },
       "scena": {
         "unde": "la masa mare, în față, cu spatele la privitor",
-        "loc": { "kx": 0.08, "ky": 1.42, "scara": 1.0, "unghi": "π/2" },
+        "loc": {
+          "kx": 0.08,
+          "ky": 1.42,
+          "scara": 1.0,
+          "unghi": "π/2"
+        },
         "latime": 11,
         "inaltime": 20,
         "ritm": 1.9,
@@ -52,6 +70,18 @@
         "Cărțile astea sunt prea mici pentru mine.",
         "Adu-mi o bere și lasă-mă."
       ],
+      "despre": "Draconianul e uriașul cu solzi de la masă: fioros, morocănos, mârâie mai mult decât vorbește și scoate foc când pierde.",
+      "porecle": [
+        "draconian",
+        "draconianul",
+        "dragon",
+        "balaur"
+      ],
+      "pareri": [
+        "Mârrr. {cine} n-are ce-mi face.",
+        "{cine}? Nu mă bag.",
+        "Cu {cine} am mai jucat. Destul."
+      ],
       "descriere": {
         "aspect": "Masiv, ocupă cel mai mult loc la masă. Cap de dinozaur cu dinți și ochi galbeni, două aripi pliate pe spate, două labe-mâini, două labe-picioare.",
         "personalitate": "Fioros, tăcut. Nervos des.",
@@ -64,7 +94,12 @@
       },
       "scena": {
         "unde": "la masa mare, pe latura din spate",
-        "loc": { "kx": -0.32, "ky": -0.45, "scara": 0.8, "unghi": "-π/2" },
+        "loc": {
+          "kx": -0.32,
+          "ky": -0.45,
+          "scara": 0.8,
+          "unghi": "-π/2"
+        },
         "latime": 15,
         "inaltime": 24,
         "ritm": 0.9,
@@ -84,6 +119,18 @@
         "Răbdarea câștigă mâinile, nu norocul.",
         "Te uitai la cărțile mele?"
       ],
+      "despre": "Reptilianul e cel în costum, cu bot lung și coadă: calm, calculat, cel mai bun jucător de la masă.",
+      "porecle": [
+        "reptilian",
+        "reptilianul",
+        "crocodil",
+        "soparla"
+      ],
+      "pareri": [
+        "{cine} se citește ușor, dacă ai răbdare.",
+        "Despre {cine} n-aș vorbi la masă.",
+        "{cine} joacă exact cum arată."
+      ],
       "descriere": {
         "aspect": "Umanoid-crocodil: bot lung, solzi verzi-măslinii, coadă, costum cu cravată, postură dreaptă.",
         "personalitate": "Calm, calculat, cel mai bun jucător dintre cei trei.",
@@ -96,7 +143,12 @@
       },
       "scena": {
         "unde": "la masa mare, pe latura din dreapta, din profil",
-        "loc": { "kx": 1.02, "ky": 0.55, "scara": 0.9, "unghi": "0" },
+        "loc": {
+          "kx": 1.02,
+          "ky": 0.55,
+          "scara": 0.9,
+          "unghi": "0"
+        },
         "latime": 13,
         "inaltime": 25,
         "ritm": 1.2,
@@ -117,6 +169,16 @@
         "Mai vrei o mână?",
         "Am văzut și mâini mai proaste."
       ],
+      "despre": "Dealerul e omul în vestă și papion care împarte cărțile și rar intră și el într-o mână.",
+      "porecle": [
+        "dealer",
+        "dealerul"
+      ],
+      "pareri": [
+        "{cine} joacă corect, atât pot spune.",
+        "Eu doar împart, dar {cine} știe ce face.",
+        "Am văzut mulți ca {cine} la masa asta."
+      ],
       "descriere": {
         "aspect": "Om, nu personaj de basm: vestă închisă la culoare peste cămașă albă, papion. Croit din același trup ca barmanul și chelnerul.",
         "personalitate": "Politicos, profesionist.",
@@ -127,7 +189,12 @@
       },
       "scena": {
         "unde": "la masa mare, pe latura din stânga, din profil",
-        "loc": { "kx": -1.02, "ky": 0.55, "scara": 0.9, "unghi": "π" },
+        "loc": {
+          "kx": -1.02,
+          "ky": 0.55,
+          "scara": 0.9,
+          "unghi": "π"
+        },
         "latime": 9.5,
         "inaltime": 19,
         "ritm": 1.1,
@@ -147,6 +214,17 @@
         "Vin acuși cu comanda.",
         "Meniul e pe masă, dacă vreți.",
         "Am și eu doar două mâini."
+      ],
+      "despre": "Chelnerul e cel cu tava, mereu pe drum între bar și mese.",
+      "porecle": [
+        "chelner",
+        "chelnerul",
+        "ospatar"
+      ],
+      "pareri": [
+        "{cine}? Mereu are ceva de comandat.",
+        "N-am timp de {cine}, am mese.",
+        "Cu {cine} nu-i greu, lasă bacșiș."
       ],
       "descriere": {
         "aspect": "Om cu tavă, în ținuta localului.",
@@ -172,6 +250,16 @@
         "Aici se aud toate.",
         "Șterg paharul ăsta de o oră, tot n-am terminat."
       ],
+      "despre": "Barmanul e cel de după tejghea, care toarnă de băut și ascultă toată ziua povești.",
+      "porecle": [
+        "barman",
+        "barmanul"
+      ],
+      "pareri": [
+        "{cine}? Bun client, n-am ce zice.",
+        "Despre {cine} s-au auzit multe aici.",
+        "Îi torn lui {cine} ce cere și gata."
+      ],
       "descriere": {
         "aspect": "Om în spatele tejghelei, cu raftul de sticle în spate.",
         "personalitate": "Prietenos, glumeț.",
@@ -194,6 +282,16 @@
         "Vine, vine, se face.",
         "Nu grăbi tigaia.",
         "Papanașii se fac cu răbdare."
+      ],
+      "despre": "Bucătarul e cel cu bonetă înaltă, de la aragazul din capătul barului.",
+      "porecle": [
+        "bucatar",
+        "bucatarul"
+      ],
+      "pareri": [
+        "{cine} mănâncă tot ce-i pun în față.",
+        "Despre {cine} întreabă bucătăria, nu pe mine.",
+        "{cine} n-a lăsat niciodată o farfurie plină."
       ],
       "descriere": {
         "aspect": "Bluză albă, șorț lung, bonetă înaltă — după ea se recunoaște de la distanță.",
@@ -218,6 +316,18 @@
         "Apa e caldă, măcar atât.",
         "Nu se mai termină niciodată."
       ],
+      "despre": "Spălătorul de vase e cel de la chiuvetă, cu teancul care nu se mai termină.",
+      "porecle": [
+        "spalator",
+        "spalatorul",
+        "spalatorul de vase",
+        "vase"
+      ],
+      "pareri": [
+        "După {cine} rămân cele mai multe vase.",
+        "{cine}? Eu doar îi spăl paharul.",
+        "Nu-mi pasă de {cine}, îmi pasă de chiuvetă."
+      ],
       "descriere": {
         "aspect": "Cămașă albăstruie, șorț, mâinile în chiuvetă.",
         "personalitate": "Obosit, resemnat, cu umor amar.",
@@ -240,6 +350,18 @@
         "Mâna asta mă costă scump.",
         "Șahul cere liniște.",
         "Încă trei mutări și câștig."
+      ],
+      "despre": "Omul cu mâna de argint e cel de la masa de șah, cu o singură mână care sclipește.",
+      "porecle": [
+        "argint",
+        "mana de argint",
+        "omul cu mana de argint",
+        "sahist"
+      ],
+      "pareri": [
+        "{cine} ar pierde la șah.",
+        "Nu mă uit la {cine}, sunt la mutare.",
+        "Despre {cine}... mai târziu."
       ],
       "descriere": {
         "aspect": "Om obișnuit, cu o singură mână de argint — singurul lucru care sclipește la el.",
@@ -265,6 +387,17 @@
         "Aurul nu se grăbește.",
         "Mută el întâi."
       ],
+      "despre": "Omul de aur e cel turnat tot din aur, care joacă șah la masa a doua.",
+      "porecle": [
+        "aur",
+        "omul de aur",
+        "auritul"
+      ],
+      "pareri": [
+        "{cine} nu strălucește.",
+        "{cine}? Mută el întâi.",
+        "Nu vorbesc despre {cine}."
+      ],
       "descriere": {
         "aspect": "Turnat dintr-o bucată: haine, piele, păr, tot din aur, cu o dungă de lumină prinsă în metal.",
         "personalitate": "Trufaș, scump la vorbă.",
@@ -289,6 +422,18 @@
         "Ăia de la masa mare joacă tare.",
         "Mai stăm un pic și plecăm."
       ],
+      "despre": "Musafirul din stânga e unul dintre cei doi veniți la masa din față, la o sticlă de vin — cel vorbăreț.",
+      "porecle": [
+        "musafir",
+        "musafirul",
+        "musafirul din stanga",
+        "stanga"
+      ],
+      "pareri": [
+        "{cine}? Am auzit de el, sigur.",
+        "Ia zi, ce-i cu {cine}?",
+        "{cine} pare de treabă, nu?"
+      ],
       "descriere": {
         "aspect": "Om oarecare, cu paleta lui de culori, alta la fiecare vizită.",
         "personalitate": "Vorbăreț, curios.",
@@ -312,6 +457,16 @@
         "Da, da.",
         "Eu ziceam să plecăm.",
         "Bun vinul."
+      ],
+      "despre": "Musafirul din dreapta e celălalt de la masa din față, cel tăcut.",
+      "porecle": [
+        "musafirul din dreapta",
+        "dreapta"
+      ],
+      "pareri": [
+        "{cine}? Așa e.",
+        "Nu-l știu pe {cine}.",
+        "Da, da, {cine}."
       ],
       "descriere": {
         "aspect": "Om oarecare, cu paleta lui de culori, alta la fiecare vizită.",

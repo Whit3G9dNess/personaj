@@ -102,6 +102,13 @@ apare și deasupra capului lor, în scenă. Dacă ai Ollama pornit, vorbele le s
 modelul; dacă nu, fiecare are câteva ale lui — și partida merge înainte
 oricum.
 
+**Și poți vorbi despre altul.** Scrii un `@` (sau un `/`) și numele — se deschide
+o listă cu cine e în local, alegi cu mouse-ul sau cu Enter. *„Barmanule, ce crezi
+de @draconian?"* — și îți spune părerea lui despre draconian, nu o vorbă
+oarecare. Numele merge scris scurt și fără diacritice: `@drac`, `@aur`,
+`@spalator`. Pe clovn îl poate bârfi oricine, deși cu el nu poți vorbi: el ești
+tu.
+
 **Partida o joci tu.** Cărțile au valori de la 1 la 10 și cea mai mare ia levata.
 O mână ține trei levate: primești trei cărți și le joci pe toate, una pe levată,
 abia apoi se împart altele — așa că întrebarea e mereu aceeași, *dau zecele

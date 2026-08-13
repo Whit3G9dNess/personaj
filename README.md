@@ -39,14 +39,16 @@ oglindește.
 ## Teste
 
 Testele se deschid în browser, ca și scena, dar au nevoie de un server local
-fiindcă citesc `index.html`:
+fiindcă citesc `index.html`. Serverul e unul singur, pentru tot folderul, și stă
+o treaptă mai sus:
 
 ```
-python -m http.server 8767 --directory personaj
+python ../server.py
 ```
 
-apoi `http://localhost:8767/teste.html`. Pagina scrie sus câte au trecut și
-câte au căzut.
+apoi `http://localhost:8765/personaj/teste.html`. Pagina scrie sus câte au trecut
+și câte au căzut. Portul e mereu același, iar fișierele pleacă fără voie de
+păstrare — un refresh aduce întotdeauna ce tocmai ai salvat.
 
 ## Stadiu
 

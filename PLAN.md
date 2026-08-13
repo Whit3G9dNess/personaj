@@ -666,13 +666,16 @@ mic, roșu, în dreptul capului?". Așa fișierul testat rămâne exact fișieru
 livrat, iar regula „un singur fișier" nu se strică din cauza testelor.
 
 Fiindcă testele citesc `index.html` cu `fetch`, au nevoie de un server local —
-de pe `file://` nu merg:
+de pe `file://` nu merg. E unul singur pentru tot folderul, în `server.py`, o
+treaptă mai sus:
 
 ```
-python -m http.server 8767 --directory personaj
+python ../server.py
 ```
 
-apoi `http://localhost:8767/teste.html`.
+apoi `http://localhost:8765/personaj/teste.html`. Mereu același port, oricâte
+lucruri noi ar apărea alături, și fără nimic ținut minte de browser: un refresh
+aduce fișierul de acum, nu pe cel de acum zece minute.
 
 ## Rămas de făcut
 

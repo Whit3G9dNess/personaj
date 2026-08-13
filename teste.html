@@ -279,6 +279,14 @@ return {
   masa2: typeof masa2 !== "undefined" ? masa2 : null,
   masa3: typeof masa3 !== "undefined" ? masa3 : null,
   dealerul: typeof dealerul !== "undefined" ? dealerul : null,
+  chat: typeof chat !== "undefined" ? chat : null,
+  FIRI: typeof FIRI !== "undefined" ? FIRI : null,
+  vorbitori: typeof vorbitori !== "undefined" ? vorbitori : null,
+  deschideChat: typeof deschideChat !== "undefined" ? deschideChat : null,
+  inchideChat: typeof inchideChat !== "undefined" ? inchideChat : null,
+  alegeVorbitorul: typeof alegeVorbitorul !== "undefined" ? alegeVorbitorul : null,
+  iiZiciCeva: typeof iiZiciCeva !== "undefined" ? iiZiciCeva : null,
+  areFereastra: typeof areFereastra !== "undefined" ? areFereastra : null,
   vizita: typeof vizita !== "undefined" ? vizita : null,
   fundal: typeof fundal !== "undefined" ? fundal : null,
   meniu: typeof meniu !== "undefined" ? meniu : null,
@@ -2805,6 +2813,128 @@ function testePartida() {
   });
 }
 
+/* --- 6.14 Faza 13: vorba cu ei -------------------------------------------- */
+
+function testeVorba() {
+  sectiune("6.14 Faza 13 — Vorba cu ei");
+
+  test("la început fereastra de vorbă e închisă", function () {
+    const s = porneste();
+    adevarat(s.chat, "lipsește vorba cu totul");
+    egal(s.chat.deschis, false, "s-a deschis singură");
+    egal(s.chat.vorbe.length, 0, "s-a vorbit fără să spun eu ceva");
+  });
+
+  test("poți vorbi cu toată lumea din local, dar nu cu tine însuți", function () {
+    const s = porneste();
+    const nume = s.vorbitori().map(function (p) { return p.nume; });
+    for (const cine of ["Draconianul", "Reptilianul", "Dealerul", "Chelnerul",
+                        "Barmanul", "Bucătarul", "Spălătorul de vase",
+                        "Omul cu mâna de argint", "Omul de aur"]) {
+      adevarat(nume.indexOf(cine) >= 0, "cu " + cine + " nu pot vorbi");
+    }
+    adevarat(nume.indexOf("Clovnul") < 0, "clovnul ești tu: n-ai ce vorbi cu tine");
+    // Fiecare are și o fire, și replici de rezervă.
+    for (const p of s.vorbitori()) {
+      const fire = s.FIRI[p.nume];
+      adevarat(fire && fire.fire && fire.rezerva.length >= 2,
+               p.nume + " n-are fire scrisă sau n-are ce răspunde fără model");
+    }
+  });
+
+  test("musafirii de la masa a treia apar în listă doar cât stau acolo", function () {
+    const s = porneste();
+    const laInceput = s.vorbitori().map(function (p) { return p.nume; });
+    adevarat(laInceput.indexOf("Musafirul din stânga") < 0,
+             "pot vorbi cu cineva care nu e încă în local");
+
+    let paza = 0;
+    while (s.vizita.stare !== "asezati" && paza++ < 60 * 240) s.avanseaza(1 / 60);
+    const asezati = s.vorbitori().map(function (p) { return p.nume; });
+    adevarat(asezati.indexOf("Musafirul din stânga") >= 0, "au venit, dar nu pot vorbi cu ei");
+  });
+
+  test("fără Ollama tot îți răspunde, din firea lui", function () {
+    const s = porneste();
+    s.AI.activ = false;                      // modelul nu e pornit
+    s.deschideChat(null);
+    const barman = s.vorbitori().find(function (p) { return p.nume === "Barmanul"; });
+    s.alegeVorbitorul(barman);
+    s.iiZiciCeva("ce mai faci?");
+
+    egal(s.chat.vorbe.length, 2, "trebuia să rămână scris și ce am zis, și ce a răspuns");
+    egal(s.chat.vorbe[0].cine, "eu", "prima vorbă e a mea");
+    egal(s.chat.vorbe[1].cine, "Barmanul", "a răspuns altcineva decât cel întrebat");
+    adevarat(s.FIRI["Barmanul"].rezerva.indexOf(s.chat.vorbe[1].text) >= 0,
+             "răspunsul nu e din firea lui: „" + s.chat.vorbe[1].text + "”");
+    egal(s.chat.asteapta, false, "a rămas agățat, așteptând un model care nu vine");
+  });
+
+  test("ce-ți răspunde se aude și în local, deasupra capului lui", function () {
+    const s = porneste();
+    s.AI.activ = false;
+    s.deschideChat(null);
+    const bucatar = s.vorbitori().find(function (p) { return p.nume === "Bucătarul"; });
+    s.alegeVorbitorul(bucatar);
+    s.iiZiciCeva("ce se mai gătește?");
+
+    adevarat(bucatar.vorba, "n-a zis nimic cu glas tare");
+    adevarat(bucatar.vorbaTimp > 0, "vorba i s-a stins înainte s-o vadă cineva");
+    adevarat(bucatar.vorba.length <= 43, "bula e mică: vorba lungă trebuie scurtată");
+
+    // Și se stinge singură, ca vorbele musafirilor.
+    s.avanseaza(20);
+    adevarat(!(bucatar.vorbaTimp > 0), "i-a rămas vorba deasupra capului pentru totdeauna");
+  });
+
+  test("nu vorbesc doi deodată: cât aștepți răspunsul, nu mai poți zice", function () {
+    const s = porneste();
+    s.AI.activ = true;                       // modelul întârzie, deci rămâne în așteptare
+    s.deschideChat(null);
+    s.iiZiciCeva("salut");
+    egal(s.chat.asteapta, true, "n-a rămas în așteptare");
+    s.iiZiciCeva("mai zi ceva");
+    egal(s.chat.vorbe.length, 1, "am apucat să vorbesc peste el");
+    s.AI.activ = false;
+  });
+
+  test("cu fereastra deschisă, un clic pe cineva înseamnă „cu tine vorbesc”", function () {
+    const s = porneste();
+    s.deschideChat(null);
+    const barman = s.vorbitori().find(function (p) { return p.nume === "Barmanul"; });
+    s.apasa(barman.x, barman.y - barman.inaltime * s.U() * 0.5);
+
+    egal(s.chat.cuCine, barman, "clicul n-a schimbat cu cine vorbesc");
+    egal(s.comanda.stare, "nimic", "clicul a chemat chelnerul în loc să aleagă omul");
+  });
+
+  test("vorba nu oprește partida", function () {
+    const s = porneste();
+    s.AI.activ = false;
+    s.deschideChat(null);
+    s.iiZiciCeva("cum merge jocul?");
+    const stareInainte = s.stare();
+    const vazute = {};
+    for (let i = 0; i < 60 * 40; i++) {
+      s.avanseaza(1 / 60);
+      vazute[s.stare()] = true;
+    }
+    adevarat(Object.keys(vazute).length > 1,
+             "masa a înghețat cât vorbeam (a stat în „" + stareInainte + "”)");
+    egal(s.chat.deschis, true, "fereastra s-a închis singură");
+  });
+
+  test("închizi fereastra și scena rămâne neatinsă", function () {
+    const s = porneste();
+    s.deschideChat(null);
+    s.inchideChat();
+    egal(s.chat.deschis, false, "n-a vrut să se închidă");
+    s.avanseaza(5);
+    egal(s.pahare.length, 0, "s-a comandat ceva din senin");
+    egal(s.meniu.deschis, false, "s-a deschis meniul din senin");
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -2835,6 +2965,7 @@ function testePartida() {
   testeComentarii();
   testeMusafiri();
   testePartida();
+  testeVorba();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

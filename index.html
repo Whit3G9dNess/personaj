@@ -7,10 +7,83 @@
 <style>
   html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
   canvas { display: block; }
+
+  /* Fereastra de vorbă. Singurul lucru din scenă care nu e desenat în canvas:
+     pentru scris ai nevoie de o casetă adevărată, cu tastatură cu tot. Culorile
+     sunt ale localului, ca să nu pară lipită de altundeva. */
+  #chatButon, #chat {
+    position: fixed; right: 2vmin; z-index: 2;
+    font-family: system-ui, sans-serif; color: #f2e7d3;
+  }
+  #chatButon {
+    bottom: 2vmin; width: 7vmin; height: 7vmin; min-width: 44px; min-height: 44px;
+    border-radius: 50%; border: 0.25vmin solid rgba(232, 161, 60, 0.55);
+    background: rgba(16, 11, 7, 0.92); cursor: pointer;
+    font-size: 3.4vmin; line-height: 1; padding: 0;
+    box-shadow: 0 0.6vmin 1.6vmin rgba(0, 0, 0, 0.55);
+  }
+  #chatButon:hover { border-color: #e8a13c; }
+  #chat {
+    bottom: 11vmin; width: min(46vmin, 380px); max-height: 56vmin;
+    display: none; flex-direction: column;
+    background: rgba(16, 11, 7, 0.94);
+    border: 0.22vmin solid rgba(232, 161, 60, 0.45); border-radius: 1.2vmin;
+    box-shadow: 0 0.8vmin 2.4vmin rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+  }
+  #chat.deschis { display: flex; }
+  #chatCap {
+    display: flex; align-items: center; gap: 0.8vmin;
+    padding: 1vmin 1.2vmin; border-bottom: 0.12vmin solid rgba(232, 161, 60, 0.25);
+  }
+  #chatCine {
+    flex: 1; background: transparent; color: #e8a13c; border: 0;
+    font: inherit; font-size: 2.1vmin; cursor: pointer;
+  }
+  #chatCine option { background: #100b07; color: #f2e7d3; }
+  #chatInchide {
+    background: transparent; border: 0; color: #a89b8c; font-size: 2.6vmin;
+    cursor: pointer; line-height: 1; padding: 0 0.4vmin;
+  }
+  #chatInchide:hover { color: #f2e7d3; }
+  #chatVorbe {
+    flex: 1; overflow-y: auto; padding: 1vmin 1.2vmin;
+    font-size: 1.9vmin; line-height: 1.45; min-height: 14vmin;
+  }
+  #chatVorbe p { margin: 0 0 0.8vmin; }
+  #chatVorbe .eu { color: #a89b8c; }
+  #chatVorbe .el { color: #f2e7d3; }
+  #chatVorbe .el b { color: #e8a13c; font-weight: 600; }
+  #chatForm { display: flex; gap: 0.6vmin; padding: 0.9vmin; }
+  #chatText {
+    flex: 1; background: rgba(255, 255, 255, 0.06); color: #f2e7d3;
+    border: 0.12vmin solid rgba(232, 161, 60, 0.3); border-radius: 0.6vmin;
+    font: inherit; font-size: 1.9vmin; padding: 0.7vmin 0.9vmin; min-width: 0;
+  }
+  #chatText:focus { outline: none; border-color: #e8a13c; }
+  #chatForm button {
+    background: rgba(232, 161, 60, 0.18); color: #e8a13c;
+    border: 0.12vmin solid rgba(232, 161, 60, 0.4); border-radius: 0.6vmin;
+    font: inherit; font-size: 1.9vmin; padding: 0.7vmin 1.1vmin; cursor: pointer;
+  }
+  #chatForm button:hover { background: rgba(232, 161, 60, 0.3); }
 </style>
 </head>
 <body>
 <canvas id="scena"></canvas>
+
+<button id="chatButon" title="Vorbește cu cineva din local">💬</button>
+<div id="chat">
+  <div id="chatCap">
+    <select id="chatCine"></select>
+    <button id="chatInchide" title="Închide">×</button>
+  </div>
+  <div id="chatVorbe"></div>
+  <form id="chatForm">
+    <input id="chatText" autocomplete="off" placeholder="Scrie ceva…">
+    <button type="submit">Zi</button>
+  </form>
+</div>
 <script>
 "use strict";
 
@@ -2675,6 +2748,7 @@ function asazaFundalul() {
 function actualizeazaFundal(dt) {
   for (const p of fundal) p.actualizeaza(dt);
   actualizeazaVizita(dt);
+  actualizeazaVorbele(dt);   // vorbele lor se sting cu localul, nu cu partida
 
   sah.cronometru -= dt;
   if (sah.cronometru <= 0) {
@@ -2889,6 +2963,14 @@ function apasa(x, y) {
         sunet.canta("poc");
         return;
       }
+    }
+  }
+
+  /* Cu fereastra de vorbă deschisă, un clic pe cineva din local înseamnă „cu
+     tine vorbesc acum" — nu „vino cu meniul". */
+  if (chat.deschis) {
+    for (const cineva of vorbitori()) {
+      if (apasatPe(cineva, x, y)) { alegeVorbitorul(cineva); return; }
     }
   }
 
@@ -3579,6 +3661,256 @@ function deseneazaMeniu() {
 }
 
 /* ==========================================================================
+   5h. VORBA CU EI
+   ========================================================================== */
+
+/* A doua interacțiune din scenă, după comandă: apeși balonul din colțul din
+   dreapta-jos, alegi pe cine întrebi și scrii. Răspunde modelul din Ollama, cu
+   firea fiecăruia; dacă nu e pornit, răspund din ce scrie mai jos. Partida merge
+   înainte tot timpul — fereastra de vorbă nu oprește nimic.
+
+   Caseta de scris e singurul lucru din scenă care nu e desenat în canvas: ca să
+   scrii ai nevoie de o casetă adevărată, cu tastatură cu tot. Restul —
+   răspunsul deasupra capului lui — se desenează ca orice altceva. */
+
+const FIRI = {
+  "Draconianul": {
+    fire: "Ești un draconian masiv și fioros care joacă cărți la o masă de bar. " +
+          "Ești nerăbdător și morocănos, vorbești puțin și scurt, mai mult mârâi.",
+    rezerva: ["Mârrr.", "Joc, nu vorbesc.", "Cărțile astea sunt prea mici pentru mine.",
+              "Adu-mi o bere și lasă-mă."]
+  },
+  "Reptilianul": {
+    fire: "Ești un reptilian umanoid, în costum, calm și calculat, cel mai bun " +
+          "jucător de cărți de la masă. Vorbești rar, politicos și cu subînțeles.",
+    rezerva: ["Poate.", "Depinde ce ai în mână.", "Răbdarea câștigă mâinile, nu norocul.",
+              "Te uitai la cărțile mele?"]
+  },
+  "Dealerul": {
+    fire: "Ești dealerul unui bar mic: împarți cărțile, nu joci aproape niciodată. " +
+          "Ești politicos, profesionist și ai văzut de toate la masa asta.",
+    rezerva: ["Eu doar împart, domnule.", "Cărțile cad cum cad.", "Mai vrei o mână?",
+              "Am văzut și mâini mai proaste."]
+  },
+  "Chelnerul": {
+    fire: "Ești chelnerul unui bar mic, mereu pe drum între mese. Ești politicos, " +
+          "grăbit și vorbești scurt, ca omul care are treabă.",
+    rezerva: ["Imediat!", "Vin acuși cu comanda.", "Meniul e pe masă, dacă vreți.",
+              "Am și eu doar două mâini."]
+  },
+  "Barmanul": {
+    fire: "Ești barmanul localului. Torni de băut și asculți toată ziua povești. " +
+          "Ești prietenos, glumeț și n-ai nimic de ascuns.",
+    rezerva: ["Ce-ți torn?", "Berea e rece, dacă întrebi.", "Aici se aud toate.",
+              "Șterg paharul ăsta de o oră, tot n-am terminat."]
+  },
+  "Bucătarul": {
+    fire: "Ești bucătarul localului, la aragazul din capătul barului. Ești mândru " +
+          "de mâncarea ta și îți place să te lauzi cu ea.",
+    rezerva: ["Micii mei sunt cei mai buni din oraș.", "Vine, vine, se face.",
+              "Nu grăbi tigaia.", "Papanașii se fac cu răbdare."]
+  },
+  "Spălătorul de vase": {
+    fire: "Ești spălătorul de vase, la chiuveta din capătul barului. Ești obosit, " +
+          "resemnat și vorbești cu umor amar despre teancul de vase.",
+    rezerva: ["Mai am doar vreo sută.", "Voi mâncați, eu spăl.",
+              "Apa e caldă, măcar atât.", "Nu se mai termină niciodată."]
+  },
+  "Omul cu mâna de argint": {
+    fire: "Ești un om cu o mână de argint, care joacă șah la o masă din colț. " +
+          "Ești gânditor și vorbești în vorbe puține, ca la o partidă lungă.",
+    rezerva: ["Sunt la mutare.", "Mâna asta mă costă scump.", "Șahul cere liniște.",
+              "Încă trei mutări și câștig."]
+  },
+  "Omul de aur": {
+    fire: "Ești un om făcut tot din aur, care joacă șah într-un bar. Ești scump la " +
+          "vorbă, puțin trufaș, și strălucești.",
+    rezerva: ["...", "Mai târziu.", "Aurul nu se grăbește.", "Mută el întâi."]
+  },
+  "Musafirul din stânga": {
+    fire: "Ești un client oarecare al barului, venit cu un prieten la o masă. Ești " +
+          "vorbăreț, curios și comentezi ce se întâmplă în local.",
+    rezerva: ["Noi doar stăteam de vorbă.", "Frumos local, nu?",
+              "Ăia de la masa mare joacă tare.", "Mai stăm un pic și plecăm."]
+  },
+  "Musafirul din dreapta": {
+    fire: "Ești un client oarecare al barului, venit cu un prieten la o masă. Ești " +
+          "mai tăcut decât el și răspunzi scurt.",
+    rezerva: ["Așa e.", "Da, da.", "Eu ziceam să plecăm.", "Bun vinul."]
+  }
+};
+
+const chat = {
+  deschis: false,
+  cuCine: null,
+  vorbe: [],        // ce s-a spus în fereastră: { cine, text }
+  istoric: [],      // ultimele replici, ca modelul să știe unde a rămas
+  asteapta: false   // am întrebat și încă nu a răspuns
+};
+
+// Cine e în local acum și are cu ce răspunde. Musafirii, doar cât stau la masă.
+function vorbitori() {
+  const toti = [draconianul, reptilianul, dealerul, chelnerul, barmanul,
+                bucatarul, spalatorul, omulCuMana, omulDeAur];
+  if (vizita.stare === "asezati") {
+    for (const m of vizita.musafiri) toti.push(m);
+  }
+  return toti.filter(function (p) { return p && FIRI[p.nume]; });
+}
+
+function deschideChat(cine) {
+  chat.deschis = true;
+  const lista = vorbitori();
+  if (cine) chat.cuCine = cine;
+  if (!chat.cuCine || lista.indexOf(chat.cuCine) < 0) chat.cuCine = lista[0] || null;
+  chatArata();
+}
+
+function inchideChat() {
+  chat.deschis = false;
+  chatArata();
+}
+
+/* Schimbi omul cu care vorbești: din listă, sau dând clic pe el în scenă. Ce
+   v-ați spus rămâne scris, ca să se vadă cu cine ai vorbit despre ce. */
+function alegeVorbitorul(p) {
+  if (!p || p === chat.cuCine || !FIRI[p.nume]) return;
+  chat.cuCine = p;
+  chat.istoric.length = 0;
+  chatArata();
+}
+
+// Îi spui ceva. Răspunsul vine de la model sau, dacă tace, din firea lui.
+function iiZiciCeva(text) {
+  const p = chat.cuCine;
+  const vorba = String(text || "").trim();
+  if (!p || !vorba || chat.asteapta) return;
+
+  chat.vorbe.push({ cine: "eu", text: vorba });
+  chat.istoric.push("Tu: " + vorba);
+  if (chat.istoric.length > 6) chat.istoric.shift();
+  chat.asteapta = true;
+  chatArata();
+  sunet.canta("poc");
+
+  const cerut = p;
+  AI.vorbesteCu(p, vorba, chat.istoric, function (raspuns) {
+    const zis = raspuns || alegeDin(FIRI[cerut.nume].rezerva);
+    chat.asteapta = false;
+    chat.vorbe.push({ cine: cerut.nume, text: zis });
+    chat.istoric.push(cerut.nume + ": " + zis);
+    if (chat.istoric.length > 6) chat.istoric.shift();
+    spuneCuGlasTare(cerut, zis);
+    chatArata();
+  });
+}
+
+/* Ce ți-a răspuns se aude și în local: îi apare deasupra capului, ca vorbele de
+   la masa a treia. Bula e mică, deci vorbele lungi se scurtează acolo. */
+function spuneCuGlasTare(p, text) {
+  const scurt = text.length > 42 ? text.slice(0, 40).trim() + "…" : text;
+  p.vorba = scurt;
+  p.vorbaTimp = 2.6 + scurt.length * 0.05;
+}
+
+function actualizeazaVorbele(dt) {
+  for (const p of vorbitori()) {
+    if (p.vorbaTimp > 0) p.vorbaTimp -= dt;
+  }
+  if (dealerul.vorbaTimp > 0 && vorbitori().indexOf(dealerul) < 0) dealerul.vorbaTimp -= dt;
+}
+
+// Bulele tuturor celor care tocmai au zis ceva, oriunde ar sta ei în local.
+function deseneazaVorbeleLor() {
+  for (const p of vorbitori()) {
+    if (p.vorbaTimp > 0 && p.vorba) bulaDeVorba(p, p.vorba);
+  }
+}
+
+/* --- Fereastra propriu-zisă ----------------------------------------------- */
+
+/* Scena merge și fără ea: dacă paginile de HTML lipsesc (cum se întâmplă la
+   teste, unde scena rulează pe o pânză falsă), vorba funcționează mai departe
+   în cod, doar că n-o vede nimeni scrisă. */
+const chatDom = {
+  buton:   document.getElementById("chatButon"),
+  panou:   document.getElementById("chat"),
+  cine:    document.getElementById("chatCine"),
+  vorbe:   document.getElementById("chatVorbe"),
+  text:    document.getElementById("chatText"),
+  form:    document.getElementById("chatForm"),
+  inchide: document.getElementById("chatInchide")
+};
+
+const areFereastra = !!(chatDom.panou && chatDom.panou.classList &&
+                        chatDom.vorbe && chatDom.vorbe.appendChild &&
+                        chatDom.cine && chatDom.cine.appendChild);
+
+function chatArata() {
+  if (!areFereastra) return;
+
+  chatDom.panou.classList.toggle("deschis", chat.deschis);
+  if (!chat.deschis) return;
+
+  // Lista celor din local, refăcută de fiecare dată: musafirii vin și pleacă.
+  const lista = vorbitori();
+  chatDom.cine.innerHTML = "";
+  for (const p of lista) {
+    const optiune = document.createElement("option");
+    optiune.value = p.nume;
+    optiune.textContent = p.nume;
+    if (p === chat.cuCine) optiune.selected = true;
+    chatDom.cine.appendChild(optiune);
+  }
+
+  chatDom.vorbe.innerHTML = "";
+  for (const v of chat.vorbe) {
+    const rand = document.createElement("p");
+    rand.className = v.cine === "eu" ? "eu" : "el";
+    if (v.cine === "eu") {
+      rand.textContent = "Tu: " + v.text;
+    } else {
+      const nume = document.createElement("b");
+      nume.textContent = v.cine + ": ";
+      rand.appendChild(nume);
+      rand.appendChild(document.createTextNode(v.text));
+    }
+    chatDom.vorbe.appendChild(rand);
+  }
+  if (chat.asteapta) {
+    const rand = document.createElement("p");
+    rand.className = "el";
+    rand.textContent = "…";
+    chatDom.vorbe.appendChild(rand);
+  }
+  chatDom.vorbe.scrollTop = chatDom.vorbe.scrollHeight;
+}
+
+function legaFereastraDeVorba() {
+  if (!areFereastra) return;
+
+  chatDom.buton.addEventListener("click", function () {
+    sunet.porneste();
+    if (chat.deschis) inchideChat();
+    else { deschideChat(null); if (chatDom.text.focus) chatDom.text.focus(); }
+  });
+
+  chatDom.inchide.addEventListener("click", inchideChat);
+
+  chatDom.cine.addEventListener("change", function () {
+    const ales = vorbitori().find(function (p) { return p.nume === chatDom.cine.value; });
+    alegeVorbitorul(ales);
+  });
+
+  chatDom.form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const text = chatDom.text.value;
+    chatDom.text.value = "";
+    iiZiciCeva(text);
+  });
+}
+
+/* ==========================================================================
    6. MAȘINA DE STĂRI A UNEI MÂINI
    ========================================================================== */
 
@@ -3634,6 +3966,50 @@ const AI = {
         const text = String((j && j.message && j.message.content) || "");
         const numar = text.match(/\d+/);
         raspunde(numar ? parseInt(numar[0], 10) : null);
+      })
+      .catch(function () { raspunde(null); });
+  },
+
+  /* Vorba cu cine vrei tu, din fereastra de chat. Modelul primește firea celui
+     întrebat și ultimele replici, ca să știe unde a rămas. Dacă tace sau
+     întârzie, cel întrebat răspunde din ce are scris în firea lui — și nu se
+     vede nicio eroare, doar un răspuns mai scurt. */
+  vorbesteCu: function (p, intrebare, istoric, gata) {
+    const fire = FIRI[p.nume];
+    let raspuns = false;
+    const raspunde = function (text) {
+      if (raspuns) return;
+      raspuns = true;
+      gata(text);
+    };
+    if (!this.activ || !fire) { raspunde(null); return; }
+    setTimeout(function () { raspunde(null); }, 6000);
+
+    const dinainte = istoric.length > 1
+      ? "Până acum v-ați spus: " + istoric.slice(0, -1).join(" / ") + ". "
+      : "";
+
+    fetch(this.url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: this.model,
+        stream: false,
+        think: false,
+        options: { temperature: 0.9, num_predict: 60 },
+        messages: [
+          { role: "system", content: fire.fire +
+            " Ești într-un bar. Răspunzi în română, într-o singură propoziție " +
+            "de cel mult 15 cuvinte. Fără ghilimele, fără explicații, fără să-ți spui numele." },
+          { role: "user", content: dinainte + "Cineva de la masă îți spune: " + intrebare }
+        ]
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        let text = String((j && j.message && j.message.content) || "").trim();
+        text = text.replace(/^["„”\s]+|["„”\s]+$/g, "");
+        raspunde(text ? text.split("\n")[0].slice(0, 160) : null);
       })
       .catch(function () { raspunde(null); });
   },
@@ -4151,6 +4527,7 @@ function deseneazaTot() {
   deseneazaManaTa();
   deseneazaVorba();
   deseneazaVorbaDealerului();
+  deseneazaVorbeleLor();
   deseneazaMeniu();
 }
 
@@ -4176,6 +4553,7 @@ cv.addEventListener("click", function (e) {
   apasa(e.clientX - chenar.left, e.clientY - chenar.top);
 });
 
+legaFereastraDeVorba();
 redimensioneaza();
 schimbaStarea("impartire");
 requestAnimationFrame(function (acum) {

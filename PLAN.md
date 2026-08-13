@@ -26,6 +26,7 @@ funcționează deja.
 | 10 | Partida adevărată: joci tu cărțile clovnului | ✅ gata |
 | 11 | Partida cu cap: trei levate, cărți întoarse, jokerul | ✅ gata |
 | 12 | Localul reașezat: masă pătrată, dealer, bucătar, chiuvetă | ✅ gata |
+| 13 | Vorba cu ei: chat cu oricine din local | ✅ gata |
 
 ---
 
@@ -502,6 +503,50 @@ orice în mâna aia) sau „pe dos" (dacă e pară, cea mai mică ia levata).
 **Verificare:** masa e pătrată și are patru inși în jur; comanzi mici cu piure și
 se face la dreapta, la bucătar, nu la mijloc; termini paharul și, peste puțin
 timp, nu mai e pe masă — e la chiuvetă, în stânga.
+
+---
+
+## Faza 13 — Vorba cu ei
+
+Până acum nu poți spune nimic nimănui: comanzi de la meniu și joci cărți, atât.
+Faza asta adaugă **o iconiță de chat în dreapta-jos**; o apeși, se deschide o
+fereastră de vorbă și poți vorbi cu oricine din local — barmanul, draconianul,
+reptilianul, dealerul, chelnerul, bucătarul, spălătorul, cei doi de la șah și
+musafirii de la masa a treia.
+
+1. **Iconița.** Un balon de vorbă în colțul din dreapta-jos. Apeși pe el, se
+   deschide fereastra; apeși din nou (sau pe „x"), se închide. Cât e închisă,
+   scena arată exact ca înainte.
+2. **Cu cine vorbești.** În fereastră, sus, e lista celor din local. Alegi unul
+   și vorbești cu el; cât e fereastra deschisă, poți alege altul dând clic pe el
+   direct în scenă.
+3. **Cum scrii.** Într-o casetă adevărată de HTML, așezată peste scenă și
+   îmbrăcată în culorile localului. E singurul lucru din toată scena care nu e
+   desenat în canvas — pentru scris ai nevoie de tastatură adevărată, cu
+   diacritice și lipit de text cu tot. Regula „un singur fișier" rămâne: caseta
+   stă tot în `index.html`, cu stilul lângă ea.
+
+   Scena trebuie să meargă și fără casetă: dacă lipsește (cum se întâmplă la
+   teste, unde rulează pe o pânză falsă), vorba funcționează mai departe în cod,
+   doar că n-o vede nimeni scrisă.
+4. **Cine răspunde.** Modelul din Ollama, fiecare cu firea lui: cei trei o au
+   deja în `personaje.json`, ceilalți primesc câte un `promptSistem` scurt, tot
+   acolo. Răspunsul apare în fereastră și, scurtat, și deasupra capului lui în
+   scenă, ca vorbele de la masa a treia.
+5. **Fără Ollama.** Regula de aur rămâne: dacă modelul lipsește sau tace, fiecare
+   are câteva răspunsuri scrise de mână, potrivite cu firea lui. Nu se blochează
+   nimic și nu apare niciun mesaj de eroare — pur și simplu răspund mai scurt.
+
+**Partida merge înainte** cât ții fereastra deschisă, ca la meniu: cărțile rămân
+ale tale, iar dacă îți vine rândul și nu joci, joacă el după douăsprezece
+secunde.
+
+**Rămâne pe dinafară:** vorbă între ei doi pe subiectul tău, memorie de la o
+vizită la alta, comenzi date prin chat („adu-mi o bere") — comanda rămâne la
+meniu.
+
+**Verificare:** apeși iconița, alegi barmanul, scrii „ce mai faci?" și îți
+răspunde el, nu draconianul. Închizi fereastra și scena e neatinsă.
 
 ---
 

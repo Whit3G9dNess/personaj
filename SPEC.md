@@ -144,13 +144,33 @@ Fără Ollama, sau dacă modelul întârzie ori spune o prostie, se joacă și s
 vorbește după ce e scris în cod. Scena nu se oprește niciodată după un răspuns
 care nu vine, și nu trebuie instalat nimic ca să meargă.
 
+## 4d. Vorba cu ei
+
+În colțul din dreapta-jos e un balon de vorbă. Îl apeși și se deschide o
+fereastră de chat: alegi din listă pe cine întrebi — sau dai clic direct pe el
+în scenă — și scrii.
+
+Poți vorbi cu oricine e în local: draconianul, reptilianul, dealerul, chelnerul,
+barmanul, bucătarul, spălătorul de vase, cei doi de la șah și musafirii de la
+masa a treia, cât stau acolo. Cu clovnul nu, fiindcă el ești tu.
+
+Răspunde fiecare cum îi e firea, iar ce spune se aude și în local: îi apare
+deasupra capului, ca vorbele de la masa a treia. Răspunsurile le scrie modelul
+din Ollama; fără el, fiecare are câteva vorbe ale lui, scrise în cod.
+
+Partida merge înainte cât ții fereastra deschisă.
+
 ## 5. Reguli de implementare
 
 - Un singur fișier: `index.html` (HTML + CSS + JS inline).
 - Canvas 2D, personaje desenate din forme geometrice în cod — fără imagini.
+  Singura excepție e fereastra de vorbă: pentru scris e nevoie de o casetă
+  adevărată, cu tastatură cu tot. Stă tot în `index.html` și e îmbrăcată în
+  culorile localului, iar scena merge mai departe și dacă lipsește.
 - Cod și comentarii în română, pe secțiuni numerotate.
-- Textul din scenă e doar meniul de comandă, valorile de pe cărți și vorbele
-  musafirilor de la masa a treia. În rest, nicio literă.
+- Textul din scenă e doar meniul de comandă, valorile de pe cărți, vorbele
+  musafirilor de la masa a treia și vorba cu cine întrebi tu. În rest, nicio
+  literă.
 - Canvas-ul ocupă tot ecranul și se redimensionează cu fereastra.
 - Sunetul se sintetizează în cod cu WebAudio, ca și desenul: fără fișiere audio.
   Pornește la primul clic, fiindcă browserele nu lasă altfel, și rămâne un

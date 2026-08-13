@@ -87,6 +87,14 @@ gol; apeși pe sticlă și îți torni singur. După ce
 comanda ajunge pe masă, se bea și se mănâncă din ea din când în când. Sunetul
 pornește la primul clic, fiindcă browserele nu-l lasă altfel.
 
+**Poți vorbi cu ei.** În colțul din dreapta-jos e un balon de vorbă: îl apeși,
+alegi din listă cu cine vorbești — sau dai clic pe el direct în local — și
+scrii. Îți răspund toți: draconianul mârâie scurt, barmanul te întreabă ce-ți
+toarnă, spălătorul de vase se plânge de teancul din chiuvetă. Ce-ți răspund
+apare și deasupra capului lor, în scenă. Dacă ai Ollama pornit, vorbele le scrie
+modelul; dacă nu, fiecare are câteva ale lui — și partida merge înainte
+oricum.
+
 **Partida o joci tu.** Cărțile au valori de la 1 la 10 și cea mai mare ia levata.
 O mână ține trei levate: primești trei cărți și le joci pe toate, una pe levată,
 abia apoi se împart altele — așa că întrebarea e mereu aceeași, *dau zecele

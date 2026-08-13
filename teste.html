@@ -290,6 +290,8 @@ return {
   faraPomenire: typeof faraPomenire !== "undefined" ? faraPomenire : null,
   parereaLui: typeof parereaLui !== "undefined" ? parereaLui : null,
   potriviri: typeof potriviri !== "undefined" ? potriviri : null,
+  curataRaspunsul: typeof curataRaspunsul !== "undefined" ? curataRaspunsul : null,
+  numeleTau: typeof numeleTau !== "undefined" ? numeleTau : null,
   areFereastra: typeof areFereastra !== "undefined" ? areFereastra : null,
   vizita: typeof vizita !== "undefined" ? vizita : null,
   fundal: typeof fundal !== "undefined" ? fundal : null,
@@ -3022,15 +3024,16 @@ function testePomenire() {
     egal(s.chat.vorbe[0].text, "ce crezi de @draconian?", "mi-a schimbat vorba în fereastră");
   });
 
-  test("pomenit chiar cel cu care vorbești, răspunde ca de obicei", function () {
+  test("pomenit chiar cel cu care vorbești, e ca și cum ai zice „tu”", function () {
     const s = porneste();
     s.AI.activ = false;
     s.deschideChat(null);
     const barman = s.vorbitori().find(function (p) { return p.nume === "Barmanul"; });
     s.alegeVorbitorul(barman);
-    s.iiZiciCeva("@barman, ce mai faci?");
-    adevarat(s.FIRI["Barmanul"].rezerva.indexOf(s.chat.vorbe[1].text) >= 0,
-             "și-a dat cu părerea despre el însuși: „" + s.chat.vorbe[1].text + "”");
+    s.iiZiciCeva("@barman, ce crezi de tine?");
+    const zis = s.chat.vorbe[1].text;
+    adevarat(s.FIRI["Barmanul"].pareriDeSine.indexOf(zis) >= 0,
+             "n-a înțeles că-l întreb de el: „" + zis + "”");
   });
 
   test("lista de sub semn arată pe cine poți pomeni", function () {
@@ -3040,6 +3043,131 @@ function testePomenire() {
     egal(s.potriviri("drac")[0], "Draconianul", "n-a găsit pe cine scriam");
     egal(s.potriviri("spal")[0], "Spălătorul de vase", "poreclele fără diacritice nu se caută");
     egal(s.potriviri("qqq").length, 0, "a găsit pe cineva care nu există");
+  });
+}
+
+/* --- 6.16 Faza 15: vorbă curată, ținută minte, și @tine ------------------- */
+
+function testeVorbaCurata() {
+  sectiune("6.16 Faza 15 — Vorbă curată, ținută minte, și @tine");
+
+  test("sita scoate din răspuns ce n-are ce căuta acolo", function () {
+    const s = porneste();
+    adevarat(s.curataRaspunsul, "răspunsul nu trece prin nicio sită");
+
+    egal(s.curataRaspunsul("Barmanul: Ce-ți torn?"), "Ce-ți torn?",
+         "și-a scris numele în față");
+    egal(s.curataRaspunsul("„Mârrr.”"), "Mârrr.", "au rămas ghilimelele");
+    egal(s.curataRaspunsul("*mârâie* Nu vorbesc."), "Nu vorbesc.",
+         "au rămas mișcările scrise între asteriscuri");
+    egal(s.curataRaspunsul("Ce-ți torn?\nMai vrei ceva?"), "Ce-ți torn?",
+         "a scris două rânduri, iar în bulă încape unul");
+    egal(s.curataRaspunsul("Berea e rece. Mai vrei una? Eu zic că mai vr"),
+         "Berea e rece. Mai vrei una?", "a rămas vorba ruptă la mijloc");
+  });
+
+  test("ce nu se poate curăța se aruncă, și răspunde din firea lui", function () {
+    const s = porneste();
+    egal(s.curataRaspunsul(""), null, "a lăsat un răspuns gol să treacă");
+    egal(s.curataRaspunsul("   "), null, "a lăsat un răspuns din spații să treacă");
+    egal(s.curataRaspunsul("*mârâie*"), null, "n-a mai rămas nimic după curățare");
+    egal(s.curataRaspunsul("Привет, как дела?"), null, "a răspuns în alt alfabet");
+    egal(s.curataRaspunsul("Sure, here you go!"), null, "a alunecat în engleză");
+    adevarat(s.curataRaspunsul("Berea e rece, dacă întrebi."),
+             "a aruncat o vorbă românească bună");
+    egal(s.curataRaspunsul("ce mai faci?", "ce mai faci?"), null,
+         "mi-a întors întrebarea înapoi");
+  });
+
+  test("fără Ollama, răspunsul rămâne dintre vorbele lui", function () {
+    const s = porneste();
+    s.AI.activ = false;
+    s.deschideChat(null);
+    const barman = s.vorbitori().find(function (p) { return p.nume === "Barmanul"; });
+    s.alegeVorbitorul(barman);
+    s.iiZiciCeva("ce mai faci?");
+    adevarat(s.FIRI["Barmanul"].rezerva.indexOf(s.chat.vorbe[1].text) >= 0,
+             "a răspuns cu ceva ce nu-i al lui");
+  });
+
+  test("te prezinți o dată și te știu de-atunci", function () {
+    const s = porneste();
+    adevarat(s.numeleTau, "nu se reține nimic din ce scriu");
+    egal(s.numeleTau("numele meu este Alex"), "Alex", "n-a reținut numele");
+    egal(s.numeleTau("mă cheamă alex"), "Alex", "numele se scrie cu literă mare");
+    egal(s.numeleTau("eu sunt Alex"), "Alex", "n-a reținut numele");
+    egal(s.numeleTau("sunt obosit"), null, "a luat drept nume o vorbă oarecare");
+    egal(s.numeleTau("ce mai faci?"), null, "a găsit un nume unde nu era");
+
+    s.AI.activ = false;
+    s.deschideChat(null);
+    s.iiZiciCeva("numele meu este Alex");
+    egal(s.chat.tuEsti.nume, "Alex", "n-a ținut minte cum mă cheamă");
+    adevarat(s.chat.vorbe[1].text.indexOf("Alex") >= 0,
+             "s-a prezentat cineva și nici n-a băgat de seamă: „" + s.chat.vorbe[1].text + "”");
+  });
+
+  test("fiecare își ține firul lui de vorbă", function () {
+    const s = porneste();
+    s.AI.activ = false;
+    s.deschideChat(null);
+    const barman = s.vorbitori().find(function (p) { return p.nume === "Barmanul"; });
+    const bucatar = s.vorbitori().find(function (p) { return p.nume === "Bucătarul"; });
+
+    s.alegeVorbitorul(barman);
+    s.iiZiciCeva("ce bei?");
+    const laBarman = s.chat.istoric.slice();
+    adevarat(laBarman.length >= 2, "nu s-a reținut nimic din ce ne-am spus");
+
+    s.alegeVorbitorul(bucatar);
+    egal(s.chat.istoric.length, 0, "bucătarul a auzit ce i-am spus barmanului");
+
+    s.alegeVorbitorul(barman);
+    egal(s.chat.istoric.join(" / "), laBarman.join(" / "),
+         "m-am întors la barman și uitase tot");
+  });
+
+  test("pe cel cu care vorbești nu-l mai poți pomeni — în locul lui e „tine”", function () {
+    const s = porneste();
+    s.deschideChat(null);
+    const barman = s.vorbitori().find(function (p) { return p.nume === "Barmanul"; });
+    s.alegeVorbitorul(barman);
+
+    const lista = s.potriviri("");
+    egal(lista.indexOf("Barmanul"), -1, "e chiar aici, n-am de ce să-l pomenesc");
+    egal(lista[0], "tine", "„tine” trebuie să fie primul din listă");
+    egal(s.potriviri("barman").length, 0, "tot îl găsesc, dacă îi scriu numele");
+    adevarat(s.potriviri("drac").indexOf("Draconianul") >= 0,
+             "ceilalți trebuie să rămână în listă");
+  });
+
+  test("„@tine” înseamnă chiar cel cu care vorbești", function () {
+    const s = porneste();
+    const pomenit = s.pomenirea("ce crezi despre @tine?");
+    adevarat(pomenit && pomenit.sine, "n-a înțeles „@tine”");
+    egal(s.faraPomenire("ce crezi despre @tine?"), "ce crezi despre tine?",
+         "semnul a rămas în vorba trimisă mai departe");
+
+    s.AI.activ = false;
+    s.deschideChat(null);
+    const argintul = s.vorbitori().find(function (p) {
+      return p.nume === "Omul cu mâna de argint";
+    });
+    s.alegeVorbitorul(argintul);
+    s.iiZiciCeva("ce crezi despre @tine?");
+    const zis = s.chat.vorbe[1].text;
+    adevarat(s.FIRI["Omul cu mâna de argint"].pareriDeSine.indexOf(zis) >= 0,
+             "n-a vorbit despre el: „" + zis + "”");
+  });
+
+  test("toți cei cu fire au și ce spune despre ei înșiși", function () {
+    const s = porneste();
+    for (const nume in s.FIRI) {
+      const f = s.FIRI[nume];
+      if (!f.fire) continue;
+      adevarat(f.pareriDeSine && f.pareriDeSine.length >= 2,
+               nume + " n-are ce spune despre el însuși");
+    }
   });
 }
 
@@ -3075,6 +3203,7 @@ function testePomenire() {
   testePartida();
   testeVorba();
   testePomenire();
+  testeVorbaCurata();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

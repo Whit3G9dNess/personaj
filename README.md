@@ -111,6 +111,22 @@ oarecare. Numele merge scris scurt și fără diacritice: `@drac`, `@aur`,
 `@spalator`. Pe clovn îl poate bârfi oricine, deși cu el nu poți vorbi: el ești
 tu.
 
+Cel din fața ta nu e în listă — n-are rost să-i spui pe nume când e chiar acolo.
+În locul lui e **`@tine`**: *„ce crezi despre @tine?"*, și îți spune ce crede
+despre el însuși.
+
+**Te țin minte.** Dacă scrii „numele meu este Alex", localul reține și de-atunci
+ți se adresează pe nume — toți, că e mic. Fiecare își ține și firul lui de
+vorbă: te muți la altul și te întorci, vă găsiți unde ați rămas. Ține până la
+refresh, nu mai departe.
+
+Ce zice modelul trece printr-o sită înainte să se audă: își scoate numele scris
+în față, ghilimelele, asteriscurile și mișcările dintre paranteze; vorba ruptă la
+jumătate se taie la ultima propoziție încheiată, iar ce iese gol, în engleză sau
+în alt alfabet se aruncă și răspunde din vorbele lui. Un model mic tot mai
+greșește un acord din când în când — asta se rezolvă cu un model mai bun, nu de
+aici.
+
 **Partida o joci tu.** Cărțile au valori de la 1 la 10 și cea mai mare ia levata.
 O mână ține trei levate: primești trei cărți și le joci pe toate, una pe levată,
 abia apoi se împart altele — așa că întrebarea e mereu aceeași, *dau zecele

@@ -28,6 +28,7 @@ funcționează deja.
 | 12 | Localul reașezat: masă pătrată, dealer, bucătar, chiuvetă | ✅ gata |
 | 13 | Vorba cu ei: chat cu oricine din local | ✅ gata |
 | 14 | Pomenit pe altul: `@cineva` în vorbă | ✅ gata |
+| 15 | Vorbă curată, ținută minte, și `@tine` | ✅ gata |
 
 ---
 
@@ -587,6 +588,61 @@ spre masă; pomenirea nu-l cheamă în discuție. O pomenire pe vorbă, prima.
 
 **Verificare:** îi scrii barmanului „ce crezi de @draconian?" și răspunsul e
 despre draconian; fără Ollama, tot despre el e, nu o replică oarecare.
+
+---
+
+## Faza 15 — Vorbă curată, ținută minte, și `@tine`
+
+Trei lipsuri ale ferestrei de vorbă, luate odată.
+
+### 1. Ce răspund trebuie să fie o vorbă întreagă, în românește
+
+Un model mic scapă des lucruri care n-au ce căuta în bulă: își scrie numele în
+față („Barmanul: ce-ți torn?"), pune ghilimele, presară asteriscuri și mișcări
+scrise între paranteze, se oprește la jumătatea cuvântului fiindcă i s-au
+terminat silabele, sau alunecă în altă limbă.
+
+Răspunsul trece de-acum printr-o **sită**, înainte să ajungă în fereastră:
+numele din față, ghilimelele, asteriscurile și parantezele se scot; se ține doar
+primul rând; dacă vorba s-a rupt la mijloc, se taie la ultima propoziție
+încheiată. Ce rămâne se cântărește: dacă e goală, dacă are litere care nu sunt
+din alfabetul nostru, sau dacă doar îți repetă întrebarea, se aruncă și
+răspunde din firea lui, ca și cum modelul ar fi tăcut.
+
+**Ce nu poate face sita:** un model mic tot va greși acordul din când în când.
+Sita scoate gunoiul și aruncă vorba stricată de tot; gramatica ei o cere doar
+îndemnul din prompt („scrii românește corect, cu diacritice"). Cine vrea vorbă
+fără greșeli are nevoie de un model mai mare, nu de mai mult cod aici.
+
+### 2. Ține minte ce i-ai spus
+
+Acum, cum schimbi omul, se șterge tot. De-acum:
+
+- **Numele tău.** Dacă scrii „numele meu este Alex", „mă cheamă Alex" sau „eu
+  sunt Alex", scena reține *Alex* și fiecare îl primește în prompt: „cel cu care
+  vorbești se numește Alex". Localul e mic, deci îl află toți, nu doar cel căruia
+  i-ai spus.
+- **Ce v-ați spus.** Fiecare își ține firul lui de vorbă. Te muți la altul și te
+  întorci — vă găsiți unde ați rămas, nu de la zero.
+- **Fără Ollama**, când te prezinți, tot îți răspunde ca lumea: are câteva vorbe
+  de întâmpinare, cu numele tău în ele.
+
+Nimic nu trece dintr-o deschidere a paginii în alta: la refresh, localul te uită.
+
+### 3. `@tine`, și pe cel cu care vorbești nu-l mai poți pomeni
+
+Nu are rost să-i scrii draconianului `@draconianul` — el e chiar acolo. De-aceea
+**cel cu care vorbești iese din listă**, iar în locul lui apare `@tine`: *„ce
+crezi despre @tine?"*, și își spune părerea despre el însuși. Dacă totuși îi
+scrii numele cu semn, se înțelege tot ca `@tine`, nu ca o pomenire străină.
+
+Și pentru asta fiecare primește două-trei vorbe scrise de mână, pentru când
+modelul tace — `pareriDeSine`, lângă `pareri`.
+
+**Verificare:** îi scrii barmanului „numele meu este Alex", apoi „ce crezi despre
+@tine?" — răspunde despre el, nu despre altul, iar când te întorci la el peste
+alte două discuții încă știe cum te cheamă. În listă, cât vorbești cu el, nu apar
+nici „Barmanul", nici vreo replică cu asteriscuri.
 
 ---
 

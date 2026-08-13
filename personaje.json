@@ -1,12 +1,13 @@
 {
-  "versiune": 3,
+  "versiune": 4,
   "descriere": "Fișa tuturor personajelor cu nume din local: firea cu care le răspunde modelul, replicile de rezervă când modelul tace, ce se spune despre ei când îi pomenește cineva, locul lor în scenă și dimensiunile. Fișierul e oglinda scenei, nu sursa ei: nu se citește la pornire, fiindcă `index.html` se deschide direct de pe file://, unde fetch cade. Adevărul e în cod; aici scrie ca să se vadă toată distribuția pe o pagină.",
   "campuri": {
     "fire": "Cine e, spus lui: pleacă la model ca prompt de sistem. Clovnul n-are — pe el îl joci tu.",
     "rezerva": "Ce zice când modelul tace.",
     "despre": "Cine e, spus altora: intră în prompt când îl pomenește cineva cu `@`.",
     "porecle": "Numele scurte după care îl găsești când scrii `@`, fără diacritice.",
-    "pareri": "Ce zice despre altul fără model; `{cine}` se umple cu numele celui pomenit."
+    "pareri": "Ce zice despre altul fără model; `{cine}` se umple cu numele celui pomenit.",
+    "pareriDeSine": "Ce zice despre el însuși, fără model, când îl întrebi cu `@tine`."
   },
   "implicit": {
     "model": "gemma4:e2b",
@@ -17,7 +18,9 @@
       "cartea": "0.6 + haos, deci fiecare joacă cât de imprevizibil îi e firea"
     },
     "unitati": "Lățimea și înălțimea sunt în unități U (a suta parte din latura mică a ferestrei). `loc.kx` și `loc.ky` sunt lățimi și adâncimi de masă față de mijlocul blatului.",
-    "faraOllama": "Dacă modelul lipsește sau tace, fiecare răspunde din `rezerva` lui. Nimic nu se blochează."
+    "faraOllama": "Dacă modelul lipsește, tace sau spune o vorbă care nu trece de sită, fiecare răspunde din ce are scris aici. Nimic nu se blochează.",
+    "sita": "Ce zice modelul se curăță înainte să se audă: numele scris în față, ghilimelele, asteriscurile, mișcările dintre paranteze, rândurile de după primul. Vorba ruptă la mijloc se taie la ultima propoziție încheiată, iar ce rămâne gol, în alt alfabet, în engleză sau doar întrebarea întoarsă se aruncă.",
+    "memorie": "Dacă te prezinți („numele meu este Alex\"), localul reține numele și îl primesc toți în prompt. Fiecare își ține firul lui de vorbă. Totul ține până la refresh."
   },
   "personaje": [
     {
@@ -82,6 +85,11 @@
         "{cine}? Nu mă bag.",
         "Cu {cine} am mai jucat. Destul."
       ],
+      "pareriDeSine": [
+        "Sunt mare. Atât.",
+        "Mârrr. Nu mă descriu, mă vezi.",
+        "Cel mai tare de la masă. Următoarea."
+      ],
       "descriere": {
         "aspect": "Masiv, ocupă cel mai mult loc la masă. Cap de dinozaur cu dinți și ochi galbeni, două aripi pliate pe spate, două labe-mâini, două labe-picioare.",
         "personalitate": "Fioros, tăcut. Nervos des.",
@@ -131,6 +139,11 @@
         "Despre {cine} n-aș vorbi la masă.",
         "{cine} joacă exact cum arată."
       ],
+      "pareriDeSine": [
+        "Eu îmi cunosc bine cărțile.",
+        "Sunt cel care așteaptă.",
+        "Despre mine? Prea puțin de spus."
+      ],
       "descriere": {
         "aspect": "Umanoid-crocodil: bot lung, solzi verzi-măslinii, coadă, costum cu cravată, postură dreaptă.",
         "personalitate": "Calm, calculat, cel mai bun jucător dintre cei trei.",
@@ -179,6 +192,11 @@
         "Eu doar împart, dar {cine} știe ce face.",
         "Am văzut mulți ca {cine} la masa asta."
       ],
+      "pareriDeSine": [
+        "Îmi fac treaba, atât.",
+        "Sunt omul care împarte, nu cel care câștigă.",
+        "Corect, până la ultima carte."
+      ],
       "descriere": {
         "aspect": "Om, nu personaj de basm: vestă închisă la culoare peste cămașă albă, papion. Croit din același trup ca barmanul și chelnerul.",
         "personalitate": "Politicos, profesionist.",
@@ -226,6 +244,11 @@
         "N-am timp de {cine}, am mese.",
         "Cu {cine} nu-i greu, lasă bacșiș."
       ],
+      "pareriDeSine": [
+        "Alerg toată ziua, asta sunt.",
+        "Sunt cel care ajunge primul la masă.",
+        "Două mâini, zece mese."
+      ],
       "descriere": {
         "aspect": "Om cu tavă, în ținuta localului.",
         "personalitate": "Politicos, grăbit.",
@@ -260,6 +283,11 @@
         "Despre {cine} s-au auzit multe aici.",
         "Îi torn lui {cine} ce cere și gata."
       ],
+      "pareriDeSine": [
+        "Torn și ascult, asta fac.",
+        "Sunt cel mai cinstit om de aici.",
+        "Știu toate poveștile, nu le spun pe toate."
+      ],
       "descriere": {
         "aspect": "Om în spatele tejghelei, cu raftul de sticle în spate.",
         "personalitate": "Prietenos, glumeț.",
@@ -292,6 +320,11 @@
         "{cine} mănâncă tot ce-i pun în față.",
         "Despre {cine} întreabă bucătăria, nu pe mine.",
         "{cine} n-a lăsat niciodată o farfurie plină."
+      ],
+      "pareriDeSine": [
+        "Gătesc mai bine decât toți din oraș.",
+        "Sunt cel care ține localul plin.",
+        "Fără mine, aici s-ar mânca pâine goală."
       ],
       "descriere": {
         "aspect": "Bluză albă, șorț lung, bonetă înaltă — după ea se recunoaște de la distanță.",
@@ -328,6 +361,11 @@
         "{cine}? Eu doar îi spăl paharul.",
         "Nu-mi pasă de {cine}, îmi pasă de chiuvetă."
       ],
+      "pareriDeSine": [
+        "Sunt omul de la chiuvetă. Atât.",
+        "Muncesc cel mai mult și mă vede cel mai puțin.",
+        "Obosit, dar tot aici."
+      ],
       "descriere": {
         "aspect": "Cămașă albăstruie, șorț, mâinile în chiuvetă.",
         "personalitate": "Obosit, resemnat, cu umor amar.",
@@ -363,6 +401,11 @@
         "Nu mă uit la {cine}, sunt la mutare.",
         "Despre {cine}... mai târziu."
       ],
+      "pareriDeSine": [
+        "Mâna asta m-a costat o partidă.",
+        "Sunt bun. Nu îndeajuns.",
+        "Gândesc mai mult decât vorbesc."
+      ],
       "descriere": {
         "aspect": "Om obișnuit, cu o singură mână de argint — singurul lucru care sclipește la el.",
         "personalitate": "Gânditor, scump la vorbă.",
@@ -397,6 +440,11 @@
         "{cine} nu strălucește.",
         "{cine}? Mută el întâi.",
         "Nu vorbesc despre {cine}."
+      ],
+      "pareriDeSine": [
+        "Strălucesc. Se vede.",
+        "Sunt din aur. Ce mai vrei?",
+        "Despre mine se vorbește destul."
       ],
       "descriere": {
         "aspect": "Turnat dintr-o bucată: haine, piele, păr, tot din aur, cu o dungă de lumină prinsă în metal.",
@@ -434,6 +482,11 @@
         "Ia zi, ce-i cu {cine}?",
         "{cine} pare de treabă, nu?"
       ],
+      "pareriDeSine": [
+        "Sunt un om vorbăreț, ce să zic.",
+        "Eu doar am venit la un pahar.",
+        "Om obișnuit, nimic special."
+      ],
       "descriere": {
         "aspect": "Om oarecare, cu paleta lui de culori, alta la fiecare vizită.",
         "personalitate": "Vorbăreț, curios.",
@@ -467,6 +520,11 @@
         "{cine}? Așa e.",
         "Nu-l știu pe {cine}.",
         "Da, da, {cine}."
+      ],
+      "pareriDeSine": [
+        "Sunt mai tăcut, atât.",
+        "Nimic de zis despre mine.",
+        "Ascult mai mult."
       ],
       "descriere": {
         "aspect": "Om oarecare, cu paleta lui de culori, alta la fiecare vizită.",

@@ -161,7 +161,17 @@ din Ollama; fără el, fiecare are câteva vorbe ale lui, scrise în cod.
 **Poți pomeni pe altul.** Scrii `@` (sau `/`) și numele — `@draconian`, `@aur`,
 `@spalator` — și se deschide o listă din care alegi. Cel întrebat află atunci
 cine e cel pomenit și își spune părerea despre el. Pe clovn poate să-l pomenească
-oricine, deși cu el nu se poate vorbi: el ești tu.
+oricine, deși cu el nu se poate vorbi: el ești tu. Cel cu care vorbești nu e în
+listă — pentru el e `@tine`, și atunci vorbește despre el însuși.
+
+**Te țin minte cât ține pagina.** Dacă te prezinți, localul reține numele și ți
+se adresează pe nume; fiecare își ține firul lui de vorbă, așa că te poți întoarce
+la cineva fără să o luați de la capăt. La refresh, uită tot.
+
+**Ce se aude e curățat.** Răspunsul modelului trece printr-o sită: fără nume
+scris în față, fără ghilimele, asteriscuri sau mișcări între paranteze, fără
+rânduri în plus, fără vorbe rupte la mijloc. Ce nu trece se aruncă, și răspunde
+din vorbele lui scrise de mână, ca și cum modelul ar fi tăcut.
 
 Partida merge înainte cât ții fereastra deschisă.
 

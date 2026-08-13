@@ -37,8 +37,9 @@ clipește rar, cu pleoapa laterală. Când câștigă, nu arată nimic.
 
 ### 2.4 Dealerul
 Om, nu personaj de basm: cămașă albă, vestă închisă la culoare, papion. Stă pe
-latura din stânga și nu joacă — el împarte cărțile și întoarce cartea mesei.
-Din când în când zice o vorbă și intră și el într-o mână, dar rar.
+latura din stânga și nu joacă — el împarte cărțile. Din când în când zice o
+vorbă și intră și el într-o mână, dar rar. (Cartea întoarsă a mesei, cu regula
+ei, e o idee de mai încolo — [PLAN.md](PLAN.md), Faza 12.)
 
 ## 3. Scena
 
@@ -184,7 +185,8 @@ Partida merge înainte cât ții fereastra deschisă.
   culorile localului, iar scena merge mai departe și dacă lipsește.
 - Cod și comentarii în română, pe secțiuni numerotate.
 - Textul din scenă e doar meniul de comandă, valorile de pe cărți, vorbele
-  musafirilor de la masa a treia și vorba cu cine întrebi tu. În rest, nicio
+  musafirilor de la masa a treia, vorba dealerului când intră în mână, și vorba
+  cu cine întrebi tu, cu tot cu numele din lista ferestrei. În rest, nicio
   literă.
 - Canvas-ul ocupă tot ecranul și se redimensionează cu fereastra.
 - Sunetul se sintetizează în cod cu WebAudio, ca și desenul: fără fișiere audio.
@@ -193,7 +195,7 @@ Partida merge înainte cât ții fereastra deschisă.
 
 ## 6. Etape
 
-1. Masa, lumina, cele trei locuri goale.
+1. Masa, lumina, locurile goale.
 2. Personajele desenate static, fiecare la locul lui.
 3. Animații de idle (respirație, legănat, clipit).
 4. Ciclul de împărțit și jucat cărțile.
@@ -202,11 +204,14 @@ Partida merge înainte cât ții fereastra deschisă.
 7. Lumea din local: cei doi clienți, chelnerul, barmanul.
 8. Comanda, bucătăria și sunetul.
 9. Partida adevărată, jucată de privitor.
+10. Localul reașezat: masă pătrată, dealer, bucătar, chiuvetă.
+11. Vorba cu ei: chat cu oricine din local.
 
 Ordinea de lucru efectivă e cea din [PLAN.md](PLAN.md).
 
 ## 7. În afara scopului
 
 - Scor: se joacă mână după mână, fără să țină nimeni socoteala.
-- Orice altă interacțiune în afară de jucat cărțile și comanda de la bar.
-- Meniuri, setări, salvare.
+- Orice altă interacțiune în afară de cele trei: jucat cărțile, comanda de la
+  bar și vorba cu cei din local.
+- Meniuri, setări, salvare. Nimic nu trece dintr-o deschidere a paginii în alta.

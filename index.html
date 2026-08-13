@@ -956,9 +956,10 @@ const personaje = [
   }
 ];
 
-/* Dealerul stă pe latura din stânga și nu joacă: el împarte cărțile și
-   întoarce cartea mesei. E om, ca cei din local, nu personaj de basm ca ceilalți
-   trei — de asta e croit din același trup ca barmanul și chelnerul. */
+/* Dealerul stă pe latura din stânga și, de obicei, nu joacă: el împarte
+   cărțile. (Cartea întoarsă a mesei e o idee de mai încolo — PLAN.md, Faza 12 —,
+   deocamdată nu întoarce nimic.) E om, ca cei din local, nu personaj de basm ca
+   ceilalți trei — de asta e croit din același trup ca barmanul și chelnerul. */
 const DEALER = {
   vesta:    "#23262e",
   camasa:   "#eceae4",
@@ -1553,9 +1554,9 @@ draconianul.actualizeaza = function (dt) {
    5d. REPTILIANUL
    ========================================================================== */
 
-/* Stă în spate-dreapta, întors spre masă. Singurul îmbrăcat ca lumea și
-   singurul care nu face nimic: nu tresare, nu sărbătorește, nu se supără.
-   Toată prezența lui e că e nemișcat lângă ceilalți doi. */
+/* Stă pe latura din dreapta a mesei, din profil, cu genunchii spre masă.
+   Singurul îmbrăcat ca lumea și singurul care nu face nimic: nu tresare, nu
+   sărbătorește, nu se supără. Toată prezența lui e că e nemișcat lângă ceilalți. */
 
 const REPT = {
   solzi:    "#3d6357",
@@ -1725,10 +1726,12 @@ reptilianul.reactie = function (tip) {
    ========================================================================== */
 
 /* Oamenii localului: doi clienți care joacă șah la masa a doua, chelnerul care
-   umblă printre mese și barmanul din spatele tejghelei. Respectă același
+   umblă printre mese, barmanul, bucătarul și spălătorul din spatele tejghelei,
+   și musafirii care vin din când în când la masa a treia. Respectă același
    contract ca cei de la masa noastră — `deseneaza(ctx, t)`, `actualizeaza(dt)` —
-   dar nu primesc niciun eveniment din partidă. N-au de unde să știe cine a
-   câștigat mâna, și nici nu-i interesează. */
+   dar nu primesc niciun eveniment din partidă: n-au bucla lor legată de a
+   jocului. Ce află despre masa noastră, află uitându-se — musafirii, prin
+   `vizita.vede`, și atunci comentează la următorul schimb de vorbe. */
 
 const AUR = { corp: "#d4a12a", lucios: "#f2d068", umbra: "#8a6415" };
 const ARGINT = { corp: "#c9ced6", lucios: "#eef1f5", umbra: "#7d848d" };
@@ -2864,9 +2867,10 @@ const sunet = {
    5g. COMANDA
    ========================================================================== */
 
-/* Singura interacțiune din scenă. Dai clic pe un personaj, vine chelnerul, alegi
-   ce bea sau ce mănâncă — sau nimic —, iar restul se întâmplă singur. Partida nu
-   se oprește nicio clipă cât timp chelnerul e pe drum. */
+/* Prima interacțiune din scenă, dintre cele trei — celelalte două sunt cărțile
+   tale (secțiunea 6) și vorba (5h). Dai clic pe un personaj, vine chelnerul,
+   alegi ce bea sau ce mănâncă — sau nimic —, iar restul se întâmplă singur.
+   Partida nu se oprește nicio clipă cât timp chelnerul e pe drum. */
 
 /* Meniul e o listă scrisă, ca la restaurant: felul, cât e porția, cât costă.
    Fără desene — la câte feluri sunt, ar fi fost cinci pahare la fel.
@@ -3691,12 +3695,15 @@ function deseneazaMeniu() {
    scrii ai nevoie de o casetă adevărată, cu tastatură cu tot. Restul —
    răspunsul deasupra capului lui — se desenează ca orice altceva. */
 
-/* Fiecare are trei feluri de vorbe scrise aici:
-     - `fire`    : cine e, spus lui, ca să răspundă modelul în locul lui;
-     - `rezerva` : ce zice când modelul tace;
-     - `despre`  : cine e, spus altora, când îl pomenește cineva în vorbă;
-     - `pareri`  : ce zice despre altul, tot fără model, cu `{cine}` în loc de nume.
-   `porecle` sunt numele scurte după care îl găsești când scrii `@`. */
+/* Fiecare are scrise aici:
+     - `fire`         : cine e, spus lui, ca să răspundă modelul în locul lui;
+     - `rezerva`      : ce zice când modelul tace;
+     - `despre`       : cine e, spus altora, când îl pomenește cineva în vorbă;
+     - `pareri`       : ce zice despre altul, tot fără model, cu `{cine}` în loc de nume;
+     - `pareriDeSine` : ce zice despre el însuși, fără model, întrebat cu `@tine`.
+   `porecle` sunt numele scurte după care îl găsești când scrii `@`.
+   Tot ce e aici se oglindește în `personaje.json`, care nu se citește la
+   pornire: aici e adevărul, acolo e fișa de citit. */
 const FIRI = {
   // Clovnul ești tu, deci n-are fire și nu apare în lista de vorbitori — dar
   // poate fi pomenit, fiindcă ceilalți au ce spune despre el.

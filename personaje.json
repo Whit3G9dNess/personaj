@@ -43,7 +43,8 @@
         "reactii": {
           "joaca": "Își ascunde cărțile prea teatral.",
           "castig": "Sărbătorește exagerat.",
-          "pierdere": "Aruncă în aer cărțile rămase."
+          "vecinCastiga": "Se răsucește spre cel care a luat levata, să-i vadă mutra.",
+          "pierdeMana": "Mătură în aer cărțile de pe masă, la sfârșitul mâinii."
         }
       },
       "scena": {
@@ -96,7 +97,8 @@
         "idle": "Aproape imobil, respirație grea, aripile tresar. Ține cărțile în gheare, prea mici pentru el.",
         "reactii": {
           "joaca": "Trântește cartea pe masă.",
-          "castig": "Mârâie un fum pe nări și trage cărțile.",
+          "castig": "Trage cărțile, atât.",
+          "vecinCastiga": "Mârâie: un fum scurt pe nări.",
           "pierdere": "Scoate foc pe bot."
         }
       },

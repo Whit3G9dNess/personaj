@@ -24,7 +24,7 @@ funcționează deja.
 | 8 | Lumea din local: clienții, chelnerul, barmanul | ✅ gata |
 | 9 | Comanda, bucătăria și sunetul | ✅ gata |
 | 10 | Partida adevărată: joci tu cărțile clovnului | ✅ gata |
-| 11 | Partida cu cap: trei levate, cărți întoarse, jokerul | ✅ gata |
+| 11 | Partida cu cap: trei levate, cărți întoarse, jokerul | ◐ 1–3 gata; 4 și 5 nu |
 | 12 | Localul reașezat: masă pătrată, dealer, bucătar, chiuvetă | ✅ gata |
 | 13 | Vorba cu ei: chat cu oricine din local | ✅ gata |
 | 14 | Pomenit pe altul: `@cineva` în vorbă | ✅ gata |
@@ -212,8 +212,9 @@ cărți, au ciclul lor.
   nimic), cu mici diferențe de statură. Un test cere ca din patru vizite să iasă
   cel puțin două înfățișări deosebite.
 
-  **Paharele nu apar din senin.** Se așază la masă goală și abia când trece
-  chelnerul pe la ei — are un popas al lui acolo — le apare ceva de băut.
+  **Paharele nu apar din senin.** Sticla de vin e pe masă cum s-au așezat — e a
+  mesei, nu a lor —, dar paharele apar abia când trece chelnerul pe la ei; are
+  un popas al lui acolo.
 
   **Vorbesc despre ce văd**, inclusiv despre masa noastră: focul draconianului,
   liniștea reptilianului, cărțile aruncate ale clovnului, comanda care tocmai a
@@ -256,9 +257,13 @@ la 13×25U — acum e al doilea ca mărime, după draconian.
 
 ## Faza 9 — Comanda, bucătăria și sunetul
 
-Aici scena capătă singurul ei buton, și primul sunet. Vine după tot restul
+Aici scena capătă primul ei buton, și primul sunet. Vine după tot restul
 fiindcă are nevoie de el: de chelner ca să aducă, de bar ca să toarne, de masă
 ca să pună paharul pe ea.
+
+> Faza asta îl pune pe barman să facă și de băut, și de mâncare. La **Faza 12**
+> barul se împarte în trei, iar mâncarea trece la bucătar; ce scrie mai jos
+> despre aragazul barmanului e cum a fost, nu cum e acum.
 
 1. **Chemi chelnerul.** Dai clic pe personajul pentru care vrei să comanzi, iar
    chelnerul întrerupe tura și vine la masa noastră. Până nu-l chemi, scena
@@ -322,8 +327,10 @@ doi joacă împotriva ta.
 
 **Adversarul.** Pe calculatorul ăsta e instalat Ollama, cu `gemma4:e2b`, deci
 ceilalți doi pot fi conduși de un model adevărat: primesc situația mesei și
-răspund cu ce carte joacă. `personaje.json` are deja pregătit, pentru fiecare,
-un `promptSistem` și o `temperature` — de acolo își iau firea.
+răspund cu ce carte joacă. Fiecare are în `index.html` un `promptSistem` scurt —
+altul decât `fire`, care e pentru vorbă —, iar cât de imprevizibil joacă iese
+din `haos`: `temperature` e `0.6 + haos`. Convenția e scrisă și în
+`personaje.json`, la `implicit`.
 
 Regula de aur: **dacă Ollama nu răspunde, scena merge mai departe.** Adversarii
 au și o judecată scrisă în cod, simplă, și pe ea cad înapoi dacă modelul lipsește,
@@ -531,9 +538,9 @@ musafirii de la masa a treia.
    Scena trebuie să meargă și fără casetă: dacă lipsește (cum se întâmplă la
    teste, unde rulează pe o pânză falsă), vorba funcționează mai departe în cod,
    doar că n-o vede nimeni scrisă.
-4. **Cine răspunde.** Modelul din Ollama, fiecare cu firea lui: cei trei o au
-   deja în `personaje.json`, ceilalți primesc câte un `promptSistem` scurt, tot
-   acolo. Răspunsul apare în fereastră și, scurtat, și deasupra capului lui în
+4. **Cine răspunde.** Modelul din Ollama, fiecare cu firea lui: draconianul și
+   reptilianul o au deja (clovnul nu — pe el îl joci tu), ceilalți primesc câte
+   una scurtă, toate strânse în `FIRI` și oglindite în `personaje.json`. Răspunsul apare în fereastră și, scurtat, și deasupra capului lui în
    scenă, ca vorbele de la masa a treia.
 5. **Fără Ollama.** Regula de aur rămâne: dacă modelul lipsește sau tace, fiecare
    are câteva răspunsuri scrise de mână, potrivite cu firea lui. Nu se blochează
@@ -543,9 +550,9 @@ musafirii de la masa a treia.
 ale tale, iar dacă îți vine rândul și nu joci, joacă el după douăsprezece
 secunde.
 
-**Rămâne pe dinafară:** vorbă între ei doi pe subiectul tău, memorie de la o
-vizită la alta, comenzi date prin chat („adu-mi o bere") — comanda rămâne la
-meniu.
+**Rămâne pe dinafară:** vorbă între ei doi pe subiectul tău, ținut minte de la o
+deschidere a paginii la alta, comenzi date prin chat („adu-mi o bere") — comanda
+rămâne la meniu. (Ținutul minte *cât ține pagina* vine la Faza 15.)
 
 **Verificare:** apeși iconița, alegi barmanul, scrii „ce mai faci?" și îți
 răspunde el, nu draconianul. Închizi fereastra și scena e neatinsă.
@@ -648,9 +655,9 @@ nici „Barmanul", nici vreo replică cu asteriscuri.
 
 ## `personaje.json` — toate personajele, într-un loc
 
-Fișierul a rămas la cele trei de la masă, deși în local sunt doisprezece cu nume
-și cu fire: cei trei, dealerul, chelnerul, barmanul, bucătarul, spălătorul, cei
-doi de la șah și cei doi musafiri. Se completează cu toți, în aceeași formă.
+Toți doisprezece cu nume sunt în fișier: cei trei de la masă, dealerul,
+chelnerul, barmanul, bucătarul, spălătorul, cei doi de la șah și cei doi
+musafiri.
 
 **Ce e fișierul.** Oglinda scenei, nu sursa ei — o fișă de personaj citită de om,
 cu firea, replicile de rezervă, locul în local și dimensiunile fiecăruia, ca să
@@ -663,40 +670,44 @@ ar trebui să dreagă. Scena rămâne singurul fișier care se execută.
 **Cine intră.** Doar cine are nume în scenă. Clovnul intră deși n-are fire — pe
 el îl joci tu, deci `fire` lipsește și scrie de ce.
 
-**Ce scrie despre fiecare.** `fire` și `rezerva`, copiate din `FIRI`; `scena` —
-locul la masă sau în local, lățimea, înălțimea, scara; pentru cei patru de la
+**Ce scrie despre fiecare.** `fire`, `rezerva`, `despre`, `porecle`, `pareri` și
+`pareriDeSine`, copiate din `FIRI`; `scena` — locul la masă sau în local (în
+`kx`/`ky`, ca de la Faza 12), lățimea, înălțimea, scara; pentru cei patru de la
 masă și `gandire` cu `haos`, că se vede în cât stau pe gânduri.
 
-**De resincronizat.** Cele trei intrări vechi s-au depărtat de cod (reptilianul
-e 13×25 în scenă, nu 10.5×21) și țin locul în unghiuri, deși scena așază după
-`kx`/`ky` de la Faza 12. Se iau valorile din `index.html`, ele sunt adevărul.
+**Când se atinge codul, se atinge și fișierul.** El e oglinda, `index.html` e
+adevărul: dacă cele două se despart, fișierul e cel greșit.
 
 **Verificare:** fiecare nume din `FIRI` are o intrare în `personaje.json` cu
 aceeași fire și aceleași replici, iar dimensiunile din `scena` sunt cele din cod.
 
 ---
 
-## Reguli pentru fazele 7–10
+## Reguli pentru fazele 7 încolo
 
 1. Fundalul nu are voie să fure atenția: mai mic, mai întunecat, mai puțin
    detaliat, fără culori la fel de tari ca la cei trei.
-2. Fundalul nu știe de ciclul jocului și nici jocul de el. Două bucle separate,
-   care nu se așteaptă una pe alta.
+2. Fundalul și jocul sunt două bucle separate, care nu se așteaptă una pe alta.
+   Fundalul nu primește niciun eveniment din partidă — dar de la Faza 8 are voie
+   să *vadă* ce se întâmplă la masa noastră, prin `vizita.vede`, și să comenteze
+   la următorul lui schimb de vorbe.
 3. Personajele de fundal respectă același contract ca cei trei, ca să nu apară
    un al doilea fel de a face un personaj.
 4. Chelnerul se mișcă pe un drum dat în unități U, ca tot restul, ca să se
    scaleze corect pe orice ecran.
 5. Sunetul e un adaos, nu o condiție: cu boxele închise nu se pierde nimic din
    ce se vede.
-6. Comanda e singura interacțiune din toată scena. Nu se adaugă a doua.
+6. Interacțiunile sunt trei, și rămân trei: cărțile tale (Faza 10), comanda
+   (Faza 9) și vorba (Faza 13). Nu se adaugă a patra.
 
-## Ce rămâne de hotărât la fazele 9–10
+## Ce s-a hotărât la fazele 9–10
 
-- Cum arată meniul de comandă: farfurii și pahare desenate lângă personaj, sau
-  un rând de cuvinte jos.
-- Dacă adversarii de la Faza 10 sunt conduși de Ollama sau de o judecată scrisă
-  în cod (vezi Faza 10).
-- Ce reguli are partida adevărată: cea mai mare carte ia mâna, sau ceva cu atu.
+- **Meniul** e o listă scrisă — fel, cantitate, preț —, nu farfurii desenate
+  lângă personaj: la nouă feluri, desenele s-ar fi bătut cap în cap.
+- **Adversarii** sunt conduși de Ollama când e pornit și de o judecată scrisă în
+  cod când nu e. Amândouă, nu una din două (vezi Faza 10).
+- **Regula partidei** e cea mai mare carte ia levata, plus jokerul de la Faza 11.
+  Fără atu; cartea întoarsă a dealerului a rămas de hotărât la Faza 12.
 
 ---
 
@@ -707,7 +718,9 @@ aceeași fire și aceleași replici, iar dimensiunile din `scena` sunt cele din 
 2. **Tot ce ține de timp trece prin `dt`**, nu prin numărători de cadre. Scena
    arată la fel pe un ecran de 60 Hz și pe unul de 144 Hz.
 3. **Personajele nu cunosc regulile.** Mașina de stări le trimite doar
-   evenimente: `gandeste`, `joaca`, `castig`, `pierdere`.
+   evenimente: `gandeste`, `joaca`, `castig` și `pierdere` (pe levată),
+   `vecinCastiga` (cine a luat levata, singurul despre altcineva), iar după a
+   treia levată `castigaMana` și `pierdeMana`.
 4. **Toate dimensiunile sunt în unități `U`** (a suta parte din latura mică a
    ferestrei). Scena se scalează corect pe orice ecran.
 
@@ -735,7 +748,9 @@ aduce fișierul de acum, nu pe cel de acum zece minute.
 
 ## Rămas de făcut
 
-- A rămas o singură siluetă cu numele scris deasupra, reptilianul. Numele e un
-  ajutor temporar de dezvoltare și dispare la Faza 5.
-- Brațul dinspre privitor al clovnului e acoperit de cărțile din mână. Se vede
-  când personajul le ridică; de rezolvat, dacă deranjează, la Faza 6.
+- **Faza 11, punctele 4 și 5:** cine pierde mâna face cinste, și ce-au băut și
+  mâncat le schimbă firea. Sunt condimente, se pun oricând.
+- **Faza 12, cartea întoarsă a dealerului:** de ales între „atu" și „pe dos".
+  Până se alege, dealerul doar împarte.
+- **Împărțitul cu 4 cărți din care arunci una,** dacă se dovedește că 3 e prea
+  puțin de hotărât (vezi Faza 11).

@@ -3,8 +3,9 @@
 Trei personaje stau la o masă, într-o lumină caldă, și joacă cărți: un clovn de
 circ, un draconian care scoate foc pe bot și un reptilian umanoid-crocodil.
 
-O scenă animată care merge singură, la nesfârșit. Nu ai ce să apeși — te uiți
-la ei cum joacă.
+O scenă animată care merge singură, la nesfârșit: dacă nu atingi nimic, se joacă
+și fără tine. Dar poți — mâna clovnului e a ta, comanzi de la bar și stai de
+vorbă cu oricine din local.
 
 ## Cum se deschide
 
@@ -57,7 +58,7 @@ cărțile, fiecare joacă, unul câștigă și strânge cărțile, apoi se reia.
 
 Clovnul e desenat: costum cârpit, guler cu volane, pălărie strâmbă, pantofi
 mari. Stă cu spatele la privitor și tot întoarce capul spre vecini; când pierde
-mâna, își aruncă în aer cărțile rămase.
+mâna, mătură cărțile de pe masă în aer.
 
 Draconianul la fel: cap de dinozaur cu dinți și ochi galbeni, aripi pliate pe
 spate, gheare. Stă aproape nemișcat până pierde o mână — atunci scoate foc pe

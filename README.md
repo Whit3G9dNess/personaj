@@ -19,12 +19,19 @@ Un singur fișier, `index.html`, care conține tot: HTML, CSS și JavaScript.
 Personajele sunt desenate din forme geometrice direct în canvas 2D — nu există
 nicio imagine în proiect. Codul și comentariile sunt în română.
 
+`personaje.json` e o fișă de citit, nu o piesă a scenei: are toate cele
+douăsprezece personaje cu nume — firea cu care le răspunde modelul, replicile de
+rezervă, locul în local și dimensiunile —, ca să se vadă toată distribuția pe o
+pagină. Scena nu-l citește la pornire, fiindcă `index.html` se deschide direct
+de pe `file://`, unde `fetch` cade; adevărul rămâne în cod, iar fișierul îl
+oglindește.
+
 ## Fișiere
 
 | Fișier          | Ce conține                                        |
 |-----------------|---------------------------------------------------|
 | `index.html`    | Scena întreagă: personaje, masă, animații         |
-| `personaje.json`| Configurarea celor trei personaje, într-un loc    |
+| `personaje.json`| Fișa tuturor personajelor din local, într-un loc   |
 | `teste.html`    | Testele scenei, deschise tot în browser           |
 | `SPEC.md`       | Descrierea personajelor, a scenei și etapele      |
 | `PLAN.md`       | Planul de implementare pe faze și stadiul lui     |

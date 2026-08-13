@@ -426,8 +426,8 @@ poveste, nu prin monede.
 
 **5. Ce-au băut și mâncat le schimbă firea.** Draconianul după două beri joacă și
 mai la nimereală, reptilianul cu burta plină se gândește mai mult. Se vede din
-cum joacă, nu dintr-o cifră pe ecran. Se leagă de `promptSistem` și `temperature`
-din `personaje.json`.
+cum joacă, nu dintr-o cifră pe ecran. Se leagă de `fire` și de `haos`, cele din
+fișa lor din `personaje.json`.
 
 Ordinea de lucru: **1** întâi, singură — schimbă cel mai mult și nu strică nimic
 din ce merge. Apoi **2** și **3**, care merg împreună: fără cărți întoarse,
@@ -547,6 +547,36 @@ meniu.
 
 **Verificare:** apeși iconița, alegi barmanul, scrii „ce mai faci?" și îți
 răspunde el, nu draconianul. Închizi fereastra și scena e neatinsă.
+
+---
+
+## `personaje.json` — toate personajele, într-un loc
+
+Fișierul a rămas la cele trei de la masă, deși în local sunt doisprezece cu nume
+și cu fire: cei trei, dealerul, chelnerul, barmanul, bucătarul, spălătorul, cei
+doi de la șah și cei doi musafiri. Se completează cu toți, în aceeași formă.
+
+**Ce e fișierul.** Oglinda scenei, nu sursa ei — o fișă de personaj citită de om,
+cu firea, replicile de rezervă, locul în local și dimensiunile fiecăruia, ca să
+se vadă toată distribuția pe o pagină, fără să umbli prin cele o sută de mii de
+rânduri din `index.html`. Nu se citește la pornire și nu are voie să se citească:
+regula „deschizi `index.html` și atât" înseamnă `file://`, unde `fetch` cade —
+iar cu rezervă în cod datele ar ajunge să stea în două locuri, exact ce fișierul
+ar trebui să dreagă. Scena rămâne singurul fișier care se execută.
+
+**Cine intră.** Doar cine are nume în scenă. Clovnul intră deși n-are fire — pe
+el îl joci tu, deci `fire` lipsește și scrie de ce.
+
+**Ce scrie despre fiecare.** `fire` și `rezerva`, copiate din `FIRI`; `scena` —
+locul la masă sau în local, lățimea, înălțimea, scara; pentru cei patru de la
+masă și `gandire` cu `haos`, că se vede în cât stau pe gânduri.
+
+**De resincronizat.** Cele trei intrări vechi s-au depărtat de cod (reptilianul
+e 13×25 în scenă, nu 10.5×21) și țin locul în unghiuri, deși scena așază după
+`kx`/`ky` de la Faza 12. Se iau valorile din `index.html`, ele sunt adevărul.
+
+**Verificare:** fiecare nume din `FIRI` are o intrare în `personaje.json` cu
+aceeași fire și aceleași replici, iar dimensiunile din `scena` sunt cele din cod.
 
 ---
 

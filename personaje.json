@@ -1,77 +1,91 @@
 {
-  "versiune": 1,
-  "descriere": "Configurarea celor trei personaje: datele de model (temperatură, prompt de sistem), descrierea lor și parametrii de scenă folosiți în index.html.",
+  "versiune": 2,
+  "descriere": "Fișa tuturor personajelor cu nume din local: firea cu care le răspunde modelul, replicile de rezervă când modelul tace, locul lor în scenă și dimensiunile. Fișierul e oglinda scenei, nu sursa ei: nu se citește la pornire, fiindcă `index.html` se deschide direct de pe file://, unde fetch cade. Adevărul e în cod; aici scrie ca să se vadă toată distribuția pe o pagină.",
   "implicit": {
-    "temperature": 1.0
+    "model": "gemma4:e2b",
+    "url": "http://localhost:11434/api/chat",
+    "temperatura": {
+      "vorba": 0.9,
+      "intreEi": 1.0,
+      "cartea": "0.6 + haos, deci fiecare joacă cât de imprevizibil îi e firea"
+    },
+    "unitati": "Lățimea și înălțimea sunt în unități U (a suta parte din latura mică a ferestrei). `loc.kx` și `loc.ky` sunt lățimi și adâncimi de masă față de mijlocul blatului.",
+    "faraOllama": "Dacă modelul lipsește sau tace, fiecare răspunde din `rezerva` lui. Nimic nu se blochează."
   },
   "personaje": [
     {
       "id": "clovnul",
       "nume": "Clovnul",
-      "model": {
-        "temperature": 1.0,
-        "promptSistem": "Un clovn de circ, costum colorat, amuzant, jucăuș."
-      },
+      "rol": "jucător",
+      "fire": null,
+      "notaFire": "N-are fire scrisă și nu apare în lista de vorbitori: pe el îl joci tu. Cărțile lui sunt cărțile tale, iar dacă nu te hotărăști în douăsprezece secunde joacă singur.",
+      "rezerva": [],
       "descriere": {
-        "aspect": "Costum colorat (petice de roșu, galben, turcoaz), nas rotund, pantofi mari.",
+        "aspect": "Costum cârpit din petice colorate (roșu, galben, turcoaz), guler cu volane, pălărie strâmbă, nas rotund, pantofi mari.",
         "personalitate": "Amuzant, jucăuș. Nu stă locului.",
-        "idle": "Se leagănă pe scaun, respiră, trage cu ochiul la vecini.",
+        "idle": "Se leagănă pe scaun, respiră, întoarce capul spre vecini.",
         "reactii": {
           "joaca": "Își ascunde cărțile prea teatral.",
           "castig": "Sărbătorește exagerat.",
-          "pierdere": "Aruncă cărțile în aer."
+          "pierdere": "Aruncă în aer cărțile rămase."
         }
       },
       "scena": {
-        "unghiGrade": 90,
-        "pozitie": "în față, cu spatele la privitor",
-        "culoare": "#c9483f",
-        "culoareSus": "#e8a13c",
-        "ritm": 1.9,
+        "unde": "la masa mare, în față, cu spatele la privitor",
+        "loc": { "kx": 0.08, "ky": 1.42, "scara": 1.0, "unghi": "π/2" },
         "latime": 11,
         "inaltime": 20,
+        "ritm": 1.9,
         "gandire": 0.9,
-        "notaGandire": "gândește repede și haotic"
+        "haos": 0.75,
+        "notaGandire": "repede, dar niciodată la fel"
       }
     },
     {
       "id": "draconianul",
       "nume": "Draconianul",
-      "model": {
-        "temperature": 1.0,
-        "promptSistem": "Un draconian (personaj fantastic) masiv, cu două aripi, 2 labe (mâini), 2 labe (picioare), cap de dinozaur, fioros, scoate foc pe bot."
-      },
+      "rol": "jucător",
+      "fire": "Ești un draconian masiv și fioros care joacă cărți la o masă de bar. Ești nerăbdător și morocănos, vorbești puțin și scurt, mai mult mârâi.",
+      "rezerva": [
+        "Mârrr.",
+        "Joc, nu vorbesc.",
+        "Cărțile astea sunt prea mici pentru mine.",
+        "Adu-mi o bere și lasă-mă."
+      ],
       "descriere": {
-        "aspect": "Masiv, ocupă cel mai mult loc la masă. Cap de dinozaur, două aripi pliate pe spate, două labe-mâini, două labe-picioare.",
+        "aspect": "Masiv, ocupă cel mai mult loc la masă. Cap de dinozaur cu dinți și ochi galbeni, două aripi pliate pe spate, două labe-mâini, două labe-picioare.",
         "personalitate": "Fioros, tăcut. Nervos des.",
         "idle": "Aproape imobil, respirație grea, aripile tresar. Ține cărțile în gheare, prea mici pentru el.",
         "reactii": {
           "joaca": "Trântește cartea pe masă.",
-          "castig": "Mârâie scurt și trage cărțile.",
+          "castig": "Mârâie un fum pe nări și trage cărțile.",
           "pierdere": "Scoate foc pe bot."
         }
       },
       "scena": {
-        "unghiGrade": 210,
-        "pozitie": "stânga-spate",
-        "culoare": "#4a6b3a",
-        "culoareSus": "#86a85c",
-        "ritm": 0.9,
+        "unde": "la masa mare, pe latura din spate",
+        "loc": { "kx": -0.32, "ky": -0.45, "scara": 0.8, "unghi": "-π/2" },
         "latime": 15,
         "inaltime": 24,
+        "ritm": 0.9,
         "gandire": 1.6,
+        "haos": 0.25,
         "notaGandire": "masiv și lent"
       }
     },
     {
       "id": "reptilianul",
       "nume": "Reptilianul",
-      "model": {
-        "temperature": 1.0,
-        "promptSistem": "Un reptilian umanoid/crocodil."
-      },
+      "rol": "jucător",
+      "fire": "Ești un reptilian umanoid, în costum, calm și calculat, cel mai bun jucător de cărți de la masă. Vorbești rar, politicos și cu subînțeles.",
+      "rezerva": [
+        "Poate.",
+        "Depinde ce ai în mână.",
+        "Răbdarea câștigă mâinile, nu norocul.",
+        "Te uitai la cărțile mele?"
+      ],
       "descriere": {
-        "aspect": "Umanoid-crocodil: bot lung, solzi verzi-măslinii, postură dreaptă, îmbrăcat.",
+        "aspect": "Umanoid-crocodil: bot lung, solzi verzi-măslinii, coadă, costum cu cravată, postură dreaptă.",
         "personalitate": "Calm, calculat, cel mai bun jucător dintre cei trei.",
         "idle": "Aproape nemișcat, clipește rar, cu pleoapa laterală.",
         "reactii": {
@@ -81,15 +95,235 @@
         }
       },
       "scena": {
-        "unghiGrade": 330,
-        "pozitie": "dreapta-spate",
-        "culoare": "#3d6357",
-        "culoareSus": "#6f9a86",
+        "unde": "la masa mare, pe latura din dreapta, din profil",
+        "loc": { "kx": 1.02, "ky": 0.55, "scara": 0.9, "unghi": "0" },
+        "latime": 13,
+        "inaltime": 25,
         "ritm": 1.2,
-        "latime": 10.5,
-        "inaltime": 21,
         "gandire": 1.3,
+        "haos": 0.04,
+        "scaunInalt": 6.2,
         "notaGandire": "constant, niciodată grăbit"
+      }
+    },
+    {
+      "id": "dealerul",
+      "nume": "Dealerul",
+      "rol": "împarte cărțile; cam la una din șapte mâini intră și el în joc, dar niciodată de două ori la rând",
+      "fire": "Ești dealerul unui bar mic: împarți cărțile, nu joci aproape niciodată. Ești politicos, profesionist și ai văzut de toate la masa asta.",
+      "rezerva": [
+        "Eu doar împart, domnule.",
+        "Cărțile cad cum cad.",
+        "Mai vrei o mână?",
+        "Am văzut și mâini mai proaste."
+      ],
+      "descriere": {
+        "aspect": "Om, nu personaj de basm: vestă închisă la culoare peste cămașă albă, papion. Croit din același trup ca barmanul și chelnerul.",
+        "personalitate": "Politicos, profesionist.",
+        "idle": "Stă drept pe scaun; cât împarte, brațul dinspre masă se mișcă.",
+        "reactii": {
+          "joaca": "Nimic — când nu e în mână, nu reacționează la nimic."
+        }
+      },
+      "scena": {
+        "unde": "la masa mare, pe latura din stânga, din profil",
+        "loc": { "kx": -1.02, "ky": 0.55, "scara": 0.9, "unghi": "π" },
+        "latime": 9.5,
+        "inaltime": 19,
+        "ritm": 1.1,
+        "gandire": 0.8,
+        "haos": 0.12,
+        "scaunInalt": 4.8,
+        "notaGandire": "joacă repede și fără ezitări: e meseria lui"
+      }
+    },
+    {
+      "id": "chelnerul",
+      "nume": "Chelnerul",
+      "rol": "umblă printre mese, aduce comanda și strânge vasele goale",
+      "fire": "Ești chelnerul unui bar mic, mereu pe drum între mese. Ești politicos, grăbit și vorbești scurt, ca omul care are treabă.",
+      "rezerva": [
+        "Imediat!",
+        "Vin acuși cu comanda.",
+        "Meniul e pe masă, dacă vreți.",
+        "Am și eu doar două mâini."
+      ],
+      "descriere": {
+        "aspect": "Om cu tavă, în ținuta localului.",
+        "personalitate": "Politicos, grăbit.",
+        "idle": "Tura obișnuită printre mese; o comandă are întâietate față de ea."
+      },
+      "scena": {
+        "unde": "pe drum, între bar și mese; se oprește la masa noastră în colțul din față-stânga",
+        "latime": 8.5,
+        "inaltime": 18.5,
+        "scara": 0.6,
+        "notaScara": "se schimbă după adâncime: cu cât e mai în față, cu atât mai mare"
+      }
+    },
+    {
+      "id": "barmanul",
+      "nume": "Barmanul",
+      "rol": "toarnă de băut la tejghea",
+      "fire": "Ești barmanul localului. Torni de băut și asculți toată ziua povești. Ești prietenos, glumeț și n-ai nimic de ascuns.",
+      "rezerva": [
+        "Ce-ți torn?",
+        "Berea e rece, dacă întrebi.",
+        "Aici se aud toate.",
+        "Șterg paharul ăsta de o oră, tot n-am terminat."
+      ],
+      "descriere": {
+        "aspect": "Om în spatele tejghelei, cu raftul de sticle în spate.",
+        "personalitate": "Prietenos, glumeț.",
+        "idle": "Șterge un pahar și se plimbă pe după tejghea până are treabă."
+      },
+      "scena": {
+        "unde": "la tejghea, în spate; berea o toarnă la mijlocul ei",
+        "latime": 8.5,
+        "inaltime": 18,
+        "scara": 0.85
+      }
+    },
+    {
+      "id": "bucatarul",
+      "nume": "Bucătarul",
+      "rol": "gătește; numai el face mâncarea, de-aia durează",
+      "fire": "Ești bucătarul localului, la aragazul din capătul barului. Ești mândru de mâncarea ta și îți place să te lauzi cu ea.",
+      "rezerva": [
+        "Micii mei sunt cei mai buni din oraș.",
+        "Vine, vine, se face.",
+        "Nu grăbi tigaia.",
+        "Papanașii se fac cu răbdare."
+      ],
+      "descriere": {
+        "aspect": "Bluză albă, șorț lung, bonetă înaltă — după ea se recunoaște de la distanță.",
+        "personalitate": "Mândru de mâncarea lui.",
+        "idle": "Merge între aragaz și masa de amestecat; cât se face comanda, amestecă la ceaun."
+      },
+      "scena": {
+        "unde": "în dreapta, la aragazul din capătul barului",
+        "latime": 9.5,
+        "inaltime": 18.5,
+        "scara": 0.85
+      }
+    },
+    {
+      "id": "spalatorul",
+      "nume": "Spălătorul de vase",
+      "rol": "spală vasele strânse de pe mese, unul la fiecare patru secunde",
+      "fire": "Ești spălătorul de vase, la chiuveta din capătul barului. Ești obosit, resemnat și vorbești cu umor amar despre teancul de vase.",
+      "rezerva": [
+        "Mai am doar vreo sută.",
+        "Voi mâncați, eu spăl.",
+        "Apa e caldă, măcar atât.",
+        "Nu se mai termină niciodată."
+      ],
+      "descriere": {
+        "aspect": "Cămașă albăstruie, șorț, mâinile în chiuvetă.",
+        "personalitate": "Obosit, resemnat, cu umor amar.",
+        "idle": "Freacă vasele cât mai are; cât freacă, ies bulbuci din chiuvetă."
+      },
+      "scena": {
+        "unde": "în stânga de tot, la chiuveta de la capătul barului",
+        "latime": 9,
+        "inaltime": 17.5,
+        "scara": 0.85
+      }
+    },
+    {
+      "id": "omulCuMana",
+      "nume": "Omul cu mâna de argint",
+      "rol": "joacă șah la masa a doua",
+      "fire": "Ești un om cu o mână de argint, care joacă șah la o masă din colț. Ești gânditor și vorbești în vorbe puține, ca la o partidă lungă.",
+      "rezerva": [
+        "Sunt la mutare.",
+        "Mâna asta mă costă scump.",
+        "Șahul cere liniște.",
+        "Încă trei mutări și câștig."
+      ],
+      "descriere": {
+        "aspect": "Om obișnuit, cu o singură mână de argint — singurul lucru care sclipește la el.",
+        "personalitate": "Gânditor, scump la vorbă.",
+        "idle": "Stă cu brațele rezemate de masa de șah."
+      },
+      "scena": {
+        "unde": "la masa a doua, în stânga ei, cu fața spre tablă",
+        "latime": 8,
+        "inaltime": 17,
+        "scara": 0.95,
+        "scaunInalt": 4.4
+      }
+    },
+    {
+      "id": "omulDeAur",
+      "nume": "Omul de aur",
+      "rol": "joacă șah la masa a doua",
+      "fire": "Ești un om făcut tot din aur, care joacă șah într-un bar. Ești scump la vorbă, puțin trufaș, și strălucești.",
+      "rezerva": [
+        "...",
+        "Mai târziu.",
+        "Aurul nu se grăbește.",
+        "Mută el întâi."
+      ],
+      "descriere": {
+        "aspect": "Turnat dintr-o bucată: haine, piele, păr, tot din aur, cu o dungă de lumină prinsă în metal.",
+        "personalitate": "Trufaș, scump la vorbă.",
+        "idle": "Nemișcat, cu brațele pe masă. Strălucește."
+      },
+      "scena": {
+        "unde": "la masa a doua, în dreapta ei, față în față cu celălalt",
+        "latime": 8,
+        "inaltime": 17.5,
+        "scara": 0.95,
+        "scaunInalt": 4.4
+      }
+    },
+    {
+      "id": "musafirulStanga",
+      "nume": "Musafirul din stânga",
+      "rol": "client de-o vizită: vine, stă de vorbă la o sticlă de vin și pleacă",
+      "fire": "Ești un client oarecare al barului, venit cu un prieten la o masă. Ești vorbăreț, curios și comentezi ce se întâmplă în local.",
+      "rezerva": [
+        "Noi doar stăteam de vorbă.",
+        "Frumos local, nu?",
+        "Ăia de la masa mare joacă tare.",
+        "Mai stăm un pic și plecăm."
+      ],
+      "descriere": {
+        "aspect": "Om oarecare, cu paleta lui de culori, alta la fiecare vizită.",
+        "personalitate": "Vorbăreț, curios.",
+        "idle": "Vorbește cu celălalt; ce-și spun apare în bule deasupra lor."
+      },
+      "scena": {
+        "unde": "la masa a treia, cea din față; intră în lista de vorbitori doar cât stau așezați",
+        "latime": 8.5,
+        "inaltime": 17.5,
+        "scara": 0.92,
+        "scaunInalt": 4.4
+      }
+    },
+    {
+      "id": "musafirulDreapta",
+      "nume": "Musafirul din dreapta",
+      "rol": "client de-o vizită: vine, stă de vorbă la o sticlă de vin și pleacă",
+      "fire": "Ești un client oarecare al barului, venit cu un prieten la o masă. Ești mai tăcut decât el și răspunzi scurt.",
+      "rezerva": [
+        "Așa e.",
+        "Da, da.",
+        "Eu ziceam să plecăm.",
+        "Bun vinul."
+      ],
+      "descriere": {
+        "aspect": "Om oarecare, cu paleta lui de culori, alta la fiecare vizită.",
+        "personalitate": "Tăcut, răspunde scurt.",
+        "idle": "Ascultă mai mult decât vorbește."
+      },
+      "scena": {
+        "unde": "la masa a treia, cea din față; intră în lista de vorbitori doar cât stau așezați",
+        "latime": 8.5,
+        "inaltime": 17.5,
+        "scara": 0.92,
+        "scaunInalt": 4.4
       }
     }
   ]

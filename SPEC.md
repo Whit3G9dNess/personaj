@@ -135,8 +135,8 @@ Partida merge înainte tot timpul. Detaliile, în [PLAN.md](PLAN.md), Faza 9.
 ## 4c. Adversarii
 
 Draconianul și reptilianul își aleg singuri cărțile. Dacă pe calculator rulează
-Ollama, sunt întrebați pe el — fiecare cu firea lui, dată de `promptSistem` și
-`temperature` din `personaje.json`. Răspunsul se verifică întotdeauna: dacă nu e
+Ollama, sunt întrebați pe el — fiecare cu firea și cu `haos`-ul lui, scrise în
+cod și strânse în `personaje.json`. Răspunsul se verifică întotdeauna: dacă nu e
 o carte din mâna lui, se aruncă. Tot de acolo poate veni și conversația
 musafirilor de la masa a treia.
 

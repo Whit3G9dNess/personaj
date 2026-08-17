@@ -159,6 +159,13 @@ le-ai spus mai devreme. Iar dacă te-au întrebat de cineva și tu zici *„cine
 îți spun cine e acela — vorba se leagă de cea dinainte. Merge și de-a dreptul:
 *„cine e bucătarul?"*, fără niciun semn.
 
+**Ai grijă cu cine te pui.** Dacă te iei de ei — *„te crezi mare șef sau ce?!"*,
+*„taci, prostule"* — nu mai răspund frumos și nu mai schimbă subiectul: îți
+întorc vorba. Draconianul mârâie *„Îți iau capul, nu levata"* **și scoate foc pe
+bot**, mai mult decât atunci când pierde o mână; reptilianul zâmbește și-ți
+amintește cine a pierdut ultima mână; bucătarul îți spune că are cuțit în mână.
+Se supără, dar nu ține supărarea: la vorba următoare e iar cum era.
+
 **Nu se repetă.** Fiecare își ține minte ultimele vorbe pe care le-a spus, așa
 că întrebat de trei ori „ce faci" îți răspunde de trei ori altfel. Și te strigă
 pe nume cum se cade: *„Chelnerule, taci"*, nu *„Chelnerul, taci"*.

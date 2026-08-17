@@ -32,6 +32,7 @@ funcționează deja.
 | 16 | Mai mulți odată, și cine se bagă în vorbă | ✅ gata |
 | 17 | Vorbă pe înțeles: temă, ce ține minte, întrebări înapoi | ✅ gata |
 | 18 | Fără repetat, strigat pe nume, legat de dinainte | ✅ gata |
+| 19 | Când te iei de ei | ✅ gata |
 
 ---
 
@@ -845,6 +846,45 @@ din local se numesc „-ul".
 **Verificare:** îl întrebi de trei ori la rând „ce faci" și îți răspunde de
 fiecare dată altfel; cel băgat în vorbă e repezit cu *„Chelnerule, taci"*; îi
 scrii „cine e bucătarul?" și îți spune cine e bucătarul.
+
+---
+
+## Faza 19 — Când te iei de ei
+
+Un bar nu e numai saluturi și „ce mai faci". Îi ziceai draconianului *„te crezi
+mare șef sau ce?!"* și îți întorcea *„Cărțile astea sunt prea mici pentru mine"* —
+fiindcă înțepătura nu era nicio temă, deci cădea în rezervă. Or, dintre toate
+vorbele care i se pot spune unui draconian, asta e ultima la care ar trebui să
+răspundă pe lângă.
+
+**Înțepătura e o temă**, și una care trece peste toate celelalte: dacă te-ai luat
+de el, nu-și mai spune părerea despre nimeni și nu mai răspunde la ce ai mai
+scris în aceeași vorbă — îți întoarce vorba. Se recunosc *„te crezi..."*, *„cine
+te crezi"*, *„sau ce?!"*, *„taci"*, *„nu știi să joci"*, *„te bat"*, *„sunt mai
+bun ca tine" *și ocările obișnuite, cu tot cu terminații: „prostule", „fraiere",
+„boule".
+
+**Fiecare se supără cum îi e firea** (`raspunsuri.provocare`, câte trei de
+fiecare): draconianul mârâie *„Îți iau capul, nu levata"*, reptilianul zâmbește
+*„Vorbește cine a pierdut ultima mână"*, dealerul te avertizează *„Încă un cuvânt
+și nu-ți mai împart"*, bucătarul îți amintește că are cuțit în mână, iar
+musafirul tăcut zice *„Ho."*.
+
+**Și nu rămâne la vorbă.** Cei de la masă se zbârlesc pe loc — o tresărire mai
+iute decât la orice mână pierdută —, iar draconianului îi ia foc botul: mai mult
+foc și mai lung decât când pierde, fiindcă o mână se pierde, dar o vorbă proastă
+i se spune în față. Cei din local (barmanul, bucătarul, cei de la șah) n-au
+tresărirea asta desenată, deci ei doar îți răspund cum se cuvine.
+
+Cu Ollama pornit, modelul primește și el vestea: *„tocmai te-a luat peste picior,
+în față — întoarce-i vorba tăios, fără să te scuzi"*.
+
+**Rămâne pe dinafară:** nu ține supărarea. Îl înjuri, îți răspunde, și la
+următoarea vorbă e iar cum era — un local în care se ține minte cine cu cine s-a
+certat ar cere o socoteală pe care scena n-o are.
+
+**Verificare:** îi scrii draconianului „te crezi mare șef sau ce?!" și îți
+răspunde la asta, cu foc pe bot; îi scrii „ce faci" și nu ia foc degeaba.
 
 ---
 

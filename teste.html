@@ -3573,7 +3573,7 @@ function testeVorbaPeInteles() {
   test("toți cei cu fire răspund la toate temele și au ce întreba", function () {
     const s = porneste();
     const teme = ["salut", "ceFaci", "cineEsti", "joc", "bautura", "primit",
-                  "multumesc", "plecare", "nuStiu"];
+                  "multumesc", "plecare", "nuStiu", "provocare"];
     for (const nume in s.FIRI) {
       const f = s.FIRI[nume];
       if (!f.fire) continue;                 // clovnul ești tu: n-are cui răspunde
@@ -3866,6 +3866,118 @@ function testeCinsteaSiBetia() {
   });
 }
 
+/* --- 6.21 Faza 19: când te iei de ei -------------------------------------- */
+
+function testeProvocare() {
+  sectiune("6.21 Faza 19 — Când te iei de ei");
+
+  function laCineva(s, nume) {
+    s.AI.activ = false;
+    s.BAGAREA.sansa = 0;
+    s.INTREBATUL.sansa = 0;
+    s.deschideChat(null);
+    const cine = s.vorbitori().find(function (p) { return p.nume === nume; });
+    s.alegeVorbitorul(cine);
+    return cine;
+  }
+
+  test("o înțepătură se recunoaște ca înțepătură", function () {
+    const s = porneste();
+    const provocari = ["te crezi mare șef sau ce?!", "cine te crezi tu?",
+                       "ești prost", "prostule", "taci", "nu știi să joci",
+                       "te bat oricând", "sunt mai bun ca tine", "te lauzi degeaba",
+                       "ce fraier ești"];
+    for (const scris of provocari) {
+      egal(s.citesteVorba(scris), "provocare", "n-a simțit înțepătura din „" + scris + "”");
+    }
+
+    // Și, la fel de important, ce nu e înțepătură să nu treacă drept una.
+    const nevinovate = ["ce crezi de tine?", "ce faci", "cine e barmanul?",
+                        "salut", "mi-e sete", "mersi"];
+    for (const scris of nevinovate) {
+      adevarat(s.citesteVorba(scris) !== "provocare",
+               "s-a supărat degeaba pe „" + scris + "”");
+    }
+  });
+
+  test("te iei de el și îți întoarce vorba, nu schimbă subiectul", function () {
+    const s = porneste();
+    const draconianul = laCineva(s, "Draconianul");
+    s.iiZiciCeva("te crezi mare șef sau ce?!");
+
+    const zis = s.chat.vorbe[1].text;
+    adevarat(s.FIRI["Draconianul"].raspunsuri.provocare.indexOf(zis) >= 0,
+             "a răspuns cu totul altceva: „" + zis + "”");
+    adevarat(s.FIRI["Draconianul"].rezerva.indexOf(zis) < 0,
+             "iar a scos o vorbă la nimereală din rezervă");
+  });
+
+  test("înțepătura trece peste orice altceva din vorbă", function () {
+    const s = porneste();
+    const draconianul = laCineva(s, "Draconianul");
+    // Cu tot cu pomenire: contează că te-ai luat de el, nu de cine ai întrebat.
+    s.iiZiciCeva("@tine ești prost, ce zici?");
+    const zis = s.chat.vorbe[1].text;
+    adevarat(s.FIRI["Draconianul"].raspunsuri.provocare.indexOf(zis) >= 0,
+             "și-a spus părerea despre el în loc să-mi întoarcă vorba: „" + zis + "”");
+  });
+
+  test("draconianul scoate foc pe bot când te iei de el", function () {
+    const s = porneste();
+    const draconianul = laCineva(s, "Draconianul");
+    const inainte = s.particule.length;
+
+    s.iiZiciCeva("ce faci");
+    egal(s.particule.length, inainte, "a luat foc de la o vorbă bună");
+
+    s.iiZiciCeva("taci, prostule");
+    adevarat(s.particule.length > inainte, "l-am înjurat și n-a clipit");
+    adevarat(draconianul.reactieTimp > 0, "nici măcar nu s-a zbârlit");
+
+    // Și se stinge singur, ca orice foc din scena asta.
+    s.avanseaza(8);
+    adevarat(!(draconianul.focTimp > 0), "i-a rămas botul aprins pentru totdeauna");
+  });
+
+  test("focul e mai mare decât cel de la o mână pierdută", function () {
+    const s = porneste();
+    const draconianul = s.personaje[1];
+
+    s.trimiteEveniment(draconianul, "pierdere");
+    const laPierdere = draconianul.focTimp;
+    s.trimiteEveniment(draconianul, "provocat");
+    adevarat(draconianul.focTimp > laPierdere,
+             "o vorbă proastă în față îl arde mai puțin decât o mână pierdută");
+  });
+
+  test("cine se bagă peste voi nu se supără în locul tău", function () {
+    const s = porneste();
+    laCineva(s, "Draconianul");
+    s.BAGAREA.sansa = 1;
+    const reptilianul = s.personaje[2];
+    s.iiZiciCeva("ești prost");
+    s.avanseaza(5);
+
+    // Cel băgat zice ce zice el, nu ce ai zis tu; supărarea e a celui înjurat.
+    const bagatul = s.chat.vorbe[2];
+    adevarat(s.FIRI[bagatul.cine].bagari.indexOf(bagatul.text) >= 0,
+             "cel băgat a luat înțepătura pe seama lui: „" + bagatul.text + "”");
+  });
+
+  test("fiecare se supără cum îi e firea", function () {
+    const s = porneste();
+    for (const nume in s.FIRI) {
+      const f = s.FIRI[nume];
+      if (!f.fire) continue;
+      adevarat(f.raspunsuri.provocare && f.raspunsuri.provocare.length >= 2,
+               nume + " nu știe să se supere");
+    }
+    // Nu toți răspund la fel: cel tăcut n-are ce zice, draconianul mârâie.
+    const alDraconianului = s.FIRI["Draconianul"].raspunsuri.provocare.join(" ");
+    adevarat(alDraconianului.indexOf("Mârrr") >= 0, "draconianul nu mai mârâie deloc");
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -3903,6 +4015,7 @@ function testeCinsteaSiBetia() {
   testeVorbaPeInteles();
   testeVorbaLegata();
   testeCinsteaSiBetia();
+  testeProvocare();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

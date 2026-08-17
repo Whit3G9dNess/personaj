@@ -1,5 +1,5 @@
 {
-  "versiune": 8,
+  "versiune": 9,
   "descriere": "Fișa tuturor personajelor cu nume din local: firea cu care le răspunde modelul, replicile de rezervă când modelul tace, ce se spune despre ei când îi pomenește cineva, locul lor în scenă și dimensiunile. Fișierul e oglinda scenei, nu sursa ei: nu se citește la pornire, fiindcă `index.html` se deschide direct de pe file://, unde fetch cade. Adevărul e în cod; aici scrie ca să se vadă toată distribuția pe o pagină.",
   "campuri": {
     "fire": "Cine e, spus lui: pleacă la model ca prompt de sistem. Clovnul n-are — pe el îl joci tu.",
@@ -10,7 +10,7 @@
     "pareriDeSine": "Ce zice despre el însuși, fără model, când îl întrebi cu `@tine`.",
     "bagari": "Cu ce se bagă în vorba altora, când aude de la locul lui și nu-l întreabă nimeni.",
     "repezeli": "Cum îl repede pe cel băgat peste el; `{cine}` se umple cu numele celui băgat.",
-    "raspunsuri": "Ce zice la fiecare temă recunoscută din vorba ta: salut, ceFaci, cineEsti, joc, bautura, primit (ai zis „da\" sau „știu\"), multumesc, plecare, nuStiu (o întrebare pe care n-a înțeles-o). Tema `cineE` — „cine e ăla?\" — n-are replici scrise: răspunsul e `despre` al celui întrebat. Cel puțin două replici de fiecare, ca să nu se repete.",
+    "raspunsuri": "Ce zice la fiecare temă recunoscută din vorba ta: salut, ceFaci, cineEsti, joc, bautura, primit (ai zis „da\" sau „știu\"), multumesc, plecare, nuStiu (o întrebare pe care n-a înțeles-o) și provocare (te-ai luat de el). Tema `cineE` — „cine e ăla?\" — n-are replici scrise: răspunsul e `despre` al celui întrebat. Cel puțin două replici de fiecare, ca să nu se repete.",
     "intrebari": "Ce te întreabă el pe tine, când vine rândul lui să întrebe.",
     "cinste": "Ce dă la toată masa când pierde mâna: felul lui de băut, nu cel mai ieftin din meniu. Numai cei patru de la masă au."
   },
@@ -31,6 +31,7 @@
     "teIntreabaSiEl": "Din când în când întoarce și el o întrebare: din `intrebari`, despre altcineva din local, sau despre ce i-ai spus mai devreme. Șansa și răgazul stau în `INTREBATUL`, în cod. Cine se bagă neîntrebat n-are dreptul să și întrebe.",
     "faraRepetat": "Fiecare își ține minte ultimele patru vorbe pe care le-a spus și alege dintre celelalte; când le-a spus pe toate o ia de la capăt, dar niciodată cu vorba de dinainte. De-aceea fiecare temă are cel puțin două replici.",
     "peNume": "Când e strigat, numele stă la vocativ: „Barmanule\", nu „Barmanul\". Se schimbă doar primul cuvânt; ce vine după rămâne dacă e parte din nume („Omule de aur\") și cade dacă e doar locul („Musafirul din stânga\" → „Musafirule\").",
+    "candTeIeiDeEi": "O înțepătură — „te crezi mare șef?\", „taci, prostule\", „nu știi să joci\" — trece peste orice altceva din vorbă: nu-și mai spune părerea despre nimeni, îți întoarce vorba din `raspunsuri.provocare`. Cei de la masă se și zbârlesc pe loc, iar draconianului îi ia foc botul, mai tare decât la o mână pierdută.",
     "legatDeDinainte": "„Cine e ăla?\" e despre cine ai numit în vorbă — fără `@` — sau, dacă n-ai numit pe nimeni, despre cel de care tocmai te întrebase el; răspunsul e chiar `despre` al aceluia. Întrebarea lui ține deschisă doar până răspunzi.",
     "maiMultiOdata": "Într-o vorbă încap mai multe pomeniri: cine e chemat pe nume și e în local răspunde și el, pe rând, la o secundă și două după cel întrebat. Chemat singur, vorbește despre el; chemat lângă altcineva, despre acela.",
     "bagatulInVorba": "Când vorbești între patru ochi, o dată la vreo douăsprezece vorbe se bagă altcineva din local, neîntrebat, iar cel cu care vorbeai îl repede. Șansa stă în `BAGAREA.sansa`, în cod. Dacă ai chemat tu pe cineva pe nume, nu se mai bagă nimeni peste el.",
@@ -153,6 +154,11 @@
         "nuStiu": [
           "Habar n-am.",
           "Nu mă întreba pe mine."
+        ],
+        "provocare": [
+          "Mârrr! Mai zi o dată.",
+          "Îți iau capul, nu levata.",
+          "Ai văzut ce fac cu masa asta?"
         ]
       },
       "intrebari": [
@@ -260,6 +266,11 @@
         "nuStiu": [
           "Nu știu, și n-aș ghici.",
           "Întreabă pe altcineva."
+        ],
+        "provocare": [
+          "Vorbește cine a pierdut ultima mână.",
+          "Zâmbește, tot eu iau levata.",
+          "Îmi place când te enervezi: se vede în cărți."
         ]
       },
       "intrebari": [
@@ -365,6 +376,11 @@
         "nuStiu": [
           "Nu m-aș pronunța.",
           "Asta nu-i treaba mea."
+        ],
+        "provocare": [
+          "La masa asta se vorbește frumos.",
+          "Încă un cuvânt și nu-ți mai împart.",
+          "Am dat afară oameni pentru mai puțin."
         ]
       },
       "intrebari": [
@@ -468,6 +484,11 @@
         "nuStiu": [
           "N-am idee, întreb la bar.",
           "Nu știu, dar aflu."
+        ],
+        "provocare": [
+          "Ușurel, că vin cu nota.",
+          "Alerg de zece ore, nu mă căuta.",
+          "Am mai auzit-o, și tot eu am adus berea."
         ]
       },
       "intrebari": [
@@ -558,6 +579,11 @@
         "nuStiu": [
           "Habar n-am, deși s-au auzit multe aici.",
           "Asta n-o știu."
+        ],
+        "provocare": [
+          "Ai băut destul, se pare.",
+          "Mai zi o dată și nu-ți mai torn.",
+          "Aici s-au spart capete pentru vorbe din astea."
         ]
       },
       "intrebari": [
@@ -647,6 +673,11 @@
         "nuStiu": [
           "De unde să știu eu, din bucătărie?",
           "Nu știu, întreabă la bar."
+        ],
+        "provocare": [
+          "Zi asta după ce-mi guști micii!",
+          "Ieși din bucătăria mea cu vorbele astea.",
+          "Am cuțit în mână, ai grijă."
         ]
       },
       "intrebari": [
@@ -738,6 +769,11 @@
         "nuStiu": [
           "De unde să știu?",
           "Eu văd doar chiuveta."
+        ],
+        "provocare": [
+          "Vino tu la chiuvetă, să te văd.",
+          "Zi ce vrei, tot eu spăl după tine.",
+          "Măcar eu muncesc aici."
         ]
       },
       "intrebari": [
@@ -829,6 +865,11 @@
         "nuStiu": [
           "Nu m-am gândit la asta.",
           "Nu știu. Sunt la mutare."
+        ],
+        "provocare": [
+          "Mâna asta a strâns lucruri mai grele.",
+          "Vorbește, tot eu câștig partida.",
+          "Stai jos și mută, dacă te ține."
         ]
       },
       "intrebari": [
@@ -920,6 +961,11 @@
         "nuStiu": [
           "Nu mă interesează.",
           "Nu știu, și nici nu caut."
+        ],
+        "provocare": [
+          "Ai grijă cu cine vorbești.",
+          "Nici nu strălucești, nici nu taci.",
+          "Te-ai uitat vreodată la tine?"
         ]
       },
       "intrebari": [
@@ -1012,6 +1058,11 @@
         "nuStiu": [
           "Habar n-am, dar sună interesant.",
           "Nu știu, zi tu."
+        ],
+        "provocare": [
+          "Măi, ce te-a apucat?",
+          "Hai că nu ne certăm la un pahar de vin!",
+          "Ia mai zi o dată, că n-am auzit bine."
         ]
       },
       "intrebari": [
@@ -1102,6 +1153,11 @@
         "nuStiu": [
           "Nu știu.",
           "Întreabă-l pe el."
+        ],
+        "provocare": [
+          "Ho.",
+          "Nu căuta ceartă cu mine.",
+          "Lasă-mă în pace."
         ]
       },
       "intrebari": [

@@ -1123,6 +1123,8 @@ function trimiteEveniment(p, tip, cine) {
   // Sfârșitul mâinii zguduie mai tare decât o levată pierdută pe drum.
   else if (tip === "castigaMana") { p.reactieAmpl =  3.4; p.reactieDurata = 1.6; p.reactieFrecventa = 12; }
   else if (tip === "pierdeMana")  { p.reactieAmpl = -2.0; p.reactieDurata = 1.5; p.reactieFrecventa = 2.2; }
+  // Când te iei de el: se zbârlește pe loc, mai iute decât la orice mână pierdută.
+  else if (tip === "provocat")    { p.reactieAmpl =  2.4; p.reactieDurata = 1.5; p.reactieFrecventa = 17; }
 
   if (tip === "vecinCastiga") p.ultimulVecinCastigator = cine ? cine.nume : null;
   else p.reactieTimp = p.reactieDurata;
@@ -1544,6 +1546,9 @@ draconianul.deseneaza = function (context, t) { deseneazaDraconian(this, context
 draconianul.reactie = function (tip) {
   // E nervos des: pierderea îi aprinde botul pentru o clipă.
   if (tip === "pierdere") { this.focTimp = 0.9; sufleFoc(this, 18); vizita.vede("foc"); }
+  // Iar dacă te iei de el, arde mai mult și mai tare decât la o mână pierdută:
+  // o mână se pierde, o vorbă proastă i se spune în față.
+  else if (tip === "provocat") { this.focTimp = 1.4; sufleFoc(this, 30); vizita.vede("foc"); }
   // Când câștigă altcineva, mârâie: doar un fum scurt pe nări.
   else if (tip === "vecinCastiga") aprindeFum(this.guraX, this.guraY, 9);
 };
@@ -3848,7 +3853,9 @@ const FIRI = {
       primit:    ["Mârrr.", "Bine."],
       multumesc: ["Hm.", "Lasă."],
       plecare:   ["Pleci? Mârrr.", "Du-te."],
-      nuStiu:    ["Habar n-am.", "Nu mă întreba pe mine."]
+      nuStiu:    ["Habar n-am.", "Nu mă întreba pe mine."],
+      provocare: ["Mârrr! Mai zi o dată.", "Îți iau capul, nu levata.",
+                  "Ai văzut ce fac cu masa asta?"]
     },
     intrebari: ["Tu ce cauți aici?", "Joci sau te uiți?"]
   },
@@ -3876,7 +3883,9 @@ const FIRI = {
       primit:    ["Așa.", "Bun."],
       multumesc: ["Cu plăcere.", "N-ai pentru ce."],
       plecare:   ["Drum bun.", "Mai treci pe la masa asta."],
-      nuStiu:    ["Nu știu, și n-aș ghici.", "Întreabă pe altcineva."]
+      nuStiu:    ["Nu știu, și n-aș ghici.", "Întreabă pe altcineva."],
+      provocare: ["Vorbește cine a pierdut ultima mână.", "Zâmbește, tot eu iau levata.",
+                  "Îmi place când te enervezi: se vede în cărți."]
     },
     intrebari: ["Tu de unde vii?", "Joci des?"]
   },
@@ -3904,7 +3913,9 @@ const FIRI = {
       primit:    ["Prea bine.", "Am înțeles."],
       multumesc: ["Cu plăcere.", "Pentru puțin."],
       plecare:   ["O seară bună.", "Mai veniți pe la noi."],
-      nuStiu:    ["Nu m-aș pronunța.", "Asta nu-i treaba mea."]
+      nuStiu:    ["Nu m-aș pronunța.", "Asta nu-i treaba mea."],
+      provocare: ["La masa asta se vorbește frumos.", "Încă un cuvânt și nu-ți mai împart.",
+                  "Am dat afară oameni pentru mai puțin."]
     },
     intrebari: ["Mai vrei o mână?", "Ai mai jucat aici?"]
   },
@@ -3931,7 +3942,9 @@ const FIRI = {
       primit:    ["Am notat.", "Bine."],
       multumesc: ["Cu drag.", "Pentru puțin."],
       plecare:   ["O seară bună!", "Mai poftiți."],
-      nuStiu:    ["N-am idee, întreb la bar.", "Nu știu, dar aflu."]
+      nuStiu:    ["N-am idee, întreb la bar.", "Nu știu, dar aflu."],
+      provocare: ["Ușurel, că vin cu nota.", "Alerg de zece ore, nu mă căuta.",
+                  "Am mai auzit-o, și tot eu am adus berea."]
     },
     intrebari: ["Vă mai aduc ceva?", "Ați fost servit?"]
   },
@@ -3959,7 +3972,9 @@ const FIRI = {
       primit:    ["Așa e.", "Bun."],
       multumesc: ["Cu plăcere.", "N-ai pentru ce."],
       plecare:   ["Să vii iar.", "Noapte bună!"],
-      nuStiu:    ["Habar n-am, deși s-au auzit multe aici.", "Asta n-o știu."]
+      nuStiu:    ["Habar n-am, deși s-au auzit multe aici.", "Asta n-o știu."],
+      provocare: ["Ai băut destul, se pare.", "Mai zi o dată și nu-ți mai torn.",
+                  "Aici s-au spart capete pentru vorbe din astea."]
     },
     intrebari: ["Tu ce bei?", "Prima dată aici?"]
   },
@@ -3986,7 +4001,9 @@ const FIRI = {
       primit:    ["Așa.", "Bine, bine."],
       multumesc: ["Poftă bună!", "Cu plăcere."],
       plecare:   ["Să vii flămând data viitoare.", "Mergi sănătos."],
-      nuStiu:    ["De unde să știu eu, din bucătărie?", "Nu știu, întreabă la bar."]
+      nuStiu:    ["De unde să știu eu, din bucătărie?", "Nu știu, întreabă la bar."],
+      provocare: ["Zi asta după ce-mi guști micii!", "Ieși din bucătăria mea cu vorbele astea.",
+                  "Am cuțit în mână, ai grijă."]
     },
     intrebari: ["Ți-e foame?", "Ai gustat papanașii mei?"]
   },
@@ -4013,7 +4030,9 @@ const FIRI = {
       primit:    ["Mda.", "Așa o fi."],
       multumesc: ["Lasă vasele aici.", "Puțin îmi folosește, dar mersi."],
       plecare:   ["Du-te, eu tot aici rămân.", "Noroc."],
-      nuStiu:    ["De unde să știu?", "Eu văd doar chiuveta."]
+      nuStiu:    ["De unde să știu?", "Eu văd doar chiuveta."],
+      provocare: ["Vino tu la chiuvetă, să te văd.", "Zi ce vrei, tot eu spăl după tine.",
+                  "Măcar eu muncesc aici."]
     },
     intrebari: ["Tu ai spălat vreodată o sută de farfurii?", "Crezi că se termină vreodată?"]
   },
@@ -4041,7 +4060,9 @@ const FIRI = {
       primit:    ["Așa.", "Bine."],
       multumesc: ["Pentru puțin.", "Hm."],
       plecare:   ["Mergi cu bine.", "Încă trei mutări și câștig."],
-      nuStiu:    ["Nu m-am gândit la asta.", "Nu știu. Sunt la mutare."]
+      nuStiu:    ["Nu m-am gândit la asta.", "Nu știu. Sunt la mutare."],
+      provocare: ["Mâna asta a strâns lucruri mai grele.", "Vorbește, tot eu câștig partida.",
+                  "Stai jos și mută, dacă te ține."]
     },
     intrebari: ["Joci șah?", "Tu ce ai muta aici?"]
   },
@@ -4066,7 +4087,9 @@ const FIRI = {
       primit:    ["Bine.", "Firește."],
       multumesc: ["Firește.", "Hm."],
       plecare:   ["Mai târziu.", "Du-te."],
-      nuStiu:    ["Nu mă interesează.", "Nu știu, și nici nu caut."]
+      nuStiu:    ["Nu mă interesează.", "Nu știu, și nici nu caut."],
+      provocare: ["Ai grijă cu cine vorbești.", "Nici nu strălucești, nici nu taci.",
+                  "Te-ai uitat vreodată la tine?"]
     },
     intrebari: ["Tu de ce te uiți la mine?", "Ai văzut ceva mai frumos aici?"]
   },
@@ -4094,7 +4117,9 @@ const FIRI = {
       primit:    ["Exact!", "Așa ziceam și eu."],
       multumesc: ["Cu plăcere, omule.", "N-ai pentru ce."],
       plecare:   ["Pa, ne mai vedem!", "Hai, noroc!"],
-      nuStiu:    ["Habar n-am, dar sună interesant.", "Nu știu, zi tu."]
+      nuStiu:    ["Habar n-am, dar sună interesant.", "Nu știu, zi tu."],
+      provocare: ["Măi, ce te-a apucat?", "Hai că nu ne certăm la un pahar de vin!",
+                  "Ia mai zi o dată, că n-am auzit bine."]
     },
     intrebari: ["Tu de unde ești?", "Bei ceva cu noi?"]
   },
@@ -4118,7 +4143,8 @@ const FIRI = {
       primit:    ["Da, da.", "Așa e."],
       multumesc: ["Mda.", "Pentru puțin."],
       plecare:   ["Pa.", "Eu ziceam să plecăm oricum."],
-      nuStiu:    ["Nu știu.", "Întreabă-l pe el."]
+      nuStiu:    ["Nu știu.", "Întreabă-l pe el."],
+      provocare: ["Ho.", "Nu căuta ceartă cu mine.", "Lasă-mă în pace."]
     },
     intrebari: ["Tu ce zici?", "Mai stai mult?"]
   }
@@ -4280,9 +4306,9 @@ function repezeala(p, cine) {
    întâi pe-aici. Nu se înțelege orice — n-avem cum, fără model —, dar se
    recunosc lucrurile cu care se poartă o discuție într-un bar: un salut, o
    întrebare despre el, despre altcineva din local, despre joc, despre băutură,
-   un „da" scurt, un mulțumesc, o plecare. Fiecare are pentru fiecare temă câte o
-   vorbă a lui — afară de „cine e ăla?", la care răspunsul e chiar vorba scrisă
-   despre cel întrebat.
+   un „da" scurt, un mulțumesc, o plecare — și, la fel de firesc într-un bar, o
+   înțepătură. Fiecare are pentru fiecare temă câte o vorbă a lui — afară de
+   „cine e ăla?", la care răspunsul e chiar vorba scrisă despre cel întrebat.
 
    Ordinea contează: „salut, ce faci?" e o întrebare, nu un salut, iar „cum merge
    partida?" e despre joc, nu despre el — deci temele care spun mai mult se caută
@@ -4290,6 +4316,7 @@ function repezeala(p, cine) {
 const TEME = [
   ["plecare",   /\b(pa|la revedere|ne vedem|noapte buna|am plecat|eu plec|plec)\b/],
   ["multumesc", /\b(mersi|merci|multumesc|multumim|multam)\b/],
+  ["provocare", /\bte crezi\b|\bcine te crezi\b|\bcrezi ca esti\b|\bsau ce\b|\bte lauzi\b|\btaci\b|\bte bat\b|\bmai bun ca tine\b|\bnu (stii|esti bun|esti in stare)\b|\b(prost|proast|idiot|fraier|tampit|nesimtit|ratat|jalnic|penibil|laudaros|mincinos|bou|magar)\w*\b/],
   ["cineEsti",  /\bcine esti\b|\bce esti\b|\bcum te cheama\b|\bce nume ai\b|\bce cauti aici\b|\bce faci aici\b|\bcu ce te ocupi\b/],
   ["cineE",     /\bcine (e|ii|este|era|o fi)\b|\bcine-i\b|\bce-i cu\b|\bce e (ala|aia|cu el)\b|\bnu-l stiu\b|\bnu il stiu\b/],
   ["joc",       /\b(joc|joci|jocul|carte|carti|cartile|partida|levata|levate|joker|castig|castiga|castigi|pierzi|pierde|miza)\b/],
@@ -4639,6 +4666,12 @@ function dinFireaLui(p, ce) {
     return FIRI[ce.cineE].despre;
   }
 
+  /* Iar dacă te-ai luat de el, asta e tot ce contează din vorba ta: nu-și mai
+     spune părerea despre nimeni, îți răspunde ție. */
+  if (ce.tema === "provocare") {
+    return raspunsulPeTema(p, "provocare") || zice(p, FIRI[p.nume].rezerva);
+  }
+
   return (ce.numeNou && zice(p, SALUTURI.map(function (s) {
             return s.replace(/\{tu\}/g, ce.numeNou); }))) ||
          (ce.faptNou && zice(p, AM_RETINUT.map(function (s) {
@@ -4657,6 +4690,14 @@ function vorbesteUnul(item) {
   const p = item.p, ce = item.ce, fir = item.fir;
   chat.asteapta = true;
   chatArata();
+
+  /* Când te iei de cineva de la masă, nu rămâne numai la vorbă: se zbârlește pe
+     loc, iar draconianului îi ia foc botul. Cei din local n-au tresărirea asta
+     desenată — ei doar îți răspund cum se cuvine. */
+  if (ce.tema === "provocare" && (ce.fel === "intrebat" || ce.fel === "pomenit") &&
+      (personaje.indexOf(p) >= 0 || p === dealerul)) {
+    trimiteEveniment(p, "provocat");
+  }
 
   AI.vorbesteCu(p, item.vorba, fir, ce, function (deLaModel) {
     let zis = deLaModel || dinFireaLui(p, ce);
@@ -5092,6 +5133,13 @@ const AI = {
       locul = " " + ce.cine + " tocmai s-a băgat în vorba voastră, deși nu-l întreba nimeni. " +
               "Repede-l scurt, fără politețuri, și gata.";
       auzi = ce.cine + " s-a băgat în vorbă și a zis: " + intrebare;
+    }
+
+    /* Dacă s-a luat de tine, asta trece peste orice altceva: nu-ți mai spui
+       părerea despre nimeni, îi întorci vorba. */
+    if (ce && ce.tema === "provocare" && (fel === "intrebat" || fel === "pomenit")) {
+      locul += " Tocmai te-a luat peste picior, în față. Întoarce-i vorba tăios și " +
+               "scurt, cum ți-e firea, fără politețuri și fără să te scuzi.";
     }
 
     fetch(this.url, {

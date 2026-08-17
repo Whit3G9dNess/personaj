@@ -191,6 +191,11 @@ mulțumesc, o plecare — fiecare temă cu răspunsul ei, scris pentru fiecare o
 întrebare neînțeleasă primește tot un răspuns de om („Habar n-am"). Asta ține
 fără Ollama; cu el pornit, răspunsul îl scrie modelul.
 
+**Și se supără, dacă te iei de ei.** O înțepătură — „te crezi mare șef?", „taci",
+„nu știi să joci" — trece peste orice altceva din vorbă: îți întorc vorba, fiecare
+cum îi e firea. Cei de la masă se și zbârlesc pe loc, iar draconianului îi ia foc
+botul, mai tare decât când pierde o mână.
+
 **Nu se repetă și nu greșesc numele.** Fiecare își ține minte ultimele vorbe pe
 care le-a spus, ca să nu răspundă de două ori la fel; iar când strigă pe cineva,
 îi zice pe nume cum se cade: „Barmanule", nu „Barmanul".

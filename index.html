@@ -4108,29 +4108,63 @@ function faraPomenire(text) {
   return curat + brut.slice(pana);
 }
 
+/* --- Ce a zis el adineaori ------------------------------------------------ */
+
+/* Un om nu spune aceeași vorbă de două ori la rând, iar fiecare are aici doar
+   două-trei vorbe la fiecare temă: fără grijă, s-ar repeta imediat. De-aceea
+   fiecare își ține minte ultimele lucruri pe care le-a spus și alege dintre
+   celelalte; abia când le-a spus pe toate, se ia de la capăt. */
+const CATE_ISI_AMINTESTE = 4;
+
+function zice(p, lista) {
+  if (!lista || !lista.length) return null;
+  if (!p.ultimeleVorbe) p.ultimeleVorbe = [];
+
+  let dintre = lista.filter(function (v) { return p.ultimeleVorbe.indexOf(v) < 0; });
+  if (!dintre.length) {
+    /* Le-a spus pe toate de curând, deci o ia de la capăt — dar nu chiar cu vorba
+       de dinainte: aceeași vorbă de două ori la rând se aude cel mai tare. */
+    const ultima = p.ultimeleVorbe[p.ultimeleVorbe.length - 1];
+    dintre = lista.filter(function (v) { return v !== ultima; });
+    if (!dintre.length) dintre = lista;      // n-are decât vorba aia
+  }
+  const aleasa = alegeDin(dintre);
+  p.ultimeleVorbe.push(aleasa);
+  if (p.ultimeleVorbe.length > CATE_ISI_AMINTESTE) p.ultimeleVorbe.shift();
+  return aleasa;
+}
+
+/* Numele strigat nu sună ca numele spus: îl repezi pe „Barmanule", nu pe
+   „Barmanul". Se schimbă doar primul cuvânt, cel care e numele; ce vine după el
+   rămâne, dacă e parte din nume („Omule de aur"), și cade dacă e doar locul unde
+   stă („Musafirul din stânga" → „Musafirule"). */
+function vocativ(nume) {
+  const cuvinte = String(nume || "").split(" ");
+  const intai = /ul$/.test(cuvinte[0]) ? cuvinte[0] + "e" : cuvinte[0];
+  const rest = cuvinte.slice(1);
+  return rest.length && rest[0] !== "din" ? [intai].concat(rest).join(" ") : intai;
+}
+
 // Fără model, părerea se ia din ce are scris fiecare, cu numele pus la locul lui.
 function parereaLui(p, despreCine) {
   const pareri = (FIRI[p.nume] && FIRI[p.nume].pareri) || [];
-  if (!pareri.length) return null;
-  return alegeDin(pareri).replace(/\{cine\}/g, despreCine);
+  return zice(p, pareri.map(function (s) { return s.replace(/\{cine\}/g, despreCine); }));
 }
 
 // Și ce zice despre el însuși, când îl întrebi cu `@tine`.
 function parereaDeSine(p) {
-  const aleLui = (FIRI[p.nume] && FIRI[p.nume].pareriDeSine) || [];
-  return aleLui.length ? alegeDin(aleLui) : null;
+  return zice(p, (FIRI[p.nume] && FIRI[p.nume].pareriDeSine) || []);
 }
 
 // Cu ce se bagă în vorbă cel pe care nu-l întreba nimeni.
 function vorbaDeBagat(p) {
-  const aleLui = (FIRI[p.nume] && FIRI[p.nume].bagari) || [];
-  return aleLui.length ? alegeDin(aleLui) : null;
+  return zice(p, (FIRI[p.nume] && FIRI[p.nume].bagari) || []);
 }
 
-// Și cum îl repede cel peste care s-a băgat.
+// Și cum îl repede cel peste care s-a băgat — strigându-l pe nume, deci la vocativ.
 function repezeala(p, cine) {
   const aleLui = (FIRI[p.nume] && FIRI[p.nume].repezeli) || [];
-  return aleLui.length ? alegeDin(aleLui).replace(/\{cine\}/g, cine) : null;
+  return zice(p, aleLui.map(function (s) { return s.replace(/\{cine\}/g, vocativ(cine)); }));
 }
 
 /* --- Ce ai vrut să spui --------------------------------------------------- */
@@ -4139,8 +4173,10 @@ function repezeala(p, cine) {
    îi ziceai „ce faci?" și îți întorcea „Mută el întâi". De-aceea vorba ta trece
    întâi pe-aici. Nu se înțelege orice — n-avem cum, fără model —, dar se
    recunosc lucrurile cu care se poartă o discuție într-un bar: un salut, o
-   întrebare despre el, despre joc, despre băutură, un „da" scurt, un mulțumesc,
-   o plecare. Fiecare are pentru fiecare temă câte o vorbă a lui.
+   întrebare despre el, despre altcineva din local, despre joc, despre băutură,
+   un „da" scurt, un mulțumesc, o plecare. Fiecare are pentru fiecare temă câte o
+   vorbă a lui — afară de „cine e ăla?", la care răspunsul e chiar vorba scrisă
+   despre cel întrebat.
 
    Ordinea contează: „salut, ce faci?" e o întrebare, nu un salut, iar „cum merge
    partida?" e despre joc, nu despre el — deci temele care spun mai mult se caută
@@ -4149,6 +4185,7 @@ const TEME = [
   ["plecare",   /\b(pa|la revedere|ne vedem|noapte buna|am plecat|eu plec|plec)\b/],
   ["multumesc", /\b(mersi|merci|multumesc|multumim|multam)\b/],
   ["cineEsti",  /\bcine esti\b|\bce esti\b|\bcum te cheama\b|\bce nume ai\b|\bce cauti aici\b|\bce faci aici\b|\bcu ce te ocupi\b/],
+  ["cineE",     /\bcine (e|ii|este|era|o fi)\b|\bcine-i\b|\bce-i cu\b|\bce e (ala|aia|cu el)\b|\bnu-l stiu\b|\bnu il stiu\b/],
   ["joc",       /\b(joc|joci|jocul|carte|carti|cartile|partida|levata|levate|joker|castig|castiga|castigi|pierzi|pierde|miza)\b/],
   ["bautura",   /\b(bere|vin|bautura|beau|bei|sete|pahar|mancare|mancat|foame|maninc|mananci|meniu|comand|comanda|papanasi|mici)\b/],
   ["ceFaci",    /\bce (mai )?faci\b|\bcum (o mai )?duci\b|\bcum merge\b|\bce mai zici\b|\bcum esti\b|\bce e nou\b/],
@@ -4172,10 +4209,24 @@ function citesteVorba(vorba) {
   return /\?\s*$/.test(String(vorba || "").trim()) ? "nuStiu" : null;
 }
 
-// Ce zice el la tema recunoscută. Dacă n-are scris nimic pentru ea, nu zice nimic.
+/* Ce zice el la tema recunoscută. „Cine e ăla?" e tot o întrebare despre cineva:
+   dacă nu se știe despre cine, e ca și cum ai întreba despre el. */
 function raspunsulPeTema(p, tema) {
   const ale = (FIRI[p.nume] && FIRI[p.nume].raspunsuri) || {};
-  return tema && ale[tema] && ale[tema].length ? alegeDin(ale[tema]) : null;
+  const cheia = tema === "cineE" ? "cineEsti" : tema;
+  return cheia && ale[cheia] ? zice(p, ale[cheia]) : null;
+}
+
+/* Despre cine e vorba, când întrebi „cine e barmanul?" fără niciun semn. Se
+   caută numele și poreclele lor în vorbă, ca la pomenire, doar că fără `@`. */
+function cineESpusInVorba(vorba) {
+  const curat = " " + faraSemne(vorba).replace(/[^a-z0-9]+/g, " ").trim() + " ";
+  for (const om of NUMITI) {
+    for (const cheie of om.chei) {
+      if (cheie.length >= 3 && curat.indexOf(" " + cheie + " ") >= 0) return om.nume;
+    }
+  }
+  return null;
 }
 
 /* --- Ce ține minte localul despre tine, dincolo de nume -------------------- */
@@ -4221,20 +4272,26 @@ const INTREBARI_DESPRE_ALTUL = ["Tu ce zici de {cine}?", "Pe {cine} îl știi?",
                                 "Da' de {cine} ce părere ai?"];
 const INTREBARI_DESPRE_CE_AI_SPUS = ["Ziceai că {ce}. Tot așa?", "Cum rămâne, {ce}?"];
 
+/* Întrebarea lui, și despre cine e — ca să aibă înțeles ce-i răspunzi. */
 function intrebareaLui(p) {
-  const ale = (FIRI[p.nume] && FIRI[p.nume].intrebari) || [];
-
   // Despre ce i-ai spus mai devreme, dacă ai spus ceva: e cea mai omenească.
   if (chat.tuEsti.spus.length && Math.random() < 0.4) {
-    return alegeDin(INTREBARI_DESPRE_CE_AI_SPUS)
-             .replace(/\{ce\}/g, alegeDin(chat.tuEsti.spus));
+    const text = zice(p, INTREBARI_DESPRE_CE_AI_SPUS.map(function (s) {
+      return s.replace(/\{ce\}/g, alegeDin(chat.tuEsti.spus));
+    }));
+    return { text: text, despre: null };
   }
   // Despre altcineva din local, dacă mai e cineva de întrebat.
   const altii = vorbitori().filter(function (v) { return v !== p; });
   if (altii.length && Math.random() < 0.35) {
-    return alegeDin(INTREBARI_DESPRE_ALTUL).replace(/\{cine\}/g, alegeDin(altii).nume);
+    const cine = alegeDin(altii).nume;
+    const text = zice(p, INTREBARI_DESPRE_ALTUL.map(function (s) {
+      return s.replace(/\{cine\}/g, cine);
+    }));
+    return { text: text, despre: cine };
   }
-  return ale.length ? alegeDin(ale) : null;
+  const aleLui = zice(p, (FIRI[p.nume] && FIRI[p.nume].intrebari) || []);
+  return aleLui ? { text: aleLui, despre: null } : null;
 }
 
 /* Întreabă acum? Numai cel cu care vorbești sau cel chemat pe nume — cine se
@@ -4344,7 +4401,8 @@ const chat = {
   asteapta: false,  // am întrebat și încă nu a răspuns
   coada: [],        // cine mai are de zis ceva după el, în ordine
   pauza: 0,         // răgazul până vorbește următorul, ca să nu se audă deodată
-  deLaIntrebare: 0  // câte replici au trecut de când te-a întrebat cineva ceva
+  deLaIntrebare: 0, // câte replici au trecut de când te-a întrebat cineva ceva
+  ultimaIntrebare: null   // ce te-a întrebat el ultima dată: { cine, despre }
 };
 
 // Firul de vorbă cu cineva anume. Te muți la altul și te întorci — îl găsești.
@@ -4423,6 +4481,7 @@ function ceAude(p, pomeniti, fel, citit) {
     desprEl: pomeniti.some(eChiarEl),
     cuCine: chat.cuCine ? chat.cuCine.nume : null,
     tema: c.tema || null,
+    cineE: c.cineE || null,
     faptNou: c.faptNou || null,
     numeNou: c.numeNou || null,
     tuEsti: chat.tuEsti.nume,
@@ -4463,14 +4522,25 @@ function poateSeBagaCineva(p, vorba) {
    întrebat de el, vorbește despre el; dacă s-a înțeles tema, răspunde la ea.
    Abia la urmă, când nu s-a înțeles nimic, vine o vorbă din rezerva lui. */
 function dinFireaLui(p, ce) {
-  if (ce.fel === "bagat") return vorbaDeBagat(p) || alegeDin(FIRI[p.nume].rezerva);
-  if (ce.fel === "repezit") return repezeala(p, ce.cine) || alegeDin(FIRI[p.nume].rezerva);
-  return (ce.numeNou && alegeDin(SALUTURI).replace(/\{tu\}/g, ce.numeNou)) ||
-         (ce.faptNou && alegeDin(AM_RETINUT).replace(/\{ce\}/g, ce.faptNou)) ||
+  if (ce.fel === "bagat") return vorbaDeBagat(p) || zice(p, FIRI[p.nume].rezerva);
+  if (ce.fel === "repezit") return repezeala(p, ce.cine) || zice(p, FIRI[p.nume].rezerva);
+
+  /* „Cine e ăla?" — despre altcineva din local, fie că i-ai scris numele, fie că
+     el tocmai te întrebase de acela. Îți spune cine e, nu se întoarce la cărțile
+     lui: aici se leagă o vorbă de cealaltă. */
+  if (ce.tema === "cineE" && ce.cineE && ce.cineE !== p.nume &&
+      FIRI[ce.cineE] && FIRI[ce.cineE].despre) {
+    return FIRI[ce.cineE].despre;
+  }
+
+  return (ce.numeNou && zice(p, SALUTURI.map(function (s) {
+            return s.replace(/\{tu\}/g, ce.numeNou); }))) ||
+         (ce.faptNou && zice(p, AM_RETINUT.map(function (s) {
+            return s.replace(/\{ce\}/g, ce.faptNou); }))) ||
          (ce.despre && parereaLui(p, ce.despre)) ||
          (ce.desprEl && parereaDeSine(p)) ||
          raspunsulPeTema(p, ce.tema) ||
-         alegeDin(FIRI[p.nume].rezerva);
+         zice(p, FIRI[p.nume].rezerva);
 }
 
 /* Vorbește unul: întreabă modelul și, dacă tace, ia din firea lui. Ce zice se
@@ -4490,9 +4560,11 @@ function vorbesteUnul(item) {
     chat.deLaIntrebare++;
     if (!/\?\s*$/.test(zis) && poateTeIntreaba(ce)) {
       const inapoi = intrebareaLui(p);
-      if (inapoi) {
-        zis = zis + " " + inapoi;
+      if (inapoi && inapoi.text) {
+        zis = zis + " " + inapoi.text;
         chat.deLaIntrebare = 0;
+        // Ce te-a întrebat rămâne deschis până răspunzi: altfel ce-i spui n-are înțeles.
+        chat.ultimaIntrebare = { cine: p.nume, despre: inapoi.despre };
       }
     }
 
@@ -4529,6 +4601,15 @@ function iiZiciCeva(text) {
      cheamă, dacă te-ai prezentat; ce ai spus despre tine, dacă ai spus ceva; și
      tema, dacă se recunoaște vreuna. */
   const citit = { numeNou: numeleTau(vorba), faptNou: null, tema: citesteVorba(curat) };
+
+  /* Dacă el te-a întrebat ceva înainte, ce spui acum e răspuns la aia: „cine e?"
+     după „Pe Bucătarul îl știi?" e despre bucătar, nu despre el. Întrebarea ține
+     doar până răspunzi. */
+  const raspundeLa = chat.ultimaIntrebare;
+  chat.ultimaIntrebare = null;
+  if (citit.tema === "cineE") {
+    citit.cineE = cineESpusInVorba(curat) || (raspundeLa && raspundeLa.despre) || null;
+  }
   if (citit.numeNou) {
     chat.tuEsti.nume = citit.numeNou;          // te știu de-acum toți din local
   } else {
@@ -4551,7 +4632,8 @@ function iiZiciCeva(text) {
      numele și mărturisirea le ia în seamă unul singur, altfel ar suna a papagali. */
   for (const altul of ceiChemati(pomeniti, p)) {
     chat.coada.push({ p: altul, vorba: curat, fir: chat.istoric,
-                      ce: ceAude(altul, pomeniti, "pomenit", { tema: citit.tema }) });
+                      ce: ceAude(altul, pomeniti, "pomenit",
+                                 { tema: citit.tema, cineE: citit.cineE }) });
   }
   if (!chat.coada.length) poateSeBagaCineva(p, curat);
 

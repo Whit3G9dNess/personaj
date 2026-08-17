@@ -31,6 +31,7 @@ funcționează deja.
 | 15 | Vorbă curată, ținută minte, și `@tine` | ✅ gata |
 | 16 | Mai mulți odată, și cine se bagă în vorbă | ✅ gata |
 | 17 | Vorbă pe înțeles: temă, ce ține minte, întrebări înapoi | ✅ gata |
+| 18 | Fără repetat, strigat pe nume, legat de dinainte | ✅ gata |
 
 ---
 
@@ -772,6 +773,57 @@ schelăria de dedesubt, ca scena să nu tacă prostește fără el.
 
 **Verificare:** îi scrii omului de aur „ce faci" și îți răspunde la asta, nu
 altceva; îi spui „sunt obosit" și reține; peste câteva vorbe te întreabă el ceva.
+
+---
+
+## Faza 18 — Fără repetat, strigat pe nume, legat de dinainte
+
+Trei lucruri văzute într-o discuție adevărată, după Faza 17. Nu teme noi, ci
+locurile unde vorba tot suna a mașinărie.
+
+### 1. Nu spune aceeași vorbă de două ori
+
+Fiecare are două-trei replici la fiecare temă, deci întrebat de două ori același
+lucru repeta imediat. De-acum **fiecare își ține minte ultimele patru vorbe pe
+care le-a spus** și alege dintre celelalte. Când le-a spus pe toate, o ia de la
+capăt — dar niciodată cu vorba de dinainte, fiindcă repetarea imediată se aude
+cel mai tare. Regula ține pentru tot ce spune fără model: rezerva, temele,
+părerile, băgările, repezelile, chiar și întrebările pe care ți le pune.
+
+Asta e și memoria lui despre el însuși: nu doar ce i-ai spus tu, ci și ce a spus
+el. (Cu modelul pornit, firul discuției îi ducea deja propriile replici.)
+
+### 2. Strigat pe nume, numele stă la vocativ
+
+„Cine te-a întrebat, **Barmanul**?" nu se zice în românește: se zice
+**Barmanule**. Numele intră la vocativ oriunde e strigat cineva — adică în
+`repezeli`, singurul loc unde `{cine}` e cel căruia i se vorbește, nu cel despre
+care se vorbește.
+
+Se schimbă doar primul cuvânt, cel care e numele. Ce vine după rămâne dacă e
+parte din nume — *„Omule de aur"*, *„Spălătorule de vase"* — și cade dacă e doar
+locul unde stă: *„Musafirul din stânga"* → *„Musafirule"*.
+
+### 3. Ce spui acum se leagă de ce s-a spus înainte
+
+Te întreba *„Pe Bucătarul îl știi?"*, îi ziceai *„cine este"*, și îți întorcea o
+vorbă despre cărțile lui — fiindcă „cine este" nu era nicio temă, deci cădea în
+rezervă. De-acum:
+
+- **`cine e ăla?` e o temă.** Răspunsul e chiar vorba scrisă despre acela
+  (`despre`), aceeași care ajunge în promptul modelului la o pomenire.
+- **Numele merge scris fără `@`**: *„cine e barmanul?"* îl găsește după nume și
+  porecle, ca la pomenire.
+- **Iar dacă n-ai numit pe nimeni**, e vorba de cine te întrebase el:
+  întrebarea lui rămâne deschisă exact până răspunzi, apoi se închide.
+
+**Rămâne pe dinafară:** o singură întrebare ținută deschisă, ultima. Vocativul e
+după terminația numelui, nu după gramatică adevărată — merge fiindcă toți cei
+din local se numesc „-ul".
+
+**Verificare:** îl întrebi de trei ori la rând „ce faci" și îți răspunde de
+fiecare dată altfel; cel băgat în vorbă e repezit cu *„Chelnerule, taci"*; îi
+scrii „cine e bucătarul?" și îți spune cine e bucătarul.
 
 ---
 

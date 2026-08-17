@@ -143,7 +143,13 @@ aduc vorba înapoi mai târziu: *„Ziceai că ți-e sete. Tot așa?"*. Fiecare 
 
 **Și te întreabă și ei pe tine.** Din când în când — nu la fiecare vorbă —
 întorc o întrebare: *„Tu ce bei?"*, *„Pe Draconianul îl știi?"*, sau despre ce
-le-ai spus mai devreme.
+le-ai spus mai devreme. Iar dacă te-au întrebat de cineva și tu zici *„cine e?"*,
+îți spun cine e acela — vorba se leagă de cea dinainte. Merge și de-a dreptul:
+*„cine e bucătarul?"*, fără niciun semn.
+
+**Nu se repetă.** Fiecare își ține minte ultimele vorbe pe care le-a spus, așa
+că întrebat de trei ori „ce faci" îți răspunde de trei ori altfel. Și te strigă
+pe nume cum se cade: *„Chelnerule, taci"*, nu *„Chelnerul, taci"*.
 
 Ce zice modelul trece printr-o sită înainte să se audă: își scoate numele scris
 în față, ghilimelele, asteriscurile și mișcările dintre paranteze; vorba ruptă la

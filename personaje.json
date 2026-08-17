@@ -1,5 +1,5 @@
 {
-  "versiune": 6,
+  "versiune": 7,
   "descriere": "Fișa tuturor personajelor cu nume din local: firea cu care le răspunde modelul, replicile de rezervă când modelul tace, ce se spune despre ei când îi pomenește cineva, locul lor în scenă și dimensiunile. Fișierul e oglinda scenei, nu sursa ei: nu se citește la pornire, fiindcă `index.html` se deschide direct de pe file://, unde fetch cade. Adevărul e în cod; aici scrie ca să se vadă toată distribuția pe o pagină.",
   "campuri": {
     "fire": "Cine e, spus lui: pleacă la model ca prompt de sistem. Clovnul n-are — pe el îl joci tu.",
@@ -10,7 +10,7 @@
     "pareriDeSine": "Ce zice despre el însuși, fără model, când îl întrebi cu `@tine`.",
     "bagari": "Cu ce se bagă în vorba altora, când aude de la locul lui și nu-l întreabă nimeni.",
     "repezeli": "Cum îl repede pe cel băgat peste el; `{cine}` se umple cu numele celui băgat.",
-    "raspunsuri": "Ce zice la fiecare temă recunoscută din vorba ta: salut, ceFaci, cineEsti, joc, bautura, primit (ai zis „da\" sau „știu\"), multumesc, plecare, nuStiu (o întrebare pe care n-a înțeles-o).",
+    "raspunsuri": "Ce zice la fiecare temă recunoscută din vorba ta: salut, ceFaci, cineEsti, joc, bautura, primit (ai zis „da\" sau „știu\"), multumesc, plecare, nuStiu (o întrebare pe care n-a înțeles-o). Tema `cineE` — „cine e ăla?\" — n-are replici scrise: răspunsul e `despre` al celui întrebat. Cel puțin două replici de fiecare, ca să nu se repete.",
     "intrebari": "Ce te întreabă el pe tine, când vine rândul lui să întrebe."
   },
   "implicit": {
@@ -28,6 +28,9 @@
     "peInteles": "Fără model, vorba ta se citește întâi: se caută tema (vezi `TEME` în cod) și se răspunde din `raspunsuri`, nu din rezervă la nimereală. Rezerva rămâne doar pentru ce nu s-a înțeles deloc.",
     "ceStieDespreTine": "„Sunt obosit\", „mi-e sete\", „îmi place berea\" se țin minte întoarse spre tine — „ești obosit\" —, cel mult trei odată. Le primește și modelul în prompt, și pot fi aduse înapoi în vorbă.",
     "teIntreabaSiEl": "Din când în când întoarce și el o întrebare: din `intrebari`, despre altcineva din local, sau despre ce i-ai spus mai devreme. Șansa și răgazul stau în `INTREBATUL`, în cod. Cine se bagă neîntrebat n-are dreptul să și întrebe.",
+    "faraRepetat": "Fiecare își ține minte ultimele patru vorbe pe care le-a spus și alege dintre celelalte; când le-a spus pe toate o ia de la capăt, dar niciodată cu vorba de dinainte. De-aceea fiecare temă are cel puțin două replici.",
+    "peNume": "Când e strigat, numele stă la vocativ: „Barmanule\", nu „Barmanul\". Se schimbă doar primul cuvânt; ce vine după rămâne dacă e parte din nume („Omule de aur\") și cade dacă e doar locul („Musafirul din stânga\" → „Musafirule\").",
+    "legatDeDinainte": "„Cine e ăla?\" e despre cine ai numit în vorbă — fără `@` — sau, dacă n-ai numit pe nimeni, despre cel de care tocmai te întrebase el; răspunsul e chiar `despre` al aceluia. Întrebarea lui ține deschisă doar până răspunzi.",
     "maiMultiOdata": "Într-o vorbă încap mai multe pomeniri: cine e chemat pe nume și e în local răspunde și el, pe rând, la o secundă și două după cel întrebat. Chemat singur, vorbește despre el; chemat lângă altcineva, despre acela.",
     "bagatulInVorba": "Când vorbești între patru ochi, o dată la vreo douăsprezece vorbe se bagă altcineva din local, neîntrebat, iar cel cu care vorbeai îl repede. Șansa stă în `BAGAREA.sansa`, în cod. Dacă ai chemat tu pe cineva pe nume, nu se mai bagă nimeni peste el."
   },

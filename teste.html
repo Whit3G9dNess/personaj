@@ -294,6 +294,9 @@ return {
   raspunsulPeTema: typeof raspunsulPeTema !== "undefined" ? raspunsulPeTema : null,
   INTREBATUL: typeof INTREBATUL !== "undefined" ? INTREBATUL : null,
   TEME: typeof TEME !== "undefined" ? TEME : null,
+  vocativ: typeof vocativ !== "undefined" ? vocativ : null,
+  zice: typeof zice !== "undefined" ? zice : null,
+  cineESpusInVorba: typeof cineESpusInVorba !== "undefined" ? cineESpusInVorba : null,
   faraPomenire: typeof faraPomenire !== "undefined" ? faraPomenire : null,
   parereaLui: typeof parereaLui !== "undefined" ? parereaLui : null,
   potriviri: typeof potriviri !== "undefined" ? potriviri : null,
@@ -3324,7 +3327,8 @@ function testeMaiMultiInVorba() {
     adevarat(eDintreAleLui(bagatul.text, s.FIRI[bagatul.cine].bagari),
              "s-a băgat cu o vorbă care nu-i a lui: „" + bagatul.text + "”");
     egal(repezeala.cine, "Barmanul", "l-a repezit altcineva decât cel cu care vorbeam");
-    adevarat(eDintreAleLui(repezeala.text, s.FIRI["Barmanul"].repezeli, bagatul.cine),
+    // Îl strigă pe nume, deci numele stă la vocativ: „Omule de aur”, nu „Omul de aur”.
+    adevarat(eDintreAleLui(repezeala.text, s.FIRI["Barmanul"].repezeli, s.vocativ(bagatul.cine)),
              "nu l-a repezit cu vorbele lui: „" + repezeala.text + "”");
   });
 
@@ -3575,6 +3579,139 @@ function testeVorbaPeInteles() {
   });
 }
 
+/* --- 6.19 Faza 18: fără repetat, pe nume, și legat de dinainte ------------- */
+
+function testeVorbaLegata() {
+  sectiune("6.19 Faza 18 — Fără repetat, pe nume, și legat de dinainte");
+
+  function laCineva(s, nume) {
+    s.AI.activ = false;
+    s.BAGAREA.sansa = 0;
+    s.INTREBATUL.sansa = 0;
+    s.deschideChat(null);
+    const cine = s.vorbitori().find(function (p) { return p.nume === nume; });
+    s.alegeVorbitorul(cine);
+    return cine;
+  }
+
+  test("nu spune aceeași vorbă de două ori la rând", function () {
+    const s = porneste();
+    const barman = laCineva(s, "Barmanul");
+    adevarat(s.zice, "nu-și ține minte nimeni ce-a zis");
+
+    // Are două vorbe la temă: pe rând, amândouă, niciodată de două ori la rând —
+    // nici după ce le-a spus pe amândouă și o ia de la capăt.
+    const zise = [];
+    for (let i = 0; i < 8; i++) {
+      s.chat.vorbe.length = 0;
+      s.iiZiciCeva("ce faci?");
+      zise.push(s.chat.vorbe[1].text);
+    }
+    for (let i = 1; i < zise.length; i++) {
+      adevarat(zise[i] !== zise[i - 1],
+               "a repetat imediat aceeași vorbă: „" + zise[i] + "”");
+    }
+    adevarat(new Set(zise).size >= 2, "spune mereu una și aceeași vorbă");
+  });
+
+  test("își ține minte ce-a zis, dar puțin: le ia pe rând, apoi o ia de la capăt", function () {
+    const s = porneste();
+    const barman = laCineva(s, "Barmanul");
+    s.iiZiciCeva("spune-mi ceva");
+    adevarat(barman.ultimeleVorbe && barman.ultimeleVorbe.length === 1,
+             "n-a ținut minte ce tocmai a zis");
+
+    for (let i = 0; i < 10; i++) s.iiZiciCeva("spune-mi ceva");
+    adevarat(barman.ultimeleVorbe.length <= 4,
+             "ține minte prea multe: " + barman.ultimeleVorbe.length);
+  });
+
+  test("strigat pe nume, numele stă la vocativ", function () {
+    const s = porneste();
+    adevarat(s.vocativ, "nu știe nimeni să strige pe nume");
+
+    egal(s.vocativ("Barmanul"), "Barmanule", "„Barmanul" + "!” nu se strigă așa");
+    egal(s.vocativ("Bucătarul"), "Bucătarule", "bucătarul nu se strigă așa");
+    egal(s.vocativ("Draconianul"), "Draconianule", "draconianul nu se strigă așa");
+    egal(s.vocativ("Omul de aur"), "Omule de aur", "aurul face parte din nume");
+    egal(s.vocativ("Spălătorul de vase"), "Spălătorule de vase", "vasele fac parte din nume");
+    // „din stânga” e locul unde stă, nu numele lui: nu se strigă cu el.
+    egal(s.vocativ("Musafirul din stânga"), "Musafirule", "l-a strigat cu tot cu locul lui");
+  });
+
+  test("cel băgat în vorbă e repezit pe numele lui strigat", function () {
+    const s = porneste();
+    const barman = laCineva(s, "Barmanul");
+    s.BAGAREA.sansa = 1;
+    s.iiZiciCeva("ce mai faci?");
+    s.avanseaza(5);
+
+    const bagatul = s.chat.vorbe[2].cine;
+    const repezeala = s.chat.vorbe[3].text;
+    if (repezeala.indexOf(bagatul) >= 0 || repezeala.indexOf(s.vocativ(bagatul)) >= 0) {
+      adevarat(repezeala.indexOf(s.vocativ(bagatul)) >= 0,
+               "l-a strigat cu numele nestrigat: „" + repezeala + "”");
+    }
+  });
+
+  test("„cine e?” e despre cel de care era vorba, nu despre el", function () {
+    const s = porneste();
+    adevarat(s.cineESpusInVorba, "nu recunoaște pe nimeni scris fără semn");
+    egal(s.cineESpusInVorba("cine e barmanul?"), "Barmanul", "n-a găsit pe cine întrebam");
+    egal(s.cineESpusInVorba("cine e?"), null, "a găsit pe cineva unde nu era nimeni");
+
+    const draconianul = laCineva(s, "Draconianul");
+    s.iiZiciCeva("cine e bucătarul?");
+    egal(s.chat.vorbe[1].text, s.FIRI["Bucătarul"].despre,
+         "n-a spus cine e bucătarul: „" + s.chat.vorbe[1].text + "”");
+  });
+
+  test("te întreabă de cineva, tu zici „cine e?”, și îți spune", function () {
+    const s = porneste();
+    const draconianul = laCineva(s, "Draconianul");
+    s.INTREBATUL.sansa = 1;
+    s.chat.deLaIntrebare = 9;
+
+    // Îl facem să întrebe el de cineva din local.
+    let paza = 0;
+    while (!(s.chat.ultimaIntrebare && s.chat.ultimaIntrebare.despre) && paza++ < 40) {
+      s.iiZiciCeva("spune-mi ceva");
+      s.chat.deLaIntrebare = 9;
+    }
+    adevarat(s.chat.ultimaIntrebare && s.chat.ultimaIntrebare.despre,
+             "nu m-a întrebat niciodată de cineva din local");
+
+    const despreCine = s.chat.ultimaIntrebare.despre;
+    s.INTREBATUL.sansa = 0;
+    s.chat.vorbe.length = 0;
+    s.iiZiciCeva("cine e?");
+    egal(s.chat.vorbe[1].text, s.FIRI[despreCine].despre,
+         "nu mi-a răspuns la ce mă întrebase el: „" + s.chat.vorbe[1].text + "”");
+    egal(s.chat.ultimaIntrebare, null, "întrebarea lui a rămas deschisă la nesfârșit");
+  });
+
+  test("toate vorbele lor sunt propoziții încheiate", function () {
+    const s = porneste();
+    const liste = ["rezerva", "pareri", "pareriDeSine", "bagari", "repezeli", "intrebari"];
+    const capat = /[.!?…]$/;
+    for (const nume in s.FIRI) {
+      const f = s.FIRI[nume];
+      for (const camp of liste) {
+        for (const vorba of f[camp] || []) {
+          adevarat(capat.test(vorba), nume + " → " + camp + ": „" + vorba + "” n-are capăt");
+        }
+      }
+      for (const tema in f.raspunsuri || {}) {
+        for (const vorba of f.raspunsuri[tema]) {
+          adevarat(capat.test(vorba), nume + " → " + tema + ": „" + vorba + "” n-are capăt");
+        }
+      }
+    }
+    // Și cele scrise o dată pentru toți.
+    adevarat(s.FIRI["Barmanul"].despre.slice(-1) === ".", "vorba despre cineva n-are punct");
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -3610,6 +3747,7 @@ function testeVorbaPeInteles() {
   testeVorbaCurata();
   testeMaiMultiInVorba();
   testeVorbaPeInteles();
+  testeVorbaLegata();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

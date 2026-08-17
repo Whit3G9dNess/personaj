@@ -176,10 +176,17 @@ altcineva din local și zice și el ceva, neîntrebat. Cel cu care vorbeai îl r
 cineva pe nume, nu se mai bagă nimeni peste el.
 
 **Răspund la ce ai întrebat.** Vorba ta se citește întâi: un salut, „ce faci",
-„cine ești", ceva despre joc, despre băutură, un „da" scurt, un mulțumesc, o
-plecare — fiecare temă cu răspunsul ei, scris pentru fiecare om. O întrebare
-neînțeleasă primește tot un răspuns de om („Habar n-am"). Asta ține fără Ollama;
-cu el pornit, răspunsul îl scrie modelul.
+„cine ești", „cine e ăla", ceva despre joc, despre băutură, un „da" scurt, un
+mulțumesc, o plecare — fiecare temă cu răspunsul ei, scris pentru fiecare om. O
+întrebare neînțeleasă primește tot un răspuns de om („Habar n-am"). Asta ține
+fără Ollama; cu el pornit, răspunsul îl scrie modelul.
+
+**Nu se repetă și nu greșesc numele.** Fiecare își ține minte ultimele vorbe pe
+care le-a spus, ca să nu răspundă de două ori la fel; iar când strigă pe cineva,
+îi zice pe nume cum se cade: „Barmanule", nu „Barmanul".
+
+**Vorba se leagă de cea dinainte.** Dacă te-a întrebat el de cineva și tu zici
+„cine e?", îți spune cine e acela, nu se întoarce la ale lui.
 
 **Te țin minte cât ține pagina.** Dacă te prezinți, localul reține numele și ți
 se adresează pe nume. Ține minte și ce spui despre tine — „sunt obosit", „mi-e

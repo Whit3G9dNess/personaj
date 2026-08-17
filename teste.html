@@ -295,6 +295,11 @@ return {
   INTREBATUL: typeof INTREBATUL !== "undefined" ? INTREBATUL : null,
   TEME: typeof TEME !== "undefined" ? TEME : null,
   vocativ: typeof vocativ !== "undefined" ? vocativ : null,
+  furia: typeof furia !== "undefined" ? furia : null,
+  seEnerveaza: typeof seEnerveaza !== "undefined" ? seEnerveaza : null,
+  FURIA: typeof FURIA !== "undefined" ? FURIA : null,
+  intreEi: typeof intreEi !== "undefined" ? intreEi : null,
+  incepeVorbaLor: typeof incepeVorbaLor !== "undefined" ? incepeVorbaLor : null,
   zice: typeof zice !== "undefined" ? zice : null,
   cineESpusInVorba: typeof cineESpusInVorba !== "undefined" ? cineESpusInVorba : null,
   faraPomenire: typeof faraPomenire !== "undefined" ? faraPomenire : null,
@@ -3845,6 +3850,9 @@ function testeCinsteaSiBetia() {
   test("beția trece, foamea se face iar", function () {
     const s = porneste();
     const draconianul = s.personaje[1];
+    // Cu meniul în față nu se face cinste la masă, deci nu-i vine altă bere din
+    // urmă cât îl așteptăm să se trezească.
+    s.meniu.deschis = true;
     s.aGolit(draconianul, s.felulDinMeniu("bere"));
     s.aGolit(draconianul, s.felulDinMeniu("mici"));
     const ametit = s.haosulLui(draconianul), satul = s.gandireaLui(draconianul);
@@ -3978,6 +3986,158 @@ function testeProvocare() {
   });
 }
 
+/* --- 6.22 Faza 20: furia ținută minte, și vorba dintre ei ----------------- */
+
+function testeFuriaSiVorbaLor() {
+  sectiune("6.22 Faza 20 — Furia ținută minte, și vorba dintre ei");
+
+  function laCineva(s, nume) {
+    s.AI.activ = false;
+    s.BAGAREA.sansa = 0;
+    s.INTREBATUL.sansa = 0;
+    s.intreEi.cronometru = 1e9;              // nu se vorbesc între ei decât dacă cer eu
+    s.deschideChat(null);
+    const cine = s.vorbitori().find(function (p) { return p.nume === nume; });
+    s.alegeVorbitorul(cine);
+    return cine;
+  }
+
+  test("furia se ține minte de la o vorbă la alta", function () {
+    const s = porneste();
+    const draconianul = laCineva(s, "Draconianul");
+    adevarat(s.furia, "nu se supără nimeni pe nimic");
+    egal(s.furia(draconianul), 0, "e supărat din senin");
+
+    s.iiZiciCeva("ești prost");
+    adevarat(s.furia(draconianul) > 0, "l-am înjurat și nu s-a supărat");
+
+    const dupaUna = s.furia(draconianul);
+    s.iiZiciCeva("taci, fraiere");
+    adevarat(s.furia(draconianul) > dupaUna, "a doua înjurătură nu l-a enervat mai tare");
+    egal(s.furia(draconianul), 1, "două înjurături ar trebui să-l scoată din sărite de tot");
+  });
+
+  test("cu cât l-ai enervat mai tare, cu atât îți vorbește mai urât", function () {
+    const s = porneste();
+    const draconianul = laCineva(s, "Draconianul");
+    const urate = s.FIRI["Draconianul"].furii;
+
+    // A doua înțepătură primește vorba de om supărat, nu pe cea dintâi.
+    s.iiZiciCeva("ești prost");
+    s.iiZiciCeva("ești tot prost");
+    adevarat(urate.indexOf(s.chat.vorbe[3].text) >= 0,
+             "la a doua înjurătură vorbește la fel de frumos: „" + s.chat.vorbe[3].text + "”");
+
+    // Și de-acum înjură și la vorbe nevinovate, fiind furios de tot.
+    let urat = 0;
+    for (let i = 0; i < 12; i++) {
+      s.chat.vorbe.length = 0;
+      draconianul.furie = 1;                 // furios de tot, ca să nu depindă de noroc
+      s.iiZiciCeva("ce faci");
+      if (urate.indexOf(s.chat.vorbe[1].text) >= 0) urat++;
+    }
+    egal(urat, 12, "furios de tot, tot cuminte răspunde la «ce faci»");
+  });
+
+  test("supărarea trece de la sine, dacă îl lași în pace", function () {
+    const s = porneste();
+    const draconianul = laCineva(s, "Draconianul");
+    s.iiZiciCeva("ești prost");
+    const suparat = s.furia(draconianul);
+
+    s.avanseaza(30);
+    adevarat(s.furia(draconianul) < suparat, "a rămas supărat, deși l-am lăsat în pace");
+    s.avanseaza(150);
+    egal(s.furia(draconianul), 0, "nu i-a trecut nici după atâta vreme");
+  });
+
+  test("nu se supără din senin: o vorbă bună nu-l enervează", function () {
+    const s = porneste();
+    const barman = laCineva(s, "Barmanul");
+    s.iiZiciCeva("salut");
+    s.iiZiciCeva("ce faci");
+    s.iiZiciCeva("mersi");
+    egal(s.furia(barman), 0, "s-a supărat degeaba");
+  });
+
+  test("din când în când vorbesc între ei, singuri", function () {
+    const s = porneste();
+    s.AI.activ = false;
+    adevarat(s.intreEi, "localul tace când tac eu");
+    adevarat(s.intreEi.deLa > 10, "se vorbesc între ei prea des ca să mai fie firesc");
+
+    s.intreEi.cronometru = 0;
+    s.avanseaza(1 / 60);
+    adevarat(s.intreEi.catre, "n-a început nimeni nicio vorbă");
+    const cine = s.intreEi.cine, catre = s.intreEi.catre;
+    adevarat(cine !== catre, "vorbește singur cu el însuși");
+    adevarat(cine.vorba && cine.vorbaTimp > 0, "a zis ceva, dar nu se aude în local");
+
+    // Celălalt îi răspunde peste câteva clipe, tot cu glas tare.
+    s.avanseaza(4);
+    adevarat(catre.vorba && catre.vorbaTimp > 0, "celălalt n-a răspuns nimic");
+    egal(s.intreEi.catre, null, "a rămas agățat, cu răspunsul nedat");
+  });
+
+  test("vorba lor nu intră în fereastra ta", function () {
+    const s = porneste();
+    s.AI.activ = false;
+    s.deschideChat(null);
+    const cateEraii = s.chat.vorbe.length;
+    s.intreEi.cronometru = 0;
+    s.avanseaza(6);
+    egal(s.chat.vorbe.length, cateEraii, "mi-au umplut fereastra cu vorbele lor");
+  });
+
+  test("nu se vorbesc între ei peste discuția ta", function () {
+    const s = porneste();
+    s.AI.activ = true;                       // rămâne în așteptare, deci se vorbește
+    s.deschideChat(null);
+    s.iiZiciCeva("salut");
+    egal(s.chat.asteapta, true, "n-a rămas în așteptare");
+
+    s.intreEi.cronometru = 0;
+    s.avanseaza(1 / 60);
+    egal(s.intreEi.catre, null, "s-au vorbit peste mine");
+    adevarat(s.intreEi.cronometru > 0, "n-au amânat, doar au sărit peste");
+    s.AI.activ = false;
+  });
+
+  test("furia se ia de la unul la altul", function () {
+    const s = porneste();
+    s.AI.activ = false;
+    s.intreEi.cronometru = 1e9;
+
+    const draconianul = s.personaje[1];
+    draconianul.furie = 1;                   // furios de tot
+    const urate = s.FIRI["Draconianul"].furii;
+
+    // Îl punem pe el să înceapă, până iese cu draconianul furios în față.
+    let paza = 0, celalalt = null;
+    while (paza++ < 200) {
+      s.intreEi.cine = null; s.intreEi.catre = null;
+      s.incepeVorbaLor();
+      if (s.intreEi.cine === draconianul) { celalalt = s.intreEi.catre; break; }
+    }
+    adevarat(celalalt, "draconianul n-a început nicio vorbă");
+    adevarat(urate.indexOf(s.intreEi.vorba) >= 0,
+             "furios, tot frumos vorbește cu ai lui: „" + s.intreEi.vorba + "”");
+    adevarat(s.furia(celalalt) > 0, "l-a luat la rost și celălalt n-a simțit nimic");
+  });
+
+  test("toți cei cu fire au și vorbe de om supărat", function () {
+    const s = porneste();
+    for (const nume in s.FIRI) {
+      const f = s.FIRI[nume];
+      if (!f.fire) continue;
+      adevarat(f.furii && f.furii.length >= 2, nume + " nu știe să rămână supărat");
+      for (const vorba of f.furii) {
+        adevarat(/[.!?…]$/.test(vorba), nume + ": „" + vorba + "” n-are capăt");
+      }
+    }
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -4016,6 +4176,7 @@ function testeProvocare() {
   testeVorbaLegata();
   testeCinsteaSiBetia();
   testeProvocare();
+  testeFuriaSiVorbaLor();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

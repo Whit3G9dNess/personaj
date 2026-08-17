@@ -33,6 +33,7 @@ funcționează deja.
 | 17 | Vorbă pe înțeles: temă, ce ține minte, întrebări înapoi | ✅ gata |
 | 18 | Fără repetat, strigat pe nume, legat de dinainte | ✅ gata |
 | 19 | Când te iei de ei | ✅ gata |
+| 20 | Furia ținută minte, și vorba dintre ei | ✅ gata |
 
 ---
 
@@ -879,12 +880,64 @@ tresărirea asta desenată, deci ei doar îți răspund cum se cuvine.
 Cu Ollama pornit, modelul primește și el vestea: *„tocmai te-a luat peste picior,
 în față — întoarce-i vorba tăios, fără să te scuzi"*.
 
-**Rămâne pe dinafară:** nu ține supărarea. Îl înjuri, îți răspunde, și la
-următoarea vorbă e iar cum era — un local în care se ține minte cine cu cine s-a
-certat ar cere o socoteală pe care scena n-o are.
-
 **Verificare:** îi scrii draconianului „te crezi mare șef sau ce?!" și îți
 răspunde la asta, cu foc pe bot; îi scrii „ce faci" și nu ia foc degeaba.
+
+(Supărarea nu ținea, la Faza 19: îl înjurai, îți răspundea, și la vorba
+următoare era iar cum era. Ține de la Faza 20.)
+
+---
+
+## Faza 20 — Furia ținută minte, și vorba dintre ei
+
+Trei fire care se leagă unul de altul: supărarea rămâne, localul vorbește și
+fără tine, iar supărarea trece de la unul la altul.
+
+### 1. Furia se ține minte
+
+Fiecare are acum o supărare, un număr între zero și unu. O înțepătură îl
+enervează cu o jumătate — **două și e furios de tot** — și i se scurge singură în
+vreo două minute. Nu se salvează nicăieri: la refresh, localul te iartă.
+
+Furia schimbă **tot** ce spune, nu doar răspunsul la înjurătură: cu cât e mai
+furios, cu atât mai des îți vorbește urât, orice l-ai întreba. Furios de tot, îi
+zici „ce faci" și îți întoarce *„M-ai scos din sărite. Taci."*. De-aceea fiecare
+primește `furii` — trei vorbe de om supărat, mai grele decât cele de la
+`provocare`.
+
+Se citește supărarea **de dinaintea vorbei tale**: prima înjurătură îl scoate din
+sărite, dar primește răspunsul de om înțepat; a doua îl prinde deja furios. Fără
+asta, prima ar sări direct la vorba cea mai grea și n-ar mai fi nicio treaptă.
+
+### 2. Vorbesc între ei, singuri
+
+Localul nu tace când taci tu. La 22–50 de secunde, doi dintre ei încep singuri o
+vorbă: unul zice ceva, celălalt îi răspunde peste vreo două secunde. Se aude
+doar deasupra capetelor, ca vorbele de la masa a treia — **în fereastra ta nu
+intră**, fiindcă acolo e discuția ta, nu a lor.
+
+Trucul care le face vorba coerentă fără să scriem dialoguri: cel care începe
+întreabă ceva din `intrebari` — deja propoziții adevărate —, iar întrebarea lui
+trece prin **aceeași citire de teme** ca vorbele tale, deci celălalt răspunde la
+subiect. „Joci des?" → tema *joc* → *„Ăia joacă de-o oră, eu tot alerg."* Cu
+Ollama pornit, răspunsul îl scrie modelul, care primește și el vestea că nu
+vorbește cu un client, ci cu unul de-al casei.
+
+Se dau la o parte cât ai tu pe cineva la răspuns: nu se vorbesc peste tine.
+
+### 3. Furia se ia
+
+Dacă cel care începe e furios, nu mai întreabă nimic — se răstește, din `furii`.
+Iar **celălalt se aprinde și el**, cu o treime din supărarea lui, așa că îi
+răspunde tot urât. Așa ajunge o înjurătură dată draconianului să se plimbe prin
+tot localul, din vorbă în vorbă, și să se stingă de la sine.
+
+**Rămâne pe dinafară:** furia e un singur număr, nu ține minte pe cine e supărat
+— e supărat, atât, pe toată lumea deodată. Doi câte doi vorbesc, nu trei.
+
+**Verificare:** îl înjuri de două ori pe draconian, apoi îl întrebi „ce faci" și
+îți răspunde urât; îl lași în pace două minute și e iar cum era. Lăsând scena să
+meargă, se aud vorbe între ei — iar dacă unul e furios, se ceartă.
 
 ---
 

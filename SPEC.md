@@ -196,6 +196,15 @@ fără Ollama; cu el pornit, răspunsul îl scrie modelul.
 cum îi e firea. Cei de la masă se și zbârlesc pe loc, iar draconianului îi ia foc
 botul, mai tare decât când pierde o mână.
 
+**Supărarea ține.** Cu cât l-ai enervat mai tare, cu atât îți vorbește mai urât
+la orice — nu doar la înjurături. Două înțepături și e furios de tot; îl lași în
+pace vreo două minute și îi trece de la sine.
+
+**Localul vorbește și fără tine.** Din când în când, doi dintre ei încep singuri
+o vorbă, deasupra capetelor, nu în fereastra ta: unul întreabă, celălalt răspunde
+la subiect. Iar dacă unul e furios, se răstește — și supărarea se ia, așa că
+celălalt îi răspunde tot urât.
+
 **Nu se repetă și nu greșesc numele.** Fiecare își ține minte ultimele vorbe pe
 care le-a spus, ca să nu răspundă de două ori la fel; iar când strigă pe cineva,
 îi zice pe nume cum se cade: „Barmanule", nu „Barmanul".

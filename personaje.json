@@ -1,5 +1,5 @@
 {
-  "versiune": 9,
+  "versiune": 10,
   "descriere": "Fișa tuturor personajelor cu nume din local: firea cu care le răspunde modelul, replicile de rezervă când modelul tace, ce se spune despre ei când îi pomenește cineva, locul lor în scenă și dimensiunile. Fișierul e oglinda scenei, nu sursa ei: nu se citește la pornire, fiindcă `index.html` se deschide direct de pe file://, unde fetch cade. Adevărul e în cod; aici scrie ca să se vadă toată distribuția pe o pagină.",
   "campuri": {
     "fire": "Cine e, spus lui: pleacă la model ca prompt de sistem. Clovnul n-are — pe el îl joci tu.",
@@ -11,7 +11,8 @@
     "bagari": "Cu ce se bagă în vorba altora, când aude de la locul lui și nu-l întreabă nimeni.",
     "repezeli": "Cum îl repede pe cel băgat peste el; `{cine}` se umple cu numele celui băgat.",
     "raspunsuri": "Ce zice la fiecare temă recunoscută din vorba ta: salut, ceFaci, cineEsti, joc, bautura, primit (ai zis „da\" sau „știu\"), multumesc, plecare, nuStiu (o întrebare pe care n-a înțeles-o) și provocare (te-ai luat de el). Tema `cineE` — „cine e ăla?\" — n-are replici scrise: răspunsul e `despre` al celui întrebat. Cel puțin două replici de fiecare, ca să nu se repete.",
-    "intrebari": "Ce te întreabă el pe tine, când vine rândul lui să întrebe.",
+    "intrebari": "Ce te întreabă el pe tine, când vine rândul lui să întrebe. Tot de aici începe și vorba dintre ei, când unul dă de vorbă cu altul.",
+    "furii": "Ce zice cât ține supărarea, după ce l-ai enervat. Cu ele începe și o vorbă între ei, dacă cel care începe e furios.",
     "cinste": "Ce dă la toată masa când pierde mâna: felul lui de băut, nu cel mai ieftin din meniu. Numai cei patru de la masă au."
   },
   "implicit": {
@@ -32,6 +33,8 @@
     "faraRepetat": "Fiecare își ține minte ultimele patru vorbe pe care le-a spus și alege dintre celelalte; când le-a spus pe toate o ia de la capăt, dar niciodată cu vorba de dinainte. De-aceea fiecare temă are cel puțin două replici.",
     "peNume": "Când e strigat, numele stă la vocativ: „Barmanule\", nu „Barmanul\". Se schimbă doar primul cuvânt; ce vine după rămâne dacă e parte din nume („Omule de aur\") și cade dacă e doar locul („Musafirul din stânga\" → „Musafirule\").",
     "candTeIeiDeEi": "O înțepătură — „te crezi mare șef?\", „taci, prostule\", „nu știi să joci\" — trece peste orice altceva din vorbă: nu-și mai spune părerea despre nimeni, îți întoarce vorba din `raspunsuri.provocare`. Cei de la masă se și zbârlesc pe loc, iar draconianului îi ia foc botul, mai tare decât la o mână pierdută.",
+    "furiaTinutaMinte": "Fiecare înțepătură îl enervează cu o jumătate — două și e furios de tot —, iar furia se scurge singură în vreo două minute (`FURIA`, în cod). Furios, îți vorbește urât la orice l-ai întreba, cu atât mai des cu cât l-ai enervat mai tare. Se citește furia de dinaintea vorbei tale: prima înjurătură primește răspunsul de om înțepat, a doua îl prinde deja furios.",
+    "vorbaDintreEi": "La 22–50 de secunde, doi din local încep singuri o vorbă: unul întreabă ceva din `intrebari`, celălalt răspunde trecând întrebarea prin aceeași citire de teme. Se aude doar deasupra capetelor, nu în fereastra ta, și se amână cât are cineva de răspuns la tine. Dacă cel care începe e furios, se răstește din `furii` — iar furia se ia: celălalt se aprinde și el (`FURIA.molipsit`).",
     "legatDeDinainte": "„Cine e ăla?\" e despre cine ai numit în vorbă — fără `@` — sau, dacă n-ai numit pe nimeni, despre cel de care tocmai te întrebase el; răspunsul e chiar `despre` al aceluia. Întrebarea lui ține deschisă doar până răspunzi.",
     "maiMultiOdata": "Într-o vorbă încap mai multe pomeniri: cine e chemat pe nume și e în local răspunde și el, pe rând, la o secundă și două după cel întrebat. Chemat singur, vorbește despre el; chemat lângă altcineva, despre acela.",
     "bagatulInVorba": "Când vorbești între patru ochi, o dată la vreo douăsprezece vorbe se bagă altcineva din local, neîntrebat, iar cel cu care vorbeai îl repede. Șansa stă în `BAGAREA.sansa`, în cod. Dacă ai chemat tu pe cineva pe nume, nu se mai bagă nimeni peste el.",
@@ -165,6 +168,11 @@
         "Tu ce cauți aici?",
         "Joci sau te uiți?"
       ],
+      "furii": [
+        "Mârrr! Pleacă de la masa mea.",
+        "Încă un cuvânt și zbori pe ușă.",
+        "M-ai scos din sărite. Taci."
+      ],
       "descriere": {
         "aspect": "Masiv, ocupă cel mai mult loc la masă. Cap de dinozaur cu dinți și ochi galbeni, două aripi pliate pe spate, două labe-mâini, două labe-picioare.",
         "personalitate": "Fioros, tăcut. Nervos des.",
@@ -277,6 +285,11 @@
         "Tu de unde vii?",
         "Joci des?"
       ],
+      "furii": [
+        "Nu-mi mai vorbi.",
+        "Ți-am spus o dată, și nu repet.",
+        "Mi-ai stricat seara, și n-o să-ți placă."
+      ],
       "descriere": {
         "aspect": "Umanoid-crocodil: bot lung, solzi verzi-măslinii, coadă, costum cu cravată, postură dreaptă.",
         "personalitate": "Calm, calculat, cel mai bun jucător dintre cei trei.",
@@ -387,6 +400,11 @@
         "Mai vrei o mână?",
         "Ai mai jucat aici?"
       ],
+      "furii": [
+        "Am terminat cu tine.",
+        "Nu-ți mai împart. Ridică-te.",
+        "Ieși de la masa asta."
+      ],
       "descriere": {
         "aspect": "Om, nu personaj de basm: vestă închisă la culoare peste cămașă albă, papion. Croit din același trup ca barmanul și chelnerul.",
         "personalitate": "Politicos, profesionist.",
@@ -495,6 +513,11 @@
         "Vă mai aduc ceva?",
         "Ați fost servit?"
       ],
+      "furii": [
+        "Nu te mai servesc.",
+        "Plătește și pleacă.",
+        "M-am săturat de tine."
+      ],
       "descriere": {
         "aspect": "Om cu tavă, în ținuta localului.",
         "personalitate": "Politicos, grăbit.",
@@ -590,6 +613,11 @@
         "Tu ce bei?",
         "Prima dată aici?"
       ],
+      "furii": [
+        "Nu-ți mai torn nimic.",
+        "Ușa e acolo, dacă tot ești așa.",
+        "Gata, am terminat cu tine."
+      ],
       "descriere": {
         "aspect": "Om în spatele tejghelei, cu raftul de sticle în spate.",
         "personalitate": "Prietenos, glumeț.",
@@ -683,6 +711,11 @@
       "intrebari": [
         "Ți-e foame?",
         "Ai gustat papanașii mei?"
+      ],
+      "furii": [
+        "Nu-ți mai gătesc nimic.",
+        "Ieși din local, nu doar din bucătărie!",
+        "Mi-ai ars ciorba cu vorbele tale."
       ],
       "descriere": {
         "aspect": "Bluză albă, șorț lung, bonetă înaltă — după ea se recunoaște de la distanță.",
@@ -780,6 +813,11 @@
         "Tu ai spălat vreodată o sută de farfurii?",
         "Crezi că se termină vreodată?"
       ],
+      "furii": [
+        "Lasă-mă naibii în pace.",
+        "Du-te de-aici, am destule pe cap.",
+        "Nu-ți mai spăl nimic."
+      ],
       "descriere": {
         "aspect": "Cămașă albăstruie, șorț, mâinile în chiuvetă.",
         "personalitate": "Obosit, resemnat, cu umor amar.",
@@ -876,6 +914,11 @@
         "Joci șah?",
         "Tu ce ai muta aici?"
       ],
+      "furii": [
+        "Pleacă de la masa mea.",
+        "Mâna asta nu s-a făcut din vorbe bune.",
+        "Am terminat discuția."
+      ],
       "descriere": {
         "aspect": "Om obișnuit, cu o singură mână de argint — singurul lucru care sclipește la el.",
         "personalitate": "Gânditor, scump la vorbă.",
@@ -971,6 +1014,11 @@
       "intrebari": [
         "Tu de ce te uiți la mine?",
         "Ai văzut ceva mai frumos aici?"
+      ],
+      "furii": [
+        "Taci și pleacă.",
+        "Nu meriți nici privirea.",
+        "Am terminat cu tine."
       ],
       "descriere": {
         "aspect": "Turnat dintr-o bucată: haine, piele, păr, tot din aur, cu o dungă de lumină prinsă în metal.",
@@ -1069,6 +1117,11 @@
         "Tu de unde ești?",
         "Bei ceva cu noi?"
       ],
+      "furii": [
+        "Gata, m-am supărat!",
+        "Nu mai vorbesc cu tine.",
+        "Ne mutăm la altă masă din cauza ta."
+      ],
       "descriere": {
         "aspect": "Om oarecare, cu paleta lui de culori, alta la fiecare vizită.",
         "personalitate": "Vorbăreț, curios.",
@@ -1163,6 +1216,11 @@
       "intrebari": [
         "Tu ce zici?",
         "Mai stai mult?"
+      ],
+      "furii": [
+        "Pleacă.",
+        "Nu vorbi cu mine.",
+        "Ajunge."
       ],
       "descriere": {
         "aspect": "Om oarecare, cu paleta lui de culori, alta la fiecare vizită.",

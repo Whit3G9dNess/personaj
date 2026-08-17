@@ -164,7 +164,17 @@ le-ai spus mai devreme. Iar dacă te-au întrebat de cineva și tu zici *„cine
 întorc vorba. Draconianul mârâie *„Îți iau capul, nu levata"* **și scoate foc pe
 bot**, mai mult decât atunci când pierde o mână; reptilianul zâmbește și-ți
 amintește cine a pierdut ultima mână; bucătarul îți spune că are cuțit în mână.
-Se supără, dar nu ține supărarea: la vorba următoare e iar cum era.
+**Și ține minte supărarea.** Cu cât l-ai enervat mai tare, cu atât îți vorbește
+mai urât — la orice, nu doar la înjurături. Două înțepături și e furios de tot:
+îi zici „ce faci" și îți întoarce *„M-ai scos din sărite. Taci."*. Îl lași în
+pace vreo două minute și îi trece.
+
+**Localul vorbește și fără tine.** Din când în când, doi dintre ei încep singuri
+o vorbă — se aude deasupra capetelor, nu în fereastra ta: *„Joci des?"* —
+*„Ăia joacă de-o oră, eu tot alerg."*. Iar dacă unul e furios, nu mai întreabă
+nimic: se răstește. **Și supărarea se ia** — cel luat la rost se aprinde și el,
+așa că o înjurătură dată draconianului se plimbă prin tot localul până se stinge
+singură.
 
 **Nu se repetă.** Fiecare își ține minte ultimele vorbe pe care le-a spus, așa
 că întrebat de trei ori „ce faci" îți răspunde de trei ori altfel. Și te strigă

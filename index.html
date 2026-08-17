@@ -3815,7 +3815,8 @@ function deseneazaMeniu() {
      - `bagari`       : cu ce se bagă în vorba altora, când nu-l întreabă nimeni;
      - `repezeli`     : cum îl repede pe cel băgat peste el, cu `{cine}` în loc de nume;
      - `raspunsuri`   : ce zice la fiecare temă recunoscută din vorba ta (vezi `TEME`);
-     - `intrebari`    : ce te întreabă el pe tine, când vine rândul lui să întrebe.
+     - `intrebari`    : ce te întreabă el pe tine, când vine rândul lui să întrebe;
+     - `furii`        : ce zice după ce l-ai enervat, cât ține supărarea.
    `porecle` sunt numele scurte după care îl găsești când scrii `@`.
    Tot ce e aici se oglindește în `personaje.json`, care nu se citește la
    pornire: aici e adevărul, acolo e fișa de citit. */
@@ -3857,7 +3858,9 @@ const FIRI = {
       provocare: ["Mârrr! Mai zi o dată.", "Îți iau capul, nu levata.",
                   "Ai văzut ce fac cu masa asta?"]
     },
-    intrebari: ["Tu ce cauți aici?", "Joci sau te uiți?"]
+    intrebari: ["Tu ce cauți aici?", "Joci sau te uiți?"],
+    furii: ["Mârrr! Pleacă de la masa mea.", "Încă un cuvânt și zbori pe ușă.",
+            "M-ai scos din sărite. Taci."]
   },
   "Reptilianul": {
     fire: "Ești un reptilian umanoid, în costum, calm și calculat, cel mai bun " +
@@ -3887,7 +3890,9 @@ const FIRI = {
       provocare: ["Vorbește cine a pierdut ultima mână.", "Zâmbește, tot eu iau levata.",
                   "Îmi place când te enervezi: se vede în cărți."]
     },
-    intrebari: ["Tu de unde vii?", "Joci des?"]
+    intrebari: ["Tu de unde vii?", "Joci des?"],
+    furii: ["Nu-mi mai vorbi.", "Ți-am spus o dată, și nu repet.",
+            "Mi-ai stricat seara, și n-o să-ți placă."]
   },
   "Dealerul": {
     fire: "Ești dealerul unui bar mic: împarți cărțile, nu joci aproape niciodată. " +
@@ -3917,7 +3922,9 @@ const FIRI = {
       provocare: ["La masa asta se vorbește frumos.", "Încă un cuvânt și nu-ți mai împart.",
                   "Am dat afară oameni pentru mai puțin."]
     },
-    intrebari: ["Mai vrei o mână?", "Ai mai jucat aici?"]
+    intrebari: ["Mai vrei o mână?", "Ai mai jucat aici?"],
+    furii: ["Am terminat cu tine.", "Nu-ți mai împart. Ridică-te.",
+            "Ieși de la masa asta."]
   },
   "Chelnerul": {
     fire: "Ești chelnerul unui bar mic, mereu pe drum între mese. Ești politicos, " +
@@ -3946,7 +3953,8 @@ const FIRI = {
       provocare: ["Ușurel, că vin cu nota.", "Alerg de zece ore, nu mă căuta.",
                   "Am mai auzit-o, și tot eu am adus berea."]
     },
-    intrebari: ["Vă mai aduc ceva?", "Ați fost servit?"]
+    intrebari: ["Vă mai aduc ceva?", "Ați fost servit?"],
+    furii: ["Nu te mai servesc.", "Plătește și pleacă.", "M-am săturat de tine."]
   },
   "Barmanul": {
     fire: "Ești barmanul localului. Torni de băut și asculți toată ziua povești. " +
@@ -3976,7 +3984,9 @@ const FIRI = {
       provocare: ["Ai băut destul, se pare.", "Mai zi o dată și nu-ți mai torn.",
                   "Aici s-au spart capete pentru vorbe din astea."]
     },
-    intrebari: ["Tu ce bei?", "Prima dată aici?"]
+    intrebari: ["Tu ce bei?", "Prima dată aici?"],
+    furii: ["Nu-ți mai torn nimic.", "Ușa e acolo, dacă tot ești așa.",
+            "Gata, am terminat cu tine."]
   },
   "Bucătarul": {
     fire: "Ești bucătarul localului, la aragazul din capătul barului. Ești mândru " +
@@ -4005,7 +4015,9 @@ const FIRI = {
       provocare: ["Zi asta după ce-mi guști micii!", "Ieși din bucătăria mea cu vorbele astea.",
                   "Am cuțit în mână, ai grijă."]
     },
-    intrebari: ["Ți-e foame?", "Ai gustat papanașii mei?"]
+    intrebari: ["Ți-e foame?", "Ai gustat papanașii mei?"],
+    furii: ["Nu-ți mai gătesc nimic.", "Ieși din local, nu doar din bucătărie!",
+            "Mi-ai ars ciorba cu vorbele tale."]
   },
   "Spălătorul de vase": {
     fire: "Ești spălătorul de vase, la chiuveta din capătul barului. Ești obosit, " +
@@ -4034,7 +4046,9 @@ const FIRI = {
       provocare: ["Vino tu la chiuvetă, să te văd.", "Zi ce vrei, tot eu spăl după tine.",
                   "Măcar eu muncesc aici."]
     },
-    intrebari: ["Tu ai spălat vreodată o sută de farfurii?", "Crezi că se termină vreodată?"]
+    intrebari: ["Tu ai spălat vreodată o sută de farfurii?", "Crezi că se termină vreodată?"],
+    furii: ["Lasă-mă naibii în pace.", "Du-te de-aici, am destule pe cap.",
+            "Nu-ți mai spăl nimic."]
   },
   "Omul cu mâna de argint": {
     fire: "Ești un om cu o mână de argint, care joacă șah la o masă din colț. " +
@@ -4064,7 +4078,9 @@ const FIRI = {
       provocare: ["Mâna asta a strâns lucruri mai grele.", "Vorbește, tot eu câștig partida.",
                   "Stai jos și mută, dacă te ține."]
     },
-    intrebari: ["Joci șah?", "Tu ce ai muta aici?"]
+    intrebari: ["Joci șah?", "Tu ce ai muta aici?"],
+    furii: ["Pleacă de la masa mea.", "Mâna asta nu s-a făcut din vorbe bune.",
+            "Am terminat discuția."]
   },
   "Omul de aur": {
     fire: "Ești un om făcut tot din aur, care joacă șah într-un bar. Ești scump la " +
@@ -4091,7 +4107,8 @@ const FIRI = {
       provocare: ["Ai grijă cu cine vorbești.", "Nici nu strălucești, nici nu taci.",
                   "Te-ai uitat vreodată la tine?"]
     },
-    intrebari: ["Tu de ce te uiți la mine?", "Ai văzut ceva mai frumos aici?"]
+    intrebari: ["Tu de ce te uiți la mine?", "Ai văzut ceva mai frumos aici?"],
+    furii: ["Taci și pleacă.", "Nu meriți nici privirea.", "Am terminat cu tine."]
   },
   "Musafirul din stânga": {
     fire: "Ești un client oarecare al barului, venit cu un prieten la o masă. Ești " +
@@ -4121,7 +4138,9 @@ const FIRI = {
       provocare: ["Măi, ce te-a apucat?", "Hai că nu ne certăm la un pahar de vin!",
                   "Ia mai zi o dată, că n-am auzit bine."]
     },
-    intrebari: ["Tu de unde ești?", "Bei ceva cu noi?"]
+    intrebari: ["Tu de unde ești?", "Bei ceva cu noi?"],
+    furii: ["Gata, m-am supărat!", "Nu mai vorbesc cu tine.",
+            "Ne mutăm la altă masă din cauza ta."]
   },
   "Musafirul din dreapta": {
     fire: "Ești un client oarecare al barului, venit cu un prieten la o masă. Ești " +
@@ -4146,7 +4165,8 @@ const FIRI = {
       nuStiu:    ["Nu știu.", "Întreabă-l pe el."],
       provocare: ["Ho.", "Nu căuta ceartă cu mine.", "Lasă-mă în pace."]
     },
-    intrebari: ["Tu ce zici?", "Mai stai mult?"]
+    intrebari: ["Tu ce zici?", "Mai stai mult?"],
+    furii: ["Pleacă.", "Nu vorbi cu mine.", "Ajunge."]
   }
 };
 
@@ -4394,6 +4414,47 @@ function cePariDespreTine(vorba) {
 // Când îi spui ceva despre tine, arată că a auzit — și de-atunci o știu toți.
 const AM_RETINUT = ["Va să zică {ce}.", "Am reținut: {ce}.", "Aha, {ce}."];
 
+/* --- Furia, care ține minte ------------------------------------------------ */
+
+/* O înțepătură nu se uită de la o vorbă la alta. Fiecare ține minte cât l-ai
+   enervat, iar furia schimbă tot ce spune de-atunci încolo, nu doar răspunsul la
+   înjurătură: cu cât e mai furios, cu atât mai des îți vorbește urât, orice
+   l-ai întreba. Se stinge de la sine, ca beția — un om nu rămâne furios până la
+   refresh, dar nici nu-i trece cât ai clipi. */
+const FURIA = {
+  peVorba: 0.5,     // cât se enervează la o înțepătură: două și e furios de tot
+  tine: 110,        // secundele în care i se scurge toată furia
+  molipsit: 0.35    // cât ia din furia altuia, când stă de vorbă cu unul aprins
+};
+
+function furia(p) { return Math.min(1, p.furie || 0); }
+
+function seEnerveaza(p, cat) {
+  if (!p || !(cat > 0)) return;
+  p.furie = Math.min(1, (p.furie || 0) + cat);
+}
+
+// Și le trece, încet, tuturor celor care au gură.
+function seLinistesc(dt) {
+  for (const p of ceiCuVorba()) {
+    if (p.furie > 0) p.furie = Math.max(0, p.furie - dt / FURIA.tine);
+  }
+}
+
+/* Ce zice omul supărat. Se uită la cât de furios era *înainte* de vorba ta
+   (`ce.furie`), nu la cât e după ea: prima înțepătură îl scoate din sărite, dar
+   îi primește răspunsul obișnuit de om înțepat; a doua îl prinde deja furios.
+   La o înțepătură răspunde urât din prima; la orice altceva, cu atât mai des cu
+   cât l-ai enervat mai tare. */
+function raspunsulFuriei(p, ce) {
+  const f = ce.furie || 0;
+  if (!f) return null;
+  const urate = (FIRI[p.nume] && FIRI[p.nume].furii) || [];
+  if (!urate.length) return null;
+  if (ce.tema === "provocare" || intreg(0, 1) < f) return zice(p, urate);
+  return null;
+}
+
 /* --- Când te întreabă ei pe tine ------------------------------------------ */
 
 /* O discuție în care doar tu întrebi nu e discuție. Din când în când întoarce și
@@ -4615,6 +4676,7 @@ function ceAude(p, pomeniti, fel, citit) {
     cuCine: chat.cuCine ? chat.cuCine.nume : null,
     tema: c.tema || null,
     cineE: c.cineE || null,
+    furie: furia(p),
     faptNou: c.faptNou || null,
     numeNou: c.numeNou || null,
     tuEsti: chat.tuEsti.nume,
@@ -4666,8 +4728,12 @@ function dinFireaLui(p, ce) {
     return FIRI[ce.cineE].despre;
   }
 
-  /* Iar dacă te-ai luat de el, asta e tot ce contează din vorba ta: nu-și mai
-     spune părerea despre nimeni, îți răspunde ție. */
+  /* Dacă l-ai enervat mai devreme, furia vorbește înaintea firii. */
+  const dinFurie = raspunsulFuriei(p, ce);
+  if (dinFurie) return dinFurie;
+
+  /* Iar dacă te-ai luat de el acum, asta e tot ce contează din vorba ta: nu-și
+     mai spune părerea despre nimeni, îți răspunde ție. */
   if (ce.tema === "provocare") {
     return raspunsulPeTema(p, "provocare") || zice(p, FIRI[p.nume].rezerva);
   }
@@ -4694,9 +4760,9 @@ function vorbesteUnul(item) {
   /* Când te iei de cineva de la masă, nu rămâne numai la vorbă: se zbârlește pe
      loc, iar draconianului îi ia foc botul. Cei din local n-au tresărirea asta
      desenată — ei doar îți răspund cum se cuvine. */
-  if (ce.tema === "provocare" && (ce.fel === "intrebat" || ce.fel === "pomenit") &&
-      (personaje.indexOf(p) >= 0 || p === dealerul)) {
-    trimiteEveniment(p, "provocat");
+  if (ce.tema === "provocare" && (ce.fel === "intrebat" || ce.fel === "pomenit")) {
+    seEnerveaza(p, FURIA.peVorba);          // și ține minte, nu numai tresare
+    if (personaje.indexOf(p) >= 0 || p === dealerul) trimiteEveniment(p, "provocat");
   }
 
   AI.vorbesteCu(p, item.vorba, fir, ce, function (deLaModel) {
@@ -4798,6 +4864,81 @@ function actualizeazaCoada(dt) {
   vorbesteUnul(chat.coada.shift());
 }
 
+/* --- Vorba dintre ei ------------------------------------------------------- */
+
+/* Localul nu tace când taci tu. Din când în când, doi dintre ei încep singuri o
+   vorbă: unul zice ceva, celălalt îi răspunde peste vreo două secunde. Se aude
+   deasupra capetelor, ca vorbele de la masa a treia — în fereastra ta nu intră,
+   fiindcă acolo e discuția ta, nu a lor.
+
+   Cel care începe îl întreabă ceva din ale lui, iar celălalt răspunde ca și cum
+   l-ai fi întrebat tu: vorba lui trece prin aceeași citire de teme. Dacă cel
+   care începe e furios, nu mai întreabă nimic — se răstește —, iar furia se ia:
+   cine stă de vorbă cu unul aprins se aprinde și el. */
+const intreEi = {
+  cronometru: 24,   // secunde până încep singuri; se reașază după fiecare vorbă
+  deLa: 22, panaLa: 50,
+  cine: null,       // cine a început
+  catre: null,      // cui i-a zis, și cine mai are de răspuns
+  vorba: "",
+  pauza: 0
+};
+
+function doiCareVorbesc() {
+  const toti = vorbitori();
+  if (toti.length < 2) return null;
+  const unul = alegeDin(toti);
+  const ceilalti = toti.filter(function (p) { return p !== unul; });
+  return { cine: unul, catre: alegeDin(ceilalti) };
+}
+
+function incepeVorbaLor() {
+  const doi = doiCareVorbesc();
+  if (!doi) return;
+  const f = furia(doi.cine);
+  const urate = (FIRI[doi.cine.nume] && FIRI[doi.cine.nume].furii) || [];
+  const vorba = (f > 0 && urate.length ? zice(doi.cine, urate) : null) ||
+                zice(doi.cine, (FIRI[doi.cine.nume] && FIRI[doi.cine.nume].intrebari) || []);
+  if (!vorba) return;
+
+  // Furia se ia de la unul la altul: dacă îl ia la rost, se aprinde și celălalt.
+  if (f > 0) seEnerveaza(doi.catre, f * FURIA.molipsit);
+
+  intreEi.cine = doi.cine;
+  intreEi.catre = doi.catre;
+  intreEi.vorba = vorba;
+  intreEi.pauza = 2.2;
+  spuneCuGlasTare(doi.cine, vorba);
+}
+
+function raspundeVorbeiLor() {
+  const p = intreEi.catre, dela = intreEi.cine, vorba = intreEi.vorba;
+  intreEi.cine = null;
+  intreEi.catre = null;
+  if (!p || !dela) return;
+
+  const ce = { fel: "intreEi", cuCine: dela.nume, tema: citesteVorba(vorba),
+               furie: furia(p), tuEsti: null };
+  AI.vorbesteCu(p, vorba, [], ce, function (deLaModel) {
+    spuneCuGlasTare(p, deLaModel || dinFireaLui(p, ce));
+  });
+}
+
+function actualizeazaVorbaLor(dt) {
+  // Răspunsul care așteaptă e mai important decât o vorbă nouă.
+  if (intreEi.catre) {
+    intreEi.pauza -= dt;
+    if (intreEi.pauza <= 0) raspundeVorbeiLor();
+    return;
+  }
+  intreEi.cronometru -= dt;
+  if (intreEi.cronometru > 0) return;
+  intreEi.cronometru = intreg(intreEi.deLa, intreEi.panaLa);
+  // Cât are cineva de răspuns în fereastra ta, nu se vorbesc peste tine.
+  if (seVorbeste()) { intreEi.cronometru = 4; return; }
+  incepeVorbaLor();
+}
+
 /* Ce ți-a răspuns se aude și în local: îi apare deasupra capului, ca vorbele de
    la masa a treia. Bula e mică, deci vorbele lungi se scurtează acolo. */
 function spuneCuGlasTare(p, text) {
@@ -4819,6 +4960,8 @@ function ceiCuVorba() {
 
 function actualizeazaVorbele(dt) {
   actualizeazaCoada(dt);
+  actualizeazaVorbaLor(dt);
+  seLinistesc(dt);
   for (const p of ceiCuVorba()) {
     if (p.vorbaTimp > 0) p.vorbaTimp -= dt;
   }
@@ -5133,6 +5276,11 @@ const AI = {
       locul = " " + ce.cine + " tocmai s-a băgat în vorba voastră, deși nu-l întreba nimeni. " +
               "Repede-l scurt, fără politețuri, și gata.";
       auzi = ce.cine + " s-a băgat în vorbă și a zis: " + intrebare;
+    } else if (fel === "intreEi") {
+      // Nu vorbește cu tine: vorbesc între ei, la o masă la care nu stai.
+      locul = " Nu vorbești cu un client, ci cu " + ce.cuCine + ", de-al casei. " +
+              "Răspunde-i scurt, ca între oameni care se știu.";
+      auzi = ce.cuCine + " îți spune: " + intrebare;
     }
 
     /* Dacă s-a luat de tine, asta trece peste orice altceva: nu-ți mai spui
@@ -5140,6 +5288,14 @@ const AI = {
     if (ce && ce.tema === "provocare" && (fel === "intrebat" || fel === "pomenit")) {
       locul += " Tocmai te-a luat peste picior, în față. Întoarce-i vorba tăios și " +
                "scurt, cum ți-e firea, fără politețuri și fără să te scuzi.";
+    }
+
+    // Și, dacă a rămas supărat de mai devreme, se aude în tot ce spune acum.
+    if (ce && ce.furie >= 0.5) {
+      locul += " Ești furios de mai devreme și n-ai uitat: vorbești urât, scurt și " +
+               "fără chef, orice te-ar întreba.";
+    } else if (ce && ce.furie > 0) {
+      locul += " Ești încă înțepat de mai devreme: răspunzi scurt și fără prea multă bunăvoință.";
     }
 
     fetch(this.url, {

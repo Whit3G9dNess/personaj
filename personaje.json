@@ -1,5 +1,5 @@
 {
-  "versiune": 7,
+  "versiune": 8,
   "descriere": "Fișa tuturor personajelor cu nume din local: firea cu care le răspunde modelul, replicile de rezervă când modelul tace, ce se spune despre ei când îi pomenește cineva, locul lor în scenă și dimensiunile. Fișierul e oglinda scenei, nu sursa ei: nu se citește la pornire, fiindcă `index.html` se deschide direct de pe file://, unde fetch cade. Adevărul e în cod; aici scrie ca să se vadă toată distribuția pe o pagină.",
   "campuri": {
     "fire": "Cine e, spus lui: pleacă la model ca prompt de sistem. Clovnul n-are — pe el îl joci tu.",
@@ -11,7 +11,8 @@
     "bagari": "Cu ce se bagă în vorba altora, când aude de la locul lui și nu-l întreabă nimeni.",
     "repezeli": "Cum îl repede pe cel băgat peste el; `{cine}` se umple cu numele celui băgat.",
     "raspunsuri": "Ce zice la fiecare temă recunoscută din vorba ta: salut, ceFaci, cineEsti, joc, bautura, primit (ai zis „da\" sau „știu\"), multumesc, plecare, nuStiu (o întrebare pe care n-a înțeles-o). Tema `cineE` — „cine e ăla?\" — n-are replici scrise: răspunsul e `despre` al celui întrebat. Cel puțin două replici de fiecare, ca să nu se repete.",
-    "intrebari": "Ce te întreabă el pe tine, când vine rândul lui să întrebe."
+    "intrebari": "Ce te întreabă el pe tine, când vine rândul lui să întrebe.",
+    "cinste": "Ce dă la toată masa când pierde mâna: felul lui de băut, nu cel mai ieftin din meniu. Numai cei patru de la masă au."
   },
   "implicit": {
     "model": "gemma4:e2b",
@@ -32,13 +33,16 @@
     "peNume": "Când e strigat, numele stă la vocativ: „Barmanule\", nu „Barmanul\". Se schimbă doar primul cuvânt; ce vine după rămâne dacă e parte din nume („Omule de aur\") și cade dacă e doar locul („Musafirul din stânga\" → „Musafirule\").",
     "legatDeDinainte": "„Cine e ăla?\" e despre cine ai numit în vorbă — fără `@` — sau, dacă n-ai numit pe nimeni, despre cel de care tocmai te întrebase el; răspunsul e chiar `despre` al aceluia. Întrebarea lui ține deschisă doar până răspunzi.",
     "maiMultiOdata": "Într-o vorbă încap mai multe pomeniri: cine e chemat pe nume și e în local răspunde și el, pe rând, la o secundă și două după cel întrebat. Chemat singur, vorbește despre el; chemat lângă altcineva, despre acela.",
-    "bagatulInVorba": "Când vorbești între patru ochi, o dată la vreo douăsprezece vorbe se bagă altcineva din local, neîntrebat, iar cel cu care vorbeai îl repede. Șansa stă în `BAGAREA.sansa`, în cod. Dacă ai chemat tu pe cineva pe nume, nu se mai bagă nimeni peste el."
+    "bagatulInVorba": "Când vorbești între patru ochi, o dată la vreo douăsprezece vorbe se bagă altcineva din local, neîntrebat, iar cel cu care vorbeai îl repede. Șansa stă în `BAGAREA.sansa`, în cod. Dacă ai chemat tu pe cineva pe nume, nu se mai bagă nimeni peste el.",
+    "cinsteaCeluiCarePierde": "La sfârșitul unei mâini, cine a luat cele mai puține levate cheamă singur chelnerul și dă un rând la toată masa — fără să apeși nimic, fără meniu. Dacă e deja o comandă pe drum, ai meniul în față sau chelnerul e ocupat, lasă rândul pe mâna următoare.",
+    "ceAuBautLeSchimbaFirea": "Fiecare pahar cu alcool golit adaugă haos (joacă mai la nimereală, până la trei pahare), fiecare farfurie golită îngreunează gândirea (stă mai mult pe gânduri, până la două). Se vede numai în cum joacă: nicio cifră pe ecran. Trece de la sine în vreo minut și jumătate băutura, ceva mai mult mâncarea."
   },
   "personaje": [
     {
       "id": "clovnul",
       "nume": "Clovnul",
       "rol": "jucător",
+      "cinste": "suc",
       "fire": null,
       "notaFire": "N-are fire scrisă și nu apare în lista de vorbitori: pe el îl joci tu. Cărțile lui sunt cărțile tale, iar dacă nu te hotărăști în douăsprezece secunde joacă singur.",
       "rezerva": [],
@@ -79,6 +83,7 @@
       "id": "draconianul",
       "nume": "Draconianul",
       "rol": "jucător",
+      "cinste": "bere",
       "fire": "Ești un draconian masiv și fioros care joacă cărți la o masă de bar. Ești nerăbdător și morocănos, vorbești puțin și scurt, mai mult mârâi.",
       "rezerva": [
         "Mârrr.",
@@ -185,6 +190,7 @@
       "id": "reptilianul",
       "nume": "Reptilianul",
       "rol": "jucător",
+      "cinste": "vin",
       "fire": "Ești un reptilian umanoid, în costum, calm și calculat, cel mai bun jucător de cărți de la masă. Vorbești rar, politicos și cu subînțeles.",
       "rezerva": [
         "Poate.",
@@ -291,6 +297,7 @@
       "id": "dealerul",
       "nume": "Dealerul",
       "rol": "împarte cărțile; cam la una din șapte mâini intră și el în joc, dar niciodată de două ori la rând",
+      "cinste": "bere",
       "fire": "Ești dealerul unui bar mic: împarți cărțile, nu joci aproape niciodată. Ești politicos, profesionist și ai văzut de toate la masa asta.",
       "rezerva": [
         "Eu doar împart, domnule.",

@@ -319,6 +319,14 @@ return {
   actualizeazaComanda: typeof actualizeazaComanda !== "undefined" ? actualizeazaComanda : null,
   AI: typeof AI !== "undefined" ? AI : null,
   alegeDinCod: typeof alegeDinCod !== "undefined" ? alegeDinCod : null,
+  faceCinste: typeof faceCinste !== "undefined" ? faceCinste : null,
+  CINSTEA: typeof CINSTEA !== "undefined" ? CINSTEA : null,
+  haosulLui: typeof haosulLui !== "undefined" ? haosulLui : null,
+  gandireaLui: typeof gandireaLui !== "undefined" ? gandireaLui : null,
+  betia: typeof betia !== "undefined" ? betia : null,
+  aGolit: typeof aGolit !== "undefined" ? aGolit : null,
+  felulDinMeniu: typeof felulDinMeniu !== "undefined" ? felulDinMeniu : null,
+  chelnerul: typeof chelnerul !== "undefined" ? chelnerul : null,
   alegeCastigator: typeof alegeCastigator !== "undefined" ? alegeCastigator : null,
   asteaptaJucator: function () { return typeof asteaptaJucator !== "undefined" && asteaptaJucator; },
   laRand: function () { return typeof laRand !== "undefined" ? laRand : null; },
@@ -2814,18 +2822,21 @@ function testePartida() {
 
   test("partida se reia: câștigătorul împarte mâna următoare", function () {
     const s = porneste();
-    let paza = 0;
-    while (s.stare() !== "reactie" && paza++ < 60 * 90) {
+    /* Cine a luat ultima levată deschide mâna următoare — deci se ține minte
+       câștigătorul de la fiecare levată, iar cel de la a treia trebuie să fie
+       startatorul când se împart cărți noi. */
+    let paza = 0, ultimul = null;
+    while (paza++ < 60 * 150) {
       if (s.asteaptaJucator()) {
         const eu = s.personaj("Clovnul");
         s.apasa(eu.mana[0].x, eu.mana[0].y);
       }
       s.avanseaza(1 / 60);
+      if (s.stare() === "reactie" && s.castigator()) ultimul = s.castigator();
+      if (ultimul && s.stare() === "impartire") break;
     }
-    const c = s.castigator();
-    paza = 0;
-    while (s.stare() !== "impartire" && paza++ < 60 * 60) s.avanseaza(1 / 60);
-    egal(s.personaje[s.startator()].nume, c.nume, "startatorul mâinii următoare");
+    adevarat(ultimul, "nu s-a luat nicio levată");
+    egal(s.jucatori()[s.startator()].nume, ultimul.nume, "startatorul mâinii următoare");
   });
 }
 
@@ -3712,6 +3723,149 @@ function testeVorbaLegata() {
   });
 }
 
+/* --- 6.20 Faza 11.4–11.5: cinstea și ce le-a intrat în burtă -------------- */
+
+function testeCinsteaSiBetia() {
+  sectiune("6.20 Faza 11 (4 și 5) — Cinstea și ce le-a intrat în burtă");
+
+  // Duce partida până se încheie o mână întreagă, adică până se dau reacțiile mari.
+  function panaLaSfarsitDeMana(s) {
+    let paza = 0;
+    while (!s.castigatorulMainii() && paza++ < 60 * 200) s.avanseaza(1 / 60);
+    return !!s.castigatorulMainii();
+  }
+
+  test("cine ia cele mai puține levate face cinste, fără să apeși nimic", function () {
+    const s = porneste();
+    adevarat(s.faceCinste, "nu face nimeni cinste niciodată");
+    egal(s.pahare.length, 0, "e ceva pe masă înainte să comande cineva");
+
+    adevarat(panaLaSfarsitDeMana(s), "nu s-a încheiat nicio mână");
+    // De la sfârșitul mâinii încolo, comanda pleacă singură și ajunge pe masă.
+    let paza = 0;
+    while (!s.pahare.length && paza++ < 60 * 200) s.avanseaza(1 / 60);
+    adevarat(s.pahare.length > 0, "cel care a pierdut n-a dat nimic la masă");
+    egal(s.meniu.deschis, false, "i-a întins meniul, deși știe ce dă");
+  });
+
+  test("cinstea e un rând pentru toată masa, nu un pahar pentru el", function () {
+    const s = porneste();
+    panaLaSfarsitDeMana(s);
+    let paza = 0;
+    while (!s.pahare.length && paza++ < 60 * 200) s.avanseaza(1 / 60);
+
+    const jucatori = s.jucatori();
+    const auPrimit = new Set(s.pahare.map(function (o) { return o.pentru; }));
+    for (const p of jucatori) {
+      adevarat(auPrimit.has(p), p.nume + " a rămas fără nimic în față");
+    }
+    // Toți au primit același lucru: e un rând, nu comenzi separate.
+    const feluri = new Set(s.pahare.map(function (o) { return o.optiune.id; }));
+    egal(feluri.size, 1, "a comandat lucruri diferite, nu un rând");
+  });
+
+  test("fiecare dă ce bea el", function () {
+    const s = porneste();
+    adevarat(s.CINSTEA, "nu se știe cine ce dă");
+    for (const p of s.personaje.concat([s.dealerul])) {
+      const id = s.CINSTEA[p.nume];
+      adevarat(id, p.nume + " n-are ce da la masă");
+      adevarat(s.felulDinMeniu(id), p.nume + " dă ceva ce nu e în meniu: " + id);
+    }
+    egal(s.CINSTEA["Draconianul"], "bere", "draconianul dă altceva decât bere");
+    egal(s.CINSTEA["Reptilianul"], "vin", "reptilianul dă altceva decât vin");
+  });
+
+  test("nu se bagă peste comanda ta", function () {
+    const s = porneste();
+    const draconianul = s.personaje[1];
+
+    s.meniu.deschis = true;                  // ai meniul în față
+    egal(s.faceCinste(draconianul), false, "a comandat peste meniul tău");
+    s.meniu.deschis = false;
+
+    s.comanda.stare = "seFace";              // e deja ceva pe drum
+    egal(s.faceCinste(draconianul), false, "a comandat peste comanda de pe drum");
+    s.comanda.stare = "nimic";
+
+    egal(s.faceCinste(draconianul), true, "n-a vrut să facă cinste nici pe liber");
+    adevarat(draconianul.vorba, "a comandat pe tăcute, fără să zică nimic");
+  });
+
+  test("un pahar băut se simte, un suc nu", function () {
+    const s = porneste();
+    const draconianul = s.personaje[1];
+    adevarat(s.aGolit, "nu se ține minte ce-a băut nimeni");
+
+    const berea = s.felulDinMeniu("bere"), sucul = s.felulDinMeniu("suc");
+    const treaz = s.haosulLui(draconianul);
+
+    s.aGolit(draconianul, sucul);
+    egal(s.haosulLui(draconianul), treaz, "sucul l-a amețit");
+
+    s.aGolit(draconianul, berea);
+    adevarat(s.haosulLui(draconianul) > treaz, "berea nu i-a făcut nimic");
+    adevarat(s.betia(draconianul) > 0, "după o bere joacă la fel de cuminte");
+  });
+
+  test("după câteva pahare joacă mai la nimereală", function () {
+    const s = porneste();
+    const reptilianul = s.personaje[2];      // cel mai calculat de la masă
+    const berea = s.felulDinMeniu("bere");
+
+    // Treaz, își drămuiește mâna: la aceeași mână, aceeași carte de fiecare dată.
+    reptilianul.mana = [{ valoare: 5 }, { valoare: 7 }, { valoare: 10 }];
+    const treaz = new Set();
+    for (let i = 0; i < 30; i++) treaz.add(s.alegeDinCod(reptilianul));
+    egal(treaz.size, 1, "reptilianul treaz nu joacă de fiecare dată la fel");
+
+    for (let i = 0; i < 3; i++) s.aGolit(reptilianul, berea);
+    const baut = new Set();
+    for (let i = 0; i < 60; i++) baut.add(s.alegeDinCod(reptilianul));
+    adevarat(baut.size > 1, "trei beri și tot joacă la fel de calculat");
+  });
+
+  test("cu burta plină se gândește mai mult", function () {
+    const s = porneste();
+    const reptilianul = s.personaje[2];
+    const micii = s.felulDinMeniu("mici");
+    const flamand = s.gandireaLui(reptilianul);
+
+    s.aGolit(reptilianul, micii);
+    adevarat(s.gandireaLui(reptilianul) > flamand, "mâncarea nu l-a îngreunat deloc");
+
+    // Și se vede în cât stă pe gânduri, nu doar în cifra de dedesubt.
+    let sat = 0, gol = 0;
+    for (let i = 0; i < 200; i++) sat += s.timpDeGandire(reptilianul);
+    reptilianul.mancate = 0;
+    for (let i = 0; i < 200; i++) gol += s.timpDeGandire(reptilianul);
+    adevarat(sat > gol, "sătul se gândește la fel de repede ca flămând");
+  });
+
+  test("beția trece, foamea se face iar", function () {
+    const s = porneste();
+    const draconianul = s.personaje[1];
+    s.aGolit(draconianul, s.felulDinMeniu("bere"));
+    s.aGolit(draconianul, s.felulDinMeniu("mici"));
+    const ametit = s.haosulLui(draconianul), satul = s.gandireaLui(draconianul);
+
+    s.avanseaza(200);
+    adevarat(s.haosulLui(draconianul) < ametit, "a rămas băut pentru totdeauna");
+    adevarat(s.gandireaLui(draconianul) < satul, "a rămas sătul pentru totdeauna");
+    egal(s.betia(draconianul), 0, "nu s-a trezit de tot nici după atâta timp");
+  });
+
+  test("oricât ar bea, tot rămâne el", function () {
+    const s = porneste();
+    const reptilianul = s.personaje[2];
+    for (let i = 0; i < 20; i++) s.aGolit(reptilianul, s.felulDinMeniu("bere"));
+    adevarat(s.haosulLui(reptilianul) <= 1, "haosul a ieșit din scară");
+    adevarat(s.betia(reptilianul) < 0.5,
+             "băut de tot, joacă doar la nimereală: " + s.betia(reptilianul));
+    adevarat(s.timpDeGandire(reptilianul) > 0, "se gândește un timp negativ");
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -3748,6 +3902,7 @@ function testeVorbaLegata() {
   testeMaiMultiInVorba();
   testeVorbaPeInteles();
   testeVorbaLegata();
+  testeCinsteaSiBetia();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

@@ -1133,9 +1133,12 @@ function trimiteEveniment(p, tip, cine) {
 
 /* Cât se gândește un personaj înainte să pună cartea. Nu e o constantă: e
    felul lui de a fi. Clovnul e cel mai rapid, dar sare de la o extremă la
-   alta; draconianul e lent; reptilianul face de fiecare dată cam la fel. */
+   alta; draconianul e lent; reptilianul face de fiecare dată cam la fel.
+   Și nu e nici numai firea: cu burta plină se gândește mai mult, cu paharele
+   în față sare mai tare de la o extremă la alta (secțiunea 5g). */
 function timpDeGandire(p) {
-  return 0.30 + p.gandire * intreg(1 - p.haos, 1 + p.haos) * 0.75;
+  const haos = haosulLui(p);
+  return 0.30 + gandireaLui(p) * intreg(1 - haos, 1 + haos) * 0.75;
 }
 
 function actualizeazaPersonaj(p, dt) {
@@ -2650,12 +2653,6 @@ function bulaDeVorba(p, text) {
   ctx.fillText(text, mijloc, jos - 1.2 * U);
 }
 
-// Ce zice dealerul când se bagă și el într-o mână.
-function deseneazaVorbaDealerului() {
-  if (!(dealerul.vorbaTimp > 0) || !dealerul.vorba) return;
-  bulaDeVorba(dealerul, dealerul.vorba);
-}
-
 // Vorba celui care vorbește acum, scrisă deasupra lui.
 function deseneazaVorba() {
   if (vizita.vorbeste < 0 || vizita.stare !== "asezati") return;
@@ -2700,6 +2697,15 @@ function ocolulMesei() {
   return { x: cx - masa.rx * 1.50, y: cy - masa.ry * 0.50 };
 }
 
+/* Când termină ce avea la masa noastră, își reia tura — dar nu de oriunde: de la
+   masă în sus, drumul drept trece peste blat. Îl punem să plece pe unde ar fi
+   plecat oricum, prin ocolul din stânga mesei. */
+function pleacaDeLaMasa() {
+  chelnerul.misiune = null;
+  const ocol = chelnerul.drum.findIndex(function (t) { return t.ocol; });
+  if (ocol >= 0) chelnerul.spre = ocol;
+}
+
 function asazaFundalul() {
   // Destul de sus cât să li se vadă mai mult de jumătate de om peste blat.
   omulCuMana.x = masa2.x - masa2.rx * 0.80;
@@ -2713,7 +2719,7 @@ function asazaFundalul() {
     { x: masa3.x + masa3.rx * 0.9, y: masa3.y - masa3.ry * 1.2, pauza: 3.0,       // la masa a treia
       laMasa3: true },
     { x: loculLaMasa().x, y: loculLaMasa().y, pauza: 2.6 },                       // pe la noi
-    { x: ocolulMesei().x, y: ocolulMesei().y, pauza: 0 },                         // ocolește masa
+    { x: ocolulMesei().x, y: ocolulMesei().y, pauza: 0, ocol: true },             // ocolește masa
     { x: W * 0.66, y: bar.y + bar.inalt + 7 * U, pauza: 1.6 }                     // înapoi spre bar
   ];
   if (!chelnerul.pornit) {
@@ -2888,8 +2894,8 @@ const OPTIUNI = [
   { id: "inghetata", nume: "înghețată",       cantitate: "150 g",  pret: "14 lei", fel: "mancare", desert: true, culoare: "#efe7ea" },
   { sectiune: "De băut" },
   { id: "suc",       nume: "Prigat",          cantitate: "0,5 l",  pret: "9 lei",  fel: "baut",    culoare: "#e07b1f" },
-  { id: "bere",      nume: "bere",            cantitate: "0,5 l",  pret: "12 lei", fel: "baut",    culoare: "#d8a52a" },
-  { id: "vin",       nume: "vin",             cantitate: "0,25 l", pret: "15 lei", fel: "baut",    culoare: "#7c2b33" },
+  { id: "bere",      nume: "bere",            cantitate: "0,5 l",  pret: "12 lei", fel: "baut",    culoare: "#d8a52a", alcool: true },
+  { id: "vin",       nume: "vin",             cantitate: "0,25 l", pret: "15 lei", fel: "baut",    culoare: "#7c2b33", alcool: true },
   { id: "gata",      nume: "doar atât",        fel: "gata",    inchide: true },
   { id: "gandesc",   nume: "mă mai gândesc",   fel: "gandesc", inchide: true },
   { id: "nimic",     nume: "nimic, mulțumesc", fel: "nimic",   inchide: true }
@@ -2928,7 +2934,10 @@ const MANCARE = {
    nouă așteaptă la `coada` și pleacă imediat ce se golește tava. */
 const comanda = {
   stare: "nimic", pentru: null, lista: [], index: 0, ce: null,
-  cronometru: 0, coada: []
+  cronometru: 0, coada: [],
+  // Când cineva face cinste, fiecare lucru de pe tavă are alt destinatar: aici
+  // scrie, pe rând, cui i se pune. Gol, tot ce vine e pentru cel care a cerut.
+  catreCine: null
 };
 const pahare = [];
 const aragaz = { x: 0, y: 0, fum: 0 };
@@ -3071,7 +3080,7 @@ function inchideMeniul() {
   if (comanda.stare === "alege") {
     comanda.stare = "nimic";
     comanda.pentru = null;
-    chelnerul.misiune = null;
+    pleacaDeLaMasa();
   }
 }
 
@@ -3107,18 +3116,20 @@ function loculDeAsteptare(o) {
   return { x: loculDeLucru(o) - 4 * U, y: bar.y + bar.inalt + 7 * U };
 }
 
-function trimiteLaBar(p, lista) {
+function trimiteLaBar(p, lista, catreCine) {
   // Dacă tava e deja pe drum, comanda nouă așteaptă să se întoarcă chelnerul.
   if (comanda.stare !== "nimic" && comanda.stare !== "alege") {
-    comanda.coada.push({ pentru: p, lista: lista });
+    comanda.coada.push({ pentru: p, lista: lista, catreCine: catreCine });
     return;
   }
 
-  // Mâncarea întâi, băutura la urmă: barmanul nu umblă degeaba de la plită la
-  // robinete și înapoi pentru fiecare fel în parte.
+  /* Mâncarea întâi, băutura la urmă: barmanul nu umblă degeaba de la plită la
+     robinete și înapoi pentru fiecare fel în parte. Un rând de cinste e din
+     același fel pentru toți, deci rândul lor nu se încurcă la sortare. */
   lista.sort(function (a, b) { return (a.fel === "baut") - (b.fel === "baut"); });
 
   comanda.pentru = p;
+  comanda.catreCine = catreCine || null;
   comanda.lista = lista;
   comanda.index = 0;
   comanda.ce = lista[0];
@@ -3215,19 +3226,21 @@ function asazaInMijloc(sticla) {
 function puneComandaPeMasa() {
   const p = comanda.pentru;
 
-  // Tot ce e pe tavă coboară pe masă odată, fiecare la locul lui.
-  for (const o of comanda.lista) {
+  // Tot ce e pe tavă coboară pe masă odată, fiecare la locul lui — iar la un
+  // rând de cinste, fiecare pahar în dreptul altuia.
+  comanda.lista.forEach(function (o, i) {
+    const cui = (comanda.catreCine && comanda.catreCine[i]) || p;
     if (o.id === "vin") {
       // Vinul vine cu sticla lui: paharul ți-l torni singur.
-      const sticla = { pentru: p, optiune: o, tip: "sticla", nivel: 1, cronometru: 1e9 };
+      const sticla = { pentru: cui, optiune: o, tip: "sticla", nivel: 1, cronometru: 1e9 };
       asazaInMijloc(sticla);
       pahare.push(sticla);
-      const pahar = { pentru: p, optiune: o, tip: "pahar", nivel: 0, cronometru: intreg(4, 9) };
+      const pahar = { pentru: cui, optiune: o, tip: "pahar", nivel: 0, cronometru: intreg(4, 9) };
       asazaPeMasa(pahar);
       pahare.push(pahar);
     } else {
       const obiect = {
-        pentru: p, optiune: o,
+        pentru: cui, optiune: o,
         tip: o.fel === "baut" ? "pahar" : "farfurie",
         nivel: 1, cronometru: intreg(4, 9)
       };
@@ -3235,18 +3248,19 @@ function puneComandaPeMasa() {
       pahare.push(obiect);
     }
     vizita.vede(o.fel === "mancare" ? "mancare" : "baut");
-  }
+  });
   sunet.canta("poc");
 
   comanda.lista = [];
   comanda.index = 0;
   comanda.ce = null;
+  comanda.catreCine = null;
 
   // Dacă ai mai cerut ceva între timp, pleacă înapoi la bar cu comanda aia.
   if (comanda.coada.length) {
     const urmatoarea = comanda.coada.shift();
     comanda.stare = "nimic";
-    trimiteLaBar(urmatoarea.pentru, urmatoarea.lista);
+    trimiteLaBar(urmatoarea.pentru, urmatoarea.lista, urmatoarea.catreCine);
     return;
   }
 
@@ -3259,7 +3273,7 @@ function puneComandaPeMasa() {
 
   comanda.stare = "nimic";
   comanda.pentru = null;
-  chelnerul.misiune = null;          // își reia tura
+  pleacaDeLaMasa();                  // își reia tura, pe lângă masă, nu peste ea
 }
 
 function actualizeazaComanda(dt) {
@@ -3288,14 +3302,106 @@ function actualizeazaComanda(dt) {
       const inghititura = pahar.pentru === draconianul ? 0.5 :
                           pahar.pentru === clovnul ? 0.34 : 0.2;
       pahar.nivel = Math.max(0, pahar.nivel - inghititura);
-      if (pahar.nivel <= 0) pahar.golit = true;
+      if (pahar.nivel <= 0) { pahar.golit = true; aGolit(pahar.pentru, pahar.optiune); }
       pahar.cronometru = intreg(5, 11);
       sunet.canta("sorbit");
       trimiteEveniment(pahar.pentru, "bea");
     }
   }
 
+  seTrezesc(dt);
   actualizeazaStransul();
+}
+
+/* --- Cinstea și ce le-a intrat în burtă ----------------------------------- */
+
+/* Două fire care leagă partida de local altfel decât prin apăsat pe cineva: cine
+   pierde mâna dă un rând la toată masa, iar ce-au băut și au mâncat li se vede
+   în cum joacă. Nicăieri nu scrie nicio cifră — ori se vede la masă, ori n-a
+   fost. */
+
+// Ce dă fiecare când face cinste: ce bea el, nu ce e mai ieftin.
+const CINSTEA = {
+  "Clovnul": "suc", "Draconianul": "bere", "Reptilianul": "vin", "Dealerul": "bere"
+};
+
+const VORBE_DE_CINSTE = ["Fac eu cinste.", "Am pierdut, deci plătesc.",
+                         "Un rând de la mine.", "E rândul meu, se pare."];
+
+function felulDinMeniu(id) {
+  return OPTIUNI.find(function (o) { return o.id === id; }) || null;
+}
+
+/* Cel care a luat cele mai puține levate cheamă singur chelnerul și dă la toată
+   masa ce bea el. Nu se apasă nimic: se întâmplă la sfârșitul mâinii.
+   Dacă e deja o comandă pe drum sau ai meniul în față, o lasă pe altă dată — un
+   rând de cinste nu se bagă peste ce ai cerut tu. */
+function faceCinste(p) {
+  if (!p || comanda.stare !== "nimic" || meniu.deschis) return false;
+  // Nici peste chelner nu se trece: dacă e pe drum cu ceva, sau strânge vasele,
+  // rândul așteaptă. Altfel l-ar întoarce din mijlocul ocolului, peste masă.
+  if (chelnerul.misiune || chelnerul.strange) return false;
+  const o = felulDinMeniu(CINSTEA[p.nume]);
+  if (!o) return false;
+
+  const masa = jucatori.slice();          // toți cei care au jucat mâna
+  comanda.stare = "vine";
+  comanda.pentru = p;
+  comanda.ce = null;
+  spuneCuGlasTare(p, zice(p, VORBE_DE_CINSTE));
+
+  const loc = loculLaMasa();
+  chelnerul.misiune = {
+    x: loc.x, y: loc.y, prin: ocolulMesei(),
+    apoi: function () {
+      // Nu i se întinde meniul: știe ce dă. Comanda lui pleacă de-a dreptul la bar.
+      comanda.stare = "nimic";
+      trimiteLaBar(p, masa.map(function () { return o; }), masa);
+    }
+  };
+  return true;
+}
+
+/* Cât ține băutura și mâncarea în ei, în secunde: destul cât să se vadă peste
+   câteva mâini, nu atât cât să rămână băuți până la refresh. */
+const BAUTURA_TINE = 90;
+const MANCAREA_TINE = 140;
+const CAT_IMBATA_UN_PAHAR = 0.16;     // atâta haos în plus aduce un pahar golit
+const CAT_INGREUNEAZA_O_FARFURIE = 0.22;
+const PESTE_ATATEA_PAHARE_E_LA_FEL = 3;
+const PESTE_ATATEA_FARFURII_LA_FEL = 2;
+
+function paharele(p) { return Math.min(p.baute || 0, PESTE_ATATEA_PAHARE_E_LA_FEL); }
+function farfuriile(p) { return Math.min(p.mancate || 0, PESTE_ATATEA_FARFURII_LA_FEL); }
+
+// Cât de la nimereală joacă acum: firea lui, plus paharele din față.
+function haosulLui(p) {
+  return Math.min(1, (p.haos || 0) + paharele(p) * CAT_IMBATA_UN_PAHAR);
+}
+
+// Și cât stă pe gânduri: firea lui, plus cât are în burtă.
+function gandireaLui(p) {
+  return (p.gandire || 1) * (1 + farfuriile(p) * CAT_INGREUNEAZA_O_FARFURIE);
+}
+
+/* Șansa să pună o carte fără nicio noimă, oricât s-ar pricepe. Treaz e zero
+   pentru toți, chiar și pentru cei care oricum joacă la întâmplare: numai
+   paharul o aduce. */
+function betia(p) { return paharele(p) * 0.14; }
+
+// Un pahar golit se simte; unul de suc, nu. O farfurie golită se așază în burtă.
+function aGolit(p, optiune) {
+  if (!p || !optiune) return;
+  if (optiune.alcool) p.baute = (p.baute || 0) + 1;
+  else if (optiune.fel === "mancare") p.mancate = (p.mancate || 0) + 1;
+}
+
+// Și trece, încet: la un moment dat sunt iar treji și iar flămânzi.
+function seTrezesc(dt) {
+  for (const p of personaje.concat([dealerul])) {
+    if (p.baute > 0) p.baute = Math.max(0, p.baute - dt / BAUTURA_TINE);
+    if (p.mancate > 0) p.mancate = Math.max(0, p.mancate - dt / MANCAREA_TINE);
+  }
 }
 
 /* --- Strânsul vaselor ----------------------------------------------------- */
@@ -4659,17 +4765,27 @@ function spuneCuGlasTare(p, text) {
   p.vorbaTimp = 2.6 + scurt.length * 0.05;
 }
 
+/* Toți cei care pot avea o vorbă deasupra capului: cei cu care se poate vorbi,
+   plus cei de la masă. Clovnul nu răspunde nimănui — el ești tu —, dar când
+   pierde mâna face cinste, și atunci are și el ce spune. */
+function ceiCuVorba() {
+  const toti = vorbitori().slice();
+  for (const p of personaje.concat([dealerul])) {
+    if (toti.indexOf(p) < 0) toti.push(p);
+  }
+  return toti;
+}
+
 function actualizeazaVorbele(dt) {
   actualizeazaCoada(dt);
-  for (const p of vorbitori()) {
+  for (const p of ceiCuVorba()) {
     if (p.vorbaTimp > 0) p.vorbaTimp -= dt;
   }
-  if (dealerul.vorbaTimp > 0 && vorbitori().indexOf(dealerul) < 0) dealerul.vorbaTimp -= dt;
 }
 
 // Bulele tuturor celor care tocmai au zis ceva, oriunde ar sta ei în local.
 function deseneazaVorbeleLor() {
-  for (const p of vorbitori()) {
+  for (const p of ceiCuVorba()) {
     if (p.vorbaTimp > 0 && p.vorba) bulaDeVorba(p, p.vorba);
   }
 }
@@ -4897,7 +5013,7 @@ const AI = {
         model: this.model,
         stream: false,
         think: false,              // altfel se gândește zeci de secunde
-        options: { temperature: 0.6 + (p.haos || 0), num_predict: 8 },
+        options: { temperature: 0.6 + haosulLui(p), num_predict: 8 },
         messages: [
           { role: "system", content: p.promptSistem },
           { role: "user", content: situatie }
@@ -5079,6 +5195,12 @@ function alegeDinCod(p) {
   const areJoker = p.mana.some(function (c) { return c.joker; });
   const ultima = levata >= CARTI_IN_MANA - 1;
 
+  /* Cu paharele băute, mâna merge înaintea capului: pune ce apucă, oricât s-ar
+     pricepe altfel. Asta e tot ce se vede din ce-a băut — nicio cifră. */
+  if (intreg(0, 1) < betia(p)) {
+    return valori[Math.floor(intreg(0, valori.length)) % valori.length];
+  }
+
   // Jokerul e o cacealma: dat prea devreme, se irosește. Cine calculează îl
   // ține pentru levata în care e mai probabil să cadă un zece — ultima.
   if (areJoker && p !== draconianul && (ultima || intreg(0, 1) < 0.3)) return 0;
@@ -5201,7 +5323,10 @@ function schimbaStarea(noua) {
       }
       castigatorulMainii = celMaiBun;
       trimiteEveniment(celMaiBun, "castigaMana");
-      if (celMaiSlab !== celMaiBun) trimiteEveniment(celMaiSlab, "pierdeMana");
+      if (celMaiSlab !== celMaiBun) {
+        trimiteEveniment(celMaiSlab, "pierdeMana");
+        faceCinste(celMaiSlab);      // cine a luat cel mai puțin dă un rând la masă
+      }
     }
   }
   else if (noua === "pauza") {
@@ -5516,8 +5641,7 @@ function deseneazaTot() {
   // să le vezi limpede, nu prin vignetă.
   deseneazaManaTa();
   deseneazaVorba();
-  deseneazaVorbaDealerului();
-  deseneazaVorbeleLor();
+  deseneazaVorbeleLor();      // și a dealerului, când se bagă el într-o mână
   deseneazaMeniu();
 }
 

@@ -97,6 +97,18 @@ gol; apeși pe sticlă și îți torni singur. După ce
 comanda ajunge pe masă, se bea și se mănâncă din ea din când în când. Sunetul
 pornește la primul clic, fiindcă browserele nu-l lasă altfel.
 
+**Și ei comandă, nu numai tu.** La sfârșitul fiecărei mâini, cine a luat cele
+mai puține levate face cinste: cheamă singur chelnerul — *„Un rând de la mine."*
+— și dă la toată masa ce bea el. Draconianul dă bere, reptilianul vin, dealerul
+bere, clovnul un suc. Nu apeși nimic, se întâmplă. Dacă tocmai ai comandat tu
+ceva, își ține rândul pentru mâna următoare.
+
+**Ce beau li se vede în joc.** După câteva pahare pun cărțile mai la nimereală,
+iar cu burta plină stau mai mult pe gânduri — reptilianul, care de obicei își
+drămuiește mâna carte cu carte, începe să arunce ce apucă. Nu scrie nicăieri
+nicio cifră: se vede din cum joacă, sau nu se vede deloc. Și trece de la sine,
+ca la orice om.
+
 **Poți vorbi cu ei.** În colțul din dreapta-jos e un balon de vorbă: îl apeși,
 alegi din listă cu cine vorbești — sau dai clic pe el direct în local — și
 scrii. Îți răspund toți: draconianul mârâie scurt, barmanul te întreabă ce-ți

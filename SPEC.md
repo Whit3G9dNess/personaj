@@ -131,6 +131,12 @@ Vinul face excepție: vine cu sticla și cu paharul gol. Sticla stă pe mijlocul
 mesei, la vedere — nu chiar în buric, ci în golul de lângă clovn, ca să nu-i
 iasă prin cap; apeși pe ea și îți torni singur.
 
+**Nu toate comenzile sunt ale tale.** La sfârșitul fiecărei mâini, cine a luat
+cele mai puține levate face cinste: cheamă singur chelnerul și dă un rând la
+toată masa — ce bea el, câte unul de fiecare. Nu se apasă nimic, și nu se bagă
+peste ce ai cerut tu: dacă e o comandă pe drum sau ai meniul în față, lasă
+rândul pe mâna următoare.
+
 Partida merge înainte tot timpul. Detaliile, în [PLAN.md](PLAN.md), Faza 9.
 
 ## 4c. Adversarii
@@ -144,6 +150,10 @@ musafirilor de la masa a treia.
 Fără Ollama, sau dacă modelul întârzie ori spune o prostie, se joacă și se
 vorbește după ce e scris în cod. Scena nu se oprește niciodată după un răspuns
 care nu vine, și nu trebuie instalat nimic ca să meargă.
+
+**Ce beau și ce mănâncă li se vede în joc.** După câteva pahare pun cărțile mai
+la nimereală, iar cu burta plină stau mai mult pe gânduri. Nu scrie nicăieri
+nicio cifră: ori se vede la masă, ori n-a fost. Trece de la sine, ca la orice om.
 
 ## 4d. Vorba cu ei
 

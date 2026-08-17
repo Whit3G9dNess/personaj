@@ -24,7 +24,7 @@ funcționează deja.
 | 8 | Lumea din local: clienții, chelnerul, barmanul | ✅ gata |
 | 9 | Comanda, bucătăria și sunetul | ✅ gata |
 | 10 | Partida adevărată: joci tu cărțile clovnului | ✅ gata |
-| 11 | Partida cu cap: trei levate, cărți întoarse, jokerul | ◐ 1–3 gata; 4 și 5 nu |
+| 11 | Partida cu cap: trei levate, cărți întoarse, jokerul | ✅ gata |
 | 12 | Localul reașezat: masă pătrată, dealer, bucătar, chiuvetă | ✅ gata |
 | 13 | Vorba cu ei: chat cu oricine din local | ✅ gata |
 | 14 | Pomenit pe altul: `@cineva` în vorbă | ✅ gata |
@@ -447,7 +447,7 @@ jokerul e mort de fiecare dată când deschizi tu levata, fiindcă ceilalți îl
 și nu-și mai dau zecele. **4** și **5** sunt condimente, se pun oricând mai
 încolo.
 
-**Stadiu: 1, 2 și 3 sunt gata.** Ce s-a mai văzut pe drum, scris aici ca să nu
+**Stadiu: toate cinci sunt gata.** Ce s-a mai văzut pe drum, scris aici ca să nu
 se redescopere:
 
 - Cărțile întoarse schimbă și judecata adversarilor: până acum reptilianul se
@@ -459,8 +459,29 @@ se redescopere:
   fără ce juca după prima — acum gestul e al sfârșitului de mână și mătură
   cărțile de pe masă, nu pe cele din mâna lui.
 - Reacțiile mari („castigaMana", „pierdeMana") se trimit după a treia levată,
-  celui cu cele mai multe și celui cu cele mai puține. De aici se poate lega,
-  mai încolo, și punctul **4**: cine pierde mâna face cinste.
+  celui cu cele mai multe și celui cu cele mai puține. De aici s-a legat și
+  punctul **4**: cine pierde mâna face cinste.
+
+**Cum s-au făcut 4 și 5, la urmă:**
+
+- **Cinstea** e o comandă ca oricare, doar că n-o dai tu: cel cu cele mai puține
+  levate cheamă chelnerul, iar chelnerul nu-i mai întinde meniul — știe ce dă.
+  Fiecare dă ce bea el (`CINSTEA`, oglindită în `personaje.json`): draconianul
+  bere, reptilianul vin, dealerul bere, clovnul suc. E un **rând pentru toată
+  masa**, deci comanda a căpătat `catreCine`: cui i se pune fiecare lucru de pe
+  tavă, altfel toate paharele ar fi ajuns în dreptul unuia singur.
+  Se lasă păgubaș dacă e o comandă pe drum, dacă ai meniul în față sau dacă
+  chelnerul e ocupat — un rând de cinste nu se bagă peste ce ai cerut tu.
+- **Ce-au băut** nu e un număr pe ecran, ci două cifre pe personaj — `baute` și
+  `mancate` — și trei funcții prin care trec toate deciziile: `haosulLui`,
+  `gandireaLui`, `betia`. Un pahar cu alcool golit adaugă haos (până la trei
+  pahare), o farfurie golită îngreunează gândirea (până la două). Se scurg de la
+  sine: un minut și jumătate băutura, ceva mai mult mâncarea. Sucul nu îmbată.
+- Două lucruri au ieșit la iveală abia acum, fiindcă până aici chelnerul venea la
+  masă doar când îl chemai tu: la plecare își relua tura tăind peste blat (acum
+  pleacă prin ocolul din stânga, `pleacaDeLaMasa`), iar bula de deasupra capului
+  se stingea numai pentru cei cu care se poate vorbi — clovnul n-avea cine să-i
+  scadă timpul, deși acum are și el ce spune.
 
 **Rămâne pe dinafară:** jetoane, mize, cash-out, scor scris pe ecran, magazin,
 mâncare care dă bonusuri la cărți, alte cărți speciale în afară de joker, 3D.

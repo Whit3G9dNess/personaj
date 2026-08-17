@@ -1,5 +1,5 @@
 {
-  "versiune": 4,
+  "versiune": 6,
   "descriere": "Fișa tuturor personajelor cu nume din local: firea cu care le răspunde modelul, replicile de rezervă când modelul tace, ce se spune despre ei când îi pomenește cineva, locul lor în scenă și dimensiunile. Fișierul e oglinda scenei, nu sursa ei: nu se citește la pornire, fiindcă `index.html` se deschide direct de pe file://, unde fetch cade. Adevărul e în cod; aici scrie ca să se vadă toată distribuția pe o pagină.",
   "campuri": {
     "fire": "Cine e, spus lui: pleacă la model ca prompt de sistem. Clovnul n-are — pe el îl joci tu.",
@@ -7,7 +7,11 @@
     "despre": "Cine e, spus altora: intră în prompt când îl pomenește cineva cu `@`.",
     "porecle": "Numele scurte după care îl găsești când scrii `@`, fără diacritice.",
     "pareri": "Ce zice despre altul fără model; `{cine}` se umple cu numele celui pomenit.",
-    "pareriDeSine": "Ce zice despre el însuși, fără model, când îl întrebi cu `@tine`."
+    "pareriDeSine": "Ce zice despre el însuși, fără model, când îl întrebi cu `@tine`.",
+    "bagari": "Cu ce se bagă în vorba altora, când aude de la locul lui și nu-l întreabă nimeni.",
+    "repezeli": "Cum îl repede pe cel băgat peste el; `{cine}` se umple cu numele celui băgat.",
+    "raspunsuri": "Ce zice la fiecare temă recunoscută din vorba ta: salut, ceFaci, cineEsti, joc, bautura, primit (ai zis „da\" sau „știu\"), multumesc, plecare, nuStiu (o întrebare pe care n-a înțeles-o).",
+    "intrebari": "Ce te întreabă el pe tine, când vine rândul lui să întrebe."
   },
   "implicit": {
     "model": "gemma4:e2b",
@@ -20,7 +24,12 @@
     "unitati": "Lățimea și înălțimea sunt în unități U (a suta parte din latura mică a ferestrei). `loc.kx` și `loc.ky` sunt lățimi și adâncimi de masă față de mijlocul blatului.",
     "faraOllama": "Dacă modelul lipsește, tace sau spune o vorbă care nu trece de sită, fiecare răspunde din ce are scris aici. Nimic nu se blochează.",
     "sita": "Ce zice modelul se curăță înainte să se audă: numele scris în față, ghilimelele, asteriscurile, mișcările dintre paranteze, rândurile de după primul. Vorba ruptă la mijloc se taie la ultima propoziție încheiată, iar ce rămâne gol, în alt alfabet, în engleză sau doar întrebarea întoarsă se aruncă.",
-    "memorie": "Dacă te prezinți („numele meu este Alex\"), localul reține numele și îl primesc toți în prompt. Fiecare își ține firul lui de vorbă. Totul ține până la refresh."
+    "memorie": "Dacă te prezinți („numele meu este Alex\"), localul reține numele și îl primesc toți în prompt. Fiecare își ține firul lui de vorbă. Totul ține până la refresh.",
+    "peInteles": "Fără model, vorba ta se citește întâi: se caută tema (vezi `TEME` în cod) și se răspunde din `raspunsuri`, nu din rezervă la nimereală. Rezerva rămâne doar pentru ce nu s-a înțeles deloc.",
+    "ceStieDespreTine": "„Sunt obosit\", „mi-e sete\", „îmi place berea\" se țin minte întoarse spre tine — „ești obosit\" —, cel mult trei odată. Le primește și modelul în prompt, și pot fi aduse înapoi în vorbă.",
+    "teIntreabaSiEl": "Din când în când întoarce și el o întrebare: din `intrebari`, despre altcineva din local, sau despre ce i-ai spus mai devreme. Șansa și răgazul stau în `INTREBATUL`, în cod. Cine se bagă neîntrebat n-are dreptul să și întrebe.",
+    "maiMultiOdata": "Într-o vorbă încap mai multe pomeniri: cine e chemat pe nume și e în local răspunde și el, pe rând, la o secundă și două după cel întrebat. Chemat singur, vorbește despre el; chemat lângă altcineva, despre acela.",
+    "bagatulInVorba": "Când vorbești între patru ochi, o dată la vreo douăsprezece vorbe se bagă altcineva din local, neîntrebat, iar cel cu care vorbeai îl repede. Șansa stă în `BAGAREA.sansa`, în cod. Dacă ai chemat tu pe cineva pe nume, nu se mai bagă nimeni peste el."
   },
   "personaje": [
     {
@@ -91,6 +100,57 @@
         "Mârrr. Nu mă descriu, mă vezi.",
         "Cel mai tare de la masă. Următoarea."
       ],
+      "bagari": [
+        "Mârrr. Sunt și eu aici.",
+        "Aud tot, chiar dacă tac."
+      ],
+      "repezeli": [
+        "Mârrr. Cine te-a întrebat, {cine}?",
+        "{cine}, taci și lasă-mă.",
+        "Nu vorbeam cu tine."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Mârrr.",
+          "Ai venit. Stai jos."
+        ],
+        "ceFaci": [
+          "Joc. Atât.",
+          "Aștept cărți mai mari."
+        ],
+        "cineEsti": [
+          "Sunt cel mare de la masă.",
+          "Un draconian. Se vede."
+        ],
+        "joc": [
+          "Cărțile astea sunt prea mici pentru mine.",
+          "Joc, nu vorbesc."
+        ],
+        "bautura": [
+          "Adu-mi o bere.",
+          "Bere. Rece. Atât."
+        ],
+        "primit": [
+          "Mârrr.",
+          "Bine."
+        ],
+        "multumesc": [
+          "Hm.",
+          "Lasă."
+        ],
+        "plecare": [
+          "Pleci? Mârrr.",
+          "Du-te."
+        ],
+        "nuStiu": [
+          "Habar n-am.",
+          "Nu mă întreba pe mine."
+        ]
+      },
+      "intrebari": [
+        "Tu ce cauți aici?",
+        "Joci sau te uiți?"
+      ],
       "descriere": {
         "aspect": "Masiv, ocupă cel mai mult loc la masă. Cap de dinozaur cu dinți și ochi galbeni, două aripi pliate pe spate, două labe-mâini, două labe-picioare.",
         "personalitate": "Fioros, tăcut. Nervos des.",
@@ -146,6 +206,57 @@
         "Sunt cel care așteaptă.",
         "Despre mine? Prea puțin de spus."
       ],
+      "bagari": [
+        "Se aude până aici, dacă tot vorbiți.",
+        "Aș avea și eu o vorbă, dacă mă lăsați."
+      ],
+      "repezeli": [
+        "Nu vorbeam cu tine, {cine}.",
+        "{cine}, ai răbdare până te întreabă cineva.",
+        "Fiecare la masa lui."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Bună seara.",
+          "Ia loc."
+        ],
+        "ceFaci": [
+          "Aștept, ca de obicei.",
+          "Bine, cât timp am cărți bune."
+        ],
+        "cineEsti": [
+          "Cel care câștigă, de regulă.",
+          "Un om răbdător, în costum."
+        ],
+        "joc": [
+          "Răbdarea câștigă mâinile, nu norocul.",
+          "Se joacă încet, se câștigă sigur."
+        ],
+        "bautura": [
+          "Un pahar, nu mai mult.",
+          "Beau rar, și niciodată la mijlocul mâinii."
+        ],
+        "primit": [
+          "Așa.",
+          "Bun."
+        ],
+        "multumesc": [
+          "Cu plăcere.",
+          "N-ai pentru ce."
+        ],
+        "plecare": [
+          "Drum bun.",
+          "Mai treci pe la masa asta."
+        ],
+        "nuStiu": [
+          "Nu știu, și n-aș ghici.",
+          "Întreabă pe altcineva."
+        ]
+      },
+      "intrebari": [
+        "Tu de unde vii?",
+        "Joci des?"
+      ],
       "descriere": {
         "aspect": "Umanoid-crocodil: bot lung, solzi verzi-măslinii, coadă, costum cu cravată, postură dreaptă.",
         "personalitate": "Calm, calculat, cel mai bun jucător dintre cei trei.",
@@ -199,6 +310,57 @@
         "Sunt omul care împarte, nu cel care câștigă.",
         "Corect, până la ultima carte."
       ],
+      "bagari": [
+        "Iertați-mă, dar am auzit și eu.",
+        "Din locul meu se aude toată masa."
+      ],
+      "repezeli": [
+        "{cine}, lasă oamenii să vorbească.",
+        "Nu era vorba cu tine, {cine}.",
+        "La masa asta vorbește cine e întrebat."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Bine ați venit la masă.",
+          "Bună seara, domnule."
+        ],
+        "ceFaci": [
+          "Împart, ca în fiecare seară.",
+          "Bine, mulțumesc de întrebare."
+        ],
+        "cineEsti": [
+          "Eu împart cărțile aici.",
+          "Dealerul mesei, atât."
+        ],
+        "joc": [
+          "Cărțile cad cum cad.",
+          "Trei levate fac o mână."
+        ],
+        "bautura": [
+          "Eu nu beau la masă.",
+          "Cheamă chelnerul, el se ocupă."
+        ],
+        "primit": [
+          "Prea bine.",
+          "Am înțeles."
+        ],
+        "multumesc": [
+          "Cu plăcere.",
+          "Pentru puțin."
+        ],
+        "plecare": [
+          "O seară bună.",
+          "Mai veniți pe la noi."
+        ],
+        "nuStiu": [
+          "Nu m-aș pronunța.",
+          "Asta nu-i treaba mea."
+        ]
+      },
+      "intrebari": [
+        "Mai vrei o mână?",
+        "Ai mai jucat aici?"
+      ],
       "descriere": {
         "aspect": "Om, nu personaj de basm: vestă închisă la culoare peste cămașă albă, papion. Croit din același trup ca barmanul și chelnerul.",
         "personalitate": "Politicos, profesionist.",
@@ -251,6 +413,57 @@
         "Sunt cel care ajunge primul la masă.",
         "Două mâini, zece mese."
       ],
+      "bagari": [
+        "Trec pe lângă voi și tot aud.",
+        "Scuze, aveam și eu o vorbă."
+      ],
+      "repezeli": [
+        "{cine}, lasă-mă să termin.",
+        "Nu te băga, {cine}, că n-am timp.",
+        "Vorbeam cu omul, nu cu tine."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Bună seara! Imediat sunt la dumneavoastră.",
+          "Salut, ce vă aduc?"
+        ],
+        "ceFaci": [
+          "Alerg, ca de obicei.",
+          "Bine, dacă nu mă strigă toți odată."
+        ],
+        "cineEsti": [
+          "Chelnerul, cine să fiu.",
+          "Eu duc tava prin local."
+        ],
+        "joc": [
+          "Nu mă bag, eu am mese de făcut.",
+          "Ăia joacă de-o oră, eu tot alerg."
+        ],
+        "bautura": [
+          "Imediat, ce doriți?",
+          "Meniul e pe masă, alegeți."
+        ],
+        "primit": [
+          "Am notat.",
+          "Bine."
+        ],
+        "multumesc": [
+          "Cu drag.",
+          "Pentru puțin."
+        ],
+        "plecare": [
+          "O seară bună!",
+          "Mai poftiți."
+        ],
+        "nuStiu": [
+          "N-am idee, întreb la bar.",
+          "Nu știu, dar aflu."
+        ]
+      },
+      "intrebari": [
+        "Vă mai aduc ceva?",
+        "Ați fost servit?"
+      ],
       "descriere": {
         "aspect": "Om cu tavă, în ținuta localului.",
         "personalitate": "Politicos, grăbit.",
@@ -290,6 +503,57 @@
         "Sunt cel mai cinstit om de aici.",
         "Știu toate poveștile, nu le spun pe toate."
       ],
+      "bagari": [
+        "De după tejghea se aude tot.",
+        "Ia să zic și eu ceva."
+      ],
+      "repezeli": [
+        "Stai, {cine}, că nu vorbeam cu tine.",
+        "{cine}, mai lasă-mă un pic.",
+        "Fiecare la rândul lui."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Salut! Ce-ți torn?",
+          "Bine ai venit la tejghea."
+        ],
+        "ceFaci": [
+          "Șterg paharul ăsta de o oră.",
+          "Bine, se aude tot de aici."
+        ],
+        "cineEsti": [
+          "Barmanul. Eu torn și ascult.",
+          "Omul de după tejghea."
+        ],
+        "joc": [
+          "De aici se vede toată masa.",
+          "Ăia joacă serios, eu doar mă uit."
+        ],
+        "bautura": [
+          "Berea e rece, dacă întrebi.",
+          "Zi ce vrei și-ți torn."
+        ],
+        "primit": [
+          "Așa e.",
+          "Bun."
+        ],
+        "multumesc": [
+          "Cu plăcere.",
+          "N-ai pentru ce."
+        ],
+        "plecare": [
+          "Să vii iar.",
+          "Noapte bună!"
+        ],
+        "nuStiu": [
+          "Habar n-am, deși s-au auzit multe aici.",
+          "Asta n-o știu."
+        ]
+      },
+      "intrebari": [
+        "Tu ce bei?",
+        "Prima dată aici?"
+      ],
       "descriere": {
         "aspect": "Om în spatele tejghelei, cu raftul de sticle în spate.",
         "personalitate": "Prietenos, glumeț.",
@@ -327,6 +591,57 @@
         "Gătesc mai bine decât toți din oraș.",
         "Sunt cel care ține localul plin.",
         "Fără mine, aici s-ar mânca pâine goală."
+      ],
+      "bagari": [
+        "Strig și eu de la aragaz!",
+        "Ascultam, cât amestecam."
+      ],
+      "repezeli": [
+        "{cine}, nu te băga în bucătăria mea.",
+        "Mai taci, {cine}, că nu te-a întrebat nimeni.",
+        "Vorbeam eu, nu tu."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Salut de la aragaz!",
+          "Bine ai venit, ți-e foame?"
+        ],
+        "ceFaci": [
+          "Amestec în trei oale odată.",
+          "Bine, cât timp nu se arde nimic."
+        ],
+        "cineEsti": [
+          "Bucătarul, cine altcineva.",
+          "Eu gătesc tot ce se mănâncă aici."
+        ],
+        "joc": [
+          "Eu joc doar cu tigaia.",
+          "N-am timp de cărți, am comenzi."
+        ],
+        "bautura": [
+          "Micii mei sunt cei mai buni din oraș.",
+          "Papanașii se fac cu răbdare."
+        ],
+        "primit": [
+          "Așa.",
+          "Bine, bine."
+        ],
+        "multumesc": [
+          "Poftă bună!",
+          "Cu plăcere."
+        ],
+        "plecare": [
+          "Să vii flămând data viitoare.",
+          "Mergi sănătos."
+        ],
+        "nuStiu": [
+          "De unde să știu eu, din bucătărie?",
+          "Nu știu, întreabă la bar."
+        ]
+      },
+      "intrebari": [
+        "Ți-e foame?",
+        "Ai gustat papanașii mei?"
       ],
       "descriere": {
         "aspect": "Bluză albă, șorț lung, bonetă înaltă — după ea se recunoaște de la distanță.",
@@ -368,6 +683,57 @@
         "Muncesc cel mai mult și mă vede cel mai puțin.",
         "Obosit, dar tot aici."
       ],
+      "bagari": [
+        "Aud tot, de la chiuvetă.",
+        "Zic și eu ceva, dacă tot spăl."
+      ],
+      "repezeli": [
+        "{cine}, lasă-mă și pe mine să vorbesc.",
+        "Nu te băga, {cine}, că am destule.",
+        "Vorbeam cu omul, nu cu tine."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Salut. Am mâinile ude.",
+          "Bună. Vezi teancul ăsta?"
+        ],
+        "ceFaci": [
+          "Spăl. Ce altceva.",
+          "Mai am doar vreo sută."
+        ],
+        "cineEsti": [
+          "Omul de la chiuvetă.",
+          "Eu spăl ce mâncați voi."
+        ],
+        "joc": [
+          "Ei joacă, eu spăl.",
+          "N-am ajuns niciodată la masa aia."
+        ],
+        "bautura": [
+          "Voi beți, eu spăl paharele.",
+          "Apa e caldă, măcar atât."
+        ],
+        "primit": [
+          "Mda.",
+          "Așa o fi."
+        ],
+        "multumesc": [
+          "Lasă vasele aici.",
+          "Puțin îmi folosește, dar mersi."
+        ],
+        "plecare": [
+          "Du-te, eu tot aici rămân.",
+          "Noroc."
+        ],
+        "nuStiu": [
+          "De unde să știu?",
+          "Eu văd doar chiuveta."
+        ]
+      },
+      "intrebari": [
+        "Tu ai spălat vreodată o sută de farfurii?",
+        "Crezi că se termină vreodată?"
+      ],
       "descriere": {
         "aspect": "Cămașă albăstruie, șorț, mâinile în chiuvetă.",
         "personalitate": "Obosit, resemnat, cu umor amar.",
@@ -408,6 +774,57 @@
         "Sunt bun. Nu îndeajuns.",
         "Gândesc mai mult decât vorbesc."
       ],
+      "bagari": [
+        "Am ridicat ochii de pe tablă o clipă.",
+        "Se aude până la masa mea."
+      ],
+      "repezeli": [
+        "Liniște, {cine}, sunt la mutare.",
+        "Nu te-a întrebat nimeni, {cine}.",
+        "Vorbeam cu omul."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Salut. Sunt la mutare.",
+          "Bună. Un moment."
+        ],
+        "ceFaci": [
+          "Gândesc.",
+          "Pierd, deocamdată."
+        ],
+        "cineEsti": [
+          "Un om cu o mână de argint.",
+          "Jucător de șah, nu de cărți."
+        ],
+        "joc": [
+          "Cărțile sunt noroc. Șahul, nu.",
+          "La masa aia se joacă altceva."
+        ],
+        "bautura": [
+          "Un pahar, între două mutări.",
+          "Nu beau când sunt la mutare."
+        ],
+        "primit": [
+          "Așa.",
+          "Bine."
+        ],
+        "multumesc": [
+          "Pentru puțin.",
+          "Hm."
+        ],
+        "plecare": [
+          "Mergi cu bine.",
+          "Încă trei mutări și câștig."
+        ],
+        "nuStiu": [
+          "Nu m-am gândit la asta.",
+          "Nu știu. Sunt la mutare."
+        ]
+      },
+      "intrebari": [
+        "Joci șah?",
+        "Tu ce ai muta aici?"
+      ],
       "descriere": {
         "aspect": "Om obișnuit, cu o singură mână de argint — singurul lucru care sclipește la el.",
         "personalitate": "Gânditor, scump la vorbă.",
@@ -447,6 +864,57 @@
         "Strălucesc. Se vede.",
         "Sunt din aur. Ce mai vrei?",
         "Despre mine se vorbește destul."
+      ],
+      "bagari": [
+        "Hm. Auzeam și eu, din colț.",
+        "O vorbă, și mă întorc la tablă."
+      ],
+      "repezeli": [
+        "{cine}, nu te băga.",
+        "Taci, {cine}.",
+        "Nu vorbeam cu tine."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Hm. Salut.",
+          "Ai venit. Bine."
+        ],
+        "ceFaci": [
+          "Aștept să mute.",
+          "Strălucesc, ca de obicei."
+        ],
+        "cineEsti": [
+          "Sunt din aur. Ce mai vrei?",
+          "Cel care câștigă partida asta."
+        ],
+        "joc": [
+          "Cărțile sunt pentru cei grăbiți.",
+          "La masa aia se pierde repede."
+        ],
+        "bautura": [
+          "Nu beau.",
+          "Aurul nu bea."
+        ],
+        "primit": [
+          "Bine.",
+          "Firește."
+        ],
+        "multumesc": [
+          "Firește.",
+          "Hm."
+        ],
+        "plecare": [
+          "Mai târziu.",
+          "Du-te."
+        ],
+        "nuStiu": [
+          "Nu mă interesează.",
+          "Nu știu, și nici nu caut."
+        ]
+      },
+      "intrebari": [
+        "Tu de ce te uiți la mine?",
+        "Ai văzut ceva mai frumos aici?"
       ],
       "descriere": {
         "aspect": "Turnat dintr-o bucată: haine, piele, păr, tot din aur, cu o dungă de lumină prinsă în metal.",
@@ -489,6 +957,57 @@
         "Eu doar am venit la un pahar.",
         "Om obișnuit, nimic special."
       ],
+      "bagari": [
+        "Auziți, și eu ce credeam...",
+        "Ia stați, că am și eu o vorbă!"
+      ],
+      "repezeli": [
+        "Stai, {cine}, că povesteam eu!",
+        "Nu te băga, {cine}.",
+        "Lasă-mă să termin."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Salut, salut!",
+          "Bună, stai cu noi?"
+        ],
+        "ceFaci": [
+          "Bine, stăm la o sticlă.",
+          "Povestim, ca tot omul."
+        ],
+        "cineEsti": [
+          "Un om venit la un pahar.",
+          "Client, ca oricare."
+        ],
+        "joc": [
+          "Ăia de la masa mare joacă tare.",
+          "Eu mă uit doar, nu joc."
+        ],
+        "bautura": [
+          "Am luat o sticlă de vin.",
+          "Vinul de aici e bun, zău."
+        ],
+        "primit": [
+          "Exact!",
+          "Așa ziceam și eu."
+        ],
+        "multumesc": [
+          "Cu plăcere, omule.",
+          "N-ai pentru ce."
+        ],
+        "plecare": [
+          "Pa, ne mai vedem!",
+          "Hai, noroc!"
+        ],
+        "nuStiu": [
+          "Habar n-am, dar sună interesant.",
+          "Nu știu, zi tu."
+        ]
+      },
+      "intrebari": [
+        "Tu de unde ești?",
+        "Bei ceva cu noi?"
+      ],
       "descriere": {
         "aspect": "Om oarecare, cu paleta lui de culori, alta la fiecare vizită.",
         "personalitate": "Vorbăreț, curios.",
@@ -527,6 +1046,57 @@
         "Sunt mai tăcut, atât.",
         "Nimic de zis despre mine.",
         "Ascult mai mult."
+      ],
+      "bagari": [
+        "Așa e.",
+        "Și eu ziceam ceva."
+      ],
+      "repezeli": [
+        "{cine}, taci.",
+        "Nu era vorba cu tine.",
+        "Lasă omul în pace."
+      ],
+      "raspunsuri": {
+        "salut": [
+          "Salut.",
+          "Bună."
+        ],
+        "ceFaci": [
+          "Bine.",
+          "Stăm."
+        ],
+        "cineEsti": [
+          "Un client.",
+          "Am venit cu el."
+        ],
+        "joc": [
+          "Joacă ăia, da.",
+          "Nu mă pricep."
+        ],
+        "bautura": [
+          "Bun vinul.",
+          "Mai e în sticlă."
+        ],
+        "primit": [
+          "Da, da.",
+          "Așa e."
+        ],
+        "multumesc": [
+          "Mda.",
+          "Pentru puțin."
+        ],
+        "plecare": [
+          "Pa.",
+          "Eu ziceam să plecăm oricum."
+        ],
+        "nuStiu": [
+          "Nu știu.",
+          "Întreabă-l pe el."
+        ]
+      },
+      "intrebari": [
+        "Tu ce zici?",
+        "Mai stai mult?"
       ],
       "descriere": {
         "aspect": "Om oarecare, cu paleta lui de culori, alta la fiecare vizită.",

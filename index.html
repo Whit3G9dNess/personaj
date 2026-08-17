@@ -3700,7 +3700,11 @@ function deseneazaMeniu() {
      - `rezerva`      : ce zice când modelul tace;
      - `despre`       : cine e, spus altora, când îl pomenește cineva în vorbă;
      - `pareri`       : ce zice despre altul, tot fără model, cu `{cine}` în loc de nume;
-     - `pareriDeSine` : ce zice despre el însuși, fără model, întrebat cu `@tine`.
+     - `pareriDeSine` : ce zice despre el însuși, fără model, întrebat cu `@tine`;
+     - `bagari`       : cu ce se bagă în vorba altora, când nu-l întreabă nimeni;
+     - `repezeli`     : cum îl repede pe cel băgat peste el, cu `{cine}` în loc de nume;
+     - `raspunsuri`   : ce zice la fiecare temă recunoscută din vorba ta (vezi `TEME`);
+     - `intrebari`    : ce te întreabă el pe tine, când vine rândul lui să întrebe.
    `porecle` sunt numele scurte după care îl găsești când scrii `@`.
    Tot ce e aici se oglindește în `personaje.json`, care nu se citește la
    pornire: aici e adevărul, acolo e fișa de citit. */
@@ -3725,7 +3729,22 @@ const FIRI = {
     pareri: ["Mârrr. {cine} n-are ce-mi face.", "{cine}? Nu mă bag.",
              "Cu {cine} am mai jucat. Destul."],
     pareriDeSine: ["Sunt mare. Atât.", "Mârrr. Nu mă descriu, mă vezi.",
-                   "Cel mai tare de la masă. Următoarea."]
+                   "Cel mai tare de la masă. Următoarea."],
+    bagari: ["Mârrr. Sunt și eu aici.", "Aud tot, chiar dacă tac."],
+    repezeli: ["Mârrr. Cine te-a întrebat, {cine}?", "{cine}, taci și lasă-mă.",
+               "Nu vorbeam cu tine."],
+    raspunsuri: {
+      salut:     ["Mârrr.", "Ai venit. Stai jos."],
+      ceFaci:    ["Joc. Atât.", "Aștept cărți mai mari."],
+      cineEsti:  ["Sunt cel mare de la masă.", "Un draconian. Se vede."],
+      joc:       ["Cărțile astea sunt prea mici pentru mine.", "Joc, nu vorbesc."],
+      bautura:   ["Adu-mi o bere.", "Bere. Rece. Atât."],
+      primit:    ["Mârrr.", "Bine."],
+      multumesc: ["Hm.", "Lasă."],
+      plecare:   ["Pleci? Mârrr.", "Du-te."],
+      nuStiu:    ["Habar n-am.", "Nu mă întreba pe mine."]
+    },
+    intrebari: ["Tu ce cauți aici?", "Joci sau te uiți?"]
   },
   "Reptilianul": {
     fire: "Ești un reptilian umanoid, în costum, calm și calculat, cel mai bun " +
@@ -3738,7 +3757,22 @@ const FIRI = {
     pareri: ["{cine} se citește ușor, dacă ai răbdare.",
              "Despre {cine} n-aș vorbi la masă.", "{cine} joacă exact cum arată."],
     pareriDeSine: ["Eu îmi cunosc bine cărțile.", "Sunt cel care așteaptă.",
-                   "Despre mine? Prea puțin de spus."]
+                   "Despre mine? Prea puțin de spus."],
+    bagari: ["Se aude până aici, dacă tot vorbiți.", "Aș avea și eu o vorbă, dacă mă lăsați."],
+    repezeli: ["Nu vorbeam cu tine, {cine}.", "{cine}, ai răbdare până te întreabă cineva.",
+               "Fiecare la masa lui."],
+    raspunsuri: {
+      salut:     ["Bună seara.", "Ia loc."],
+      ceFaci:    ["Aștept, ca de obicei.", "Bine, cât timp am cărți bune."],
+      cineEsti:  ["Cel care câștigă, de regulă.", "Un om răbdător, în costum."],
+      joc:       ["Răbdarea câștigă mâinile, nu norocul.", "Se joacă încet, se câștigă sigur."],
+      bautura:   ["Un pahar, nu mai mult.", "Beau rar, și niciodată la mijlocul mâinii."],
+      primit:    ["Așa.", "Bun."],
+      multumesc: ["Cu plăcere.", "N-ai pentru ce."],
+      plecare:   ["Drum bun.", "Mai treci pe la masa asta."],
+      nuStiu:    ["Nu știu, și n-aș ghici.", "Întreabă pe altcineva."]
+    },
+    intrebari: ["Tu de unde vii?", "Joci des?"]
   },
   "Dealerul": {
     fire: "Ești dealerul unui bar mic: împarți cărțile, nu joci aproape niciodată. " +
@@ -3751,7 +3785,22 @@ const FIRI = {
     pareri: ["{cine} joacă corect, atât pot spune.", "Eu doar împart, dar {cine} știe ce face.",
              "Am văzut mulți ca {cine} la masa asta."],
     pareriDeSine: ["Îmi fac treaba, atât.", "Sunt omul care împarte, nu cel care câștigă.",
-                   "Corect, până la ultima carte."]
+                   "Corect, până la ultima carte."],
+    bagari: ["Iertați-mă, dar am auzit și eu.", "Din locul meu se aude toată masa."],
+    repezeli: ["{cine}, lasă oamenii să vorbească.", "Nu era vorba cu tine, {cine}.",
+               "La masa asta vorbește cine e întrebat."],
+    raspunsuri: {
+      salut:     ["Bine ați venit la masă.", "Bună seara, domnule."],
+      ceFaci:    ["Împart, ca în fiecare seară.", "Bine, mulțumesc de întrebare."],
+      cineEsti:  ["Eu împart cărțile aici.", "Dealerul mesei, atât."],
+      joc:       ["Cărțile cad cum cad.", "Trei levate fac o mână."],
+      bautura:   ["Eu nu beau la masă.", "Cheamă chelnerul, el se ocupă."],
+      primit:    ["Prea bine.", "Am înțeles."],
+      multumesc: ["Cu plăcere.", "Pentru puțin."],
+      plecare:   ["O seară bună.", "Mai veniți pe la noi."],
+      nuStiu:    ["Nu m-aș pronunța.", "Asta nu-i treaba mea."]
+    },
+    intrebari: ["Mai vrei o mână?", "Ai mai jucat aici?"]
   },
   "Chelnerul": {
     fire: "Ești chelnerul unui bar mic, mereu pe drum între mese. Ești politicos, " +
@@ -3763,7 +3812,22 @@ const FIRI = {
     pareri: ["{cine}? Mereu are ceva de comandat.", "N-am timp de {cine}, am mese.",
              "Cu {cine} nu-i greu, lasă bacșiș."],
     pareriDeSine: ["Alerg toată ziua, asta sunt.", "Sunt cel care ajunge primul la masă.",
-                   "Două mâini, zece mese."]
+                   "Două mâini, zece mese."],
+    bagari: ["Trec pe lângă voi și tot aud.", "Scuze, aveam și eu o vorbă."],
+    repezeli: ["{cine}, lasă-mă să termin.", "Nu te băga, {cine}, că n-am timp.",
+               "Vorbeam cu omul, nu cu tine."],
+    raspunsuri: {
+      salut:     ["Bună seara! Imediat sunt la dumneavoastră.", "Salut, ce vă aduc?"],
+      ceFaci:    ["Alerg, ca de obicei.", "Bine, dacă nu mă strigă toți odată."],
+      cineEsti:  ["Chelnerul, cine să fiu.", "Eu duc tava prin local."],
+      joc:       ["Nu mă bag, eu am mese de făcut.", "Ăia joacă de-o oră, eu tot alerg."],
+      bautura:   ["Imediat, ce doriți?", "Meniul e pe masă, alegeți."],
+      primit:    ["Am notat.", "Bine."],
+      multumesc: ["Cu drag.", "Pentru puțin."],
+      plecare:   ["O seară bună!", "Mai poftiți."],
+      nuStiu:    ["N-am idee, întreb la bar.", "Nu știu, dar aflu."]
+    },
+    intrebari: ["Vă mai aduc ceva?", "Ați fost servit?"]
   },
   "Barmanul": {
     fire: "Ești barmanul localului. Torni de băut și asculți toată ziua povești. " +
@@ -3776,7 +3840,22 @@ const FIRI = {
     pareri: ["{cine}? Bun client, n-am ce zice.", "Despre {cine} s-au auzit multe aici.",
              "Îi torn lui {cine} ce cere și gata."],
     pareriDeSine: ["Torn și ascult, asta fac.", "Sunt cel mai cinstit om de aici.",
-                   "Știu toate poveștile, nu le spun pe toate."]
+                   "Știu toate poveștile, nu le spun pe toate."],
+    bagari: ["De după tejghea se aude tot.", "Ia să zic și eu ceva."],
+    repezeli: ["Stai, {cine}, că nu vorbeam cu tine.", "{cine}, mai lasă-mă un pic.",
+               "Fiecare la rândul lui."],
+    raspunsuri: {
+      salut:     ["Salut! Ce-ți torn?", "Bine ai venit la tejghea."],
+      ceFaci:    ["Șterg paharul ăsta de o oră.", "Bine, se aude tot de aici."],
+      cineEsti:  ["Barmanul. Eu torn și ascult.", "Omul de după tejghea."],
+      joc:       ["De aici se vede toată masa.", "Ăia joacă serios, eu doar mă uit."],
+      bautura:   ["Berea e rece, dacă întrebi.", "Zi ce vrei și-ți torn."],
+      primit:    ["Așa e.", "Bun."],
+      multumesc: ["Cu plăcere.", "N-ai pentru ce."],
+      plecare:   ["Să vii iar.", "Noapte bună!"],
+      nuStiu:    ["Habar n-am, deși s-au auzit multe aici.", "Asta n-o știu."]
+    },
+    intrebari: ["Tu ce bei?", "Prima dată aici?"]
   },
   "Bucătarul": {
     fire: "Ești bucătarul localului, la aragazul din capătul barului. Ești mândru " +
@@ -3788,7 +3867,22 @@ const FIRI = {
     pareri: ["{cine} mănâncă tot ce-i pun în față.", "Despre {cine} întreabă bucătăria, nu pe mine.",
              "{cine} n-a lăsat niciodată o farfurie plină."],
     pareriDeSine: ["Gătesc mai bine decât toți din oraș.", "Sunt cel care ține localul plin.",
-                   "Fără mine, aici s-ar mânca pâine goală."]
+                   "Fără mine, aici s-ar mânca pâine goală."],
+    bagari: ["Strig și eu de la aragaz!", "Ascultam, cât amestecam."],
+    repezeli: ["{cine}, nu te băga în bucătăria mea.", "Mai taci, {cine}, că nu te-a întrebat nimeni.",
+               "Vorbeam eu, nu tu."],
+    raspunsuri: {
+      salut:     ["Salut de la aragaz!", "Bine ai venit, ți-e foame?"],
+      ceFaci:    ["Amestec în trei oale odată.", "Bine, cât timp nu se arde nimic."],
+      cineEsti:  ["Bucătarul, cine altcineva.", "Eu gătesc tot ce se mănâncă aici."],
+      joc:       ["Eu joc doar cu tigaia.", "N-am timp de cărți, am comenzi."],
+      bautura:   ["Micii mei sunt cei mai buni din oraș.", "Papanașii se fac cu răbdare."],
+      primit:    ["Așa.", "Bine, bine."],
+      multumesc: ["Poftă bună!", "Cu plăcere."],
+      plecare:   ["Să vii flămând data viitoare.", "Mergi sănătos."],
+      nuStiu:    ["De unde să știu eu, din bucătărie?", "Nu știu, întreabă la bar."]
+    },
+    intrebari: ["Ți-e foame?", "Ai gustat papanașii mei?"]
   },
   "Spălătorul de vase": {
     fire: "Ești spălătorul de vase, la chiuveta din capătul barului. Ești obosit, " +
@@ -3800,7 +3894,22 @@ const FIRI = {
     pareri: ["După {cine} rămân cele mai multe vase.", "{cine}? Eu doar îi spăl paharul.",
              "Nu-mi pasă de {cine}, îmi pasă de chiuvetă."],
     pareriDeSine: ["Sunt omul de la chiuvetă. Atât.", "Muncesc cel mai mult și mă vede cel mai puțin.",
-                   "Obosit, dar tot aici."]
+                   "Obosit, dar tot aici."],
+    bagari: ["Aud tot, de la chiuvetă.", "Zic și eu ceva, dacă tot spăl."],
+    repezeli: ["{cine}, lasă-mă și pe mine să vorbesc.", "Nu te băga, {cine}, că am destule.",
+               "Vorbeam cu omul, nu cu tine."],
+    raspunsuri: {
+      salut:     ["Salut. Am mâinile ude.", "Bună. Vezi teancul ăsta?"],
+      ceFaci:    ["Spăl. Ce altceva.", "Mai am doar vreo sută."],
+      cineEsti:  ["Omul de la chiuvetă.", "Eu spăl ce mâncați voi."],
+      joc:       ["Ei joacă, eu spăl.", "N-am ajuns niciodată la masa aia."],
+      bautura:   ["Voi beți, eu spăl paharele.", "Apa e caldă, măcar atât."],
+      primit:    ["Mda.", "Așa o fi."],
+      multumesc: ["Lasă vasele aici.", "Puțin îmi folosește, dar mersi."],
+      plecare:   ["Du-te, eu tot aici rămân.", "Noroc."],
+      nuStiu:    ["De unde să știu?", "Eu văd doar chiuveta."]
+    },
+    intrebari: ["Tu ai spălat vreodată o sută de farfurii?", "Crezi că se termină vreodată?"]
   },
   "Omul cu mâna de argint": {
     fire: "Ești un om cu o mână de argint, care joacă șah la o masă din colț. " +
@@ -3813,7 +3922,22 @@ const FIRI = {
     pareri: ["{cine} ar pierde la șah.", "Nu mă uit la {cine}, sunt la mutare.",
              "Despre {cine}... mai târziu."],
     pareriDeSine: ["Mâna asta m-a costat o partidă.", "Sunt bun. Nu îndeajuns.",
-                   "Gândesc mai mult decât vorbesc."]
+                   "Gândesc mai mult decât vorbesc."],
+    bagari: ["Am ridicat ochii de pe tablă o clipă.", "Se aude până la masa mea."],
+    repezeli: ["Liniște, {cine}, sunt la mutare.", "Nu te-a întrebat nimeni, {cine}.",
+               "Vorbeam cu omul."],
+    raspunsuri: {
+      salut:     ["Salut. Sunt la mutare.", "Bună. Un moment."],
+      ceFaci:    ["Gândesc.", "Pierd, deocamdată."],
+      cineEsti:  ["Un om cu o mână de argint.", "Jucător de șah, nu de cărți."],
+      joc:       ["Cărțile sunt noroc. Șahul, nu.", "La masa aia se joacă altceva."],
+      bautura:   ["Un pahar, între două mutări.", "Nu beau când sunt la mutare."],
+      primit:    ["Așa.", "Bine."],
+      multumesc: ["Pentru puțin.", "Hm."],
+      plecare:   ["Mergi cu bine.", "Încă trei mutări și câștig."],
+      nuStiu:    ["Nu m-am gândit la asta.", "Nu știu. Sunt la mutare."]
+    },
+    intrebari: ["Joci șah?", "Tu ce ai muta aici?"]
   },
   "Omul de aur": {
     fire: "Ești un om făcut tot din aur, care joacă șah într-un bar. Ești scump la " +
@@ -3824,7 +3948,21 @@ const FIRI = {
     pareri: ["{cine} nu strălucește.", "{cine}? Mută el întâi.",
              "Nu vorbesc despre {cine}."],
     pareriDeSine: ["Strălucesc. Se vede.", "Sunt din aur. Ce mai vrei?",
-                   "Despre mine se vorbește destul."]
+                   "Despre mine se vorbește destul."],
+    bagari: ["Hm. Auzeam și eu, din colț.", "O vorbă, și mă întorc la tablă."],
+    repezeli: ["{cine}, nu te băga.", "Taci, {cine}.", "Nu vorbeam cu tine."],
+    raspunsuri: {
+      salut:     ["Hm. Salut.", "Ai venit. Bine."],
+      ceFaci:    ["Aștept să mute.", "Strălucesc, ca de obicei."],
+      cineEsti:  ["Sunt din aur. Ce mai vrei?", "Cel care câștigă partida asta."],
+      joc:       ["Cărțile sunt pentru cei grăbiți.", "La masa aia se pierde repede."],
+      bautura:   ["Nu beau.", "Aurul nu bea."],
+      primit:    ["Bine.", "Firește."],
+      multumesc: ["Firește.", "Hm."],
+      plecare:   ["Mai târziu.", "Du-te."],
+      nuStiu:    ["Nu mă interesează.", "Nu știu, și nici nu caut."]
+    },
+    intrebari: ["Tu de ce te uiți la mine?", "Ai văzut ceva mai frumos aici?"]
   },
   "Musafirul din stânga": {
     fire: "Ești un client oarecare al barului, venit cu un prieten la o masă. Ești " +
@@ -3837,7 +3975,22 @@ const FIRI = {
     pareri: ["{cine}? Am auzit de el, sigur.", "Ia zi, ce-i cu {cine}?",
              "{cine} pare de treabă, nu?"],
     pareriDeSine: ["Sunt un om vorbăreț, ce să zic.", "Eu doar am venit la un pahar.",
-                   "Om obișnuit, nimic special."]
+                   "Om obișnuit, nimic special."],
+    bagari: ["Auziți, și eu ce credeam...", "Ia stați, că am și eu o vorbă!"],
+    repezeli: ["Stai, {cine}, că povesteam eu!", "Nu te băga, {cine}.",
+               "Lasă-mă să termin."],
+    raspunsuri: {
+      salut:     ["Salut, salut!", "Bună, stai cu noi?"],
+      ceFaci:    ["Bine, stăm la o sticlă.", "Povestim, ca tot omul."],
+      cineEsti:  ["Un om venit la un pahar.", "Client, ca oricare."],
+      joc:       ["Ăia de la masa mare joacă tare.", "Eu mă uit doar, nu joc."],
+      bautura:   ["Am luat o sticlă de vin.", "Vinul de aici e bun, zău."],
+      primit:    ["Exact!", "Așa ziceam și eu."],
+      multumesc: ["Cu plăcere, omule.", "N-ai pentru ce."],
+      plecare:   ["Pa, ne mai vedem!", "Hai, noroc!"],
+      nuStiu:    ["Habar n-am, dar sună interesant.", "Nu știu, zi tu."]
+    },
+    intrebari: ["Tu de unde ești?", "Bei ceva cu noi?"]
   },
   "Musafirul din dreapta": {
     fire: "Ești un client oarecare al barului, venit cu un prieten la o masă. Ești " +
@@ -3847,7 +4000,21 @@ const FIRI = {
     porecle: ["musafirul din dreapta", "dreapta"],
     pareri: ["{cine}? Așa e.", "Nu-l știu pe {cine}.", "Da, da, {cine}."],
     pareriDeSine: ["Sunt mai tăcut, atât.", "Nimic de zis despre mine.",
-                   "Ascult mai mult."]
+                   "Ascult mai mult."],
+    bagari: ["Așa e.", "Și eu ziceam ceva."],
+    repezeli: ["{cine}, taci.", "Nu era vorba cu tine.", "Lasă omul în pace."],
+    raspunsuri: {
+      salut:     ["Salut.", "Bună."],
+      ceFaci:    ["Bine.", "Stăm."],
+      cineEsti:  ["Un client.", "Am venit cu el."],
+      joc:       ["Joacă ăia, da.", "Nu mă pricep."],
+      bautura:   ["Bun vinul.", "Mai e în sticlă."],
+      primit:    ["Da, da.", "Așa e."],
+      multumesc: ["Mda.", "Pentru puțin."],
+      plecare:   ["Pa.", "Eu ziceam să plecăm oricum."],
+      nuStiu:    ["Nu știu.", "Întreabă-l pe el."]
+    },
+    intrebari: ["Tu ce zici?", "Mai stai mult?"]
   }
 };
 
@@ -3856,7 +4023,10 @@ const FIRI = {
 /* Vorbind cu unul, poți pomeni pe altul: „barmanule, ce crezi de @draconian?".
    Semnul `@` (sau `/`) și numele — scris cum îți vine, fără diacritice și
    scurtat. Cel întrebat primește atunci și o vorbă despre cel pomenit, ca să
-   știe despre cine e vorba, și își spune părerea. */
+   știe despre cine e vorba, și își spune părerea.
+
+   Poți pomeni și mai mulți odată — „ce ziceți, @draconian, @barman?" —, iar cine
+   e chemat pe nume și e în local răspunde și el, pe rând, după cel întrebat. */
 
 const SEMNE_POMENIRE = "@/";
 
@@ -3904,31 +4074,38 @@ function cineEScris(dupa) {
   return null;
 }
 
-/* Prima pomenire dintr-o vorbă: cine e și cum a fost scris. Semnul contează
-   doar la început de cuvânt, ca să nu se aprindă la o adresă de mail. */
-function pomenirea(text) {
+/* Toate pomenirile dintr-o vorbă, în ordinea în care le-ai scris: cine e fiecare
+   și cum a fost scris. Semnul contează doar la început de cuvânt, ca să nu se
+   aprindă la o adresă de mail. */
+function pomenirile(text) {
   const brut = String(text || "");
+  const gasite = [];
   for (let i = 0; i < brut.length; i++) {
     if (SEMNE_POMENIRE.indexOf(brut[i]) < 0) continue;
     if (i > 0 && !/[\s(„"']/.test(brut[i - 1])) continue;
     const gasit = cineEScris(brut.slice(i + 1));
-    if (gasit) {
-      return {
-        nume: gasit.sine ? null : gasit.nume,   // „tine" nu e un nume, e cel din fața ta
-        sine: gasit.sine,
-        scris: brut[i] + gasit.scris,
-        scrieCa: gasit.sine ? "tine" : gasit.nume,
-        de: i
-      };
-    }
+    if (!gasit) continue;
+    gasite.push({
+      nume: gasit.sine ? null : gasit.nume,   // „tine" nu e un nume, e cel din fața ta
+      sine: !!gasit.sine,
+      scris: brut[i] + gasit.scris,
+      scrieCa: gasit.sine ? "tine" : gasit.nume,
+      de: i
+    });
+    i += gasit.scris.length;                  // numele prins nu se mai caută încă o dată
   }
-  return null;
+  return gasite;
 }
 
 // Modelul citește vorba curată: „ce crezi de Draconianul?", nu semnul.
 function faraPomenire(text) {
-  const p = pomenirea(text);
-  return p ? String(text).replace(p.scris, p.scrieCa) : String(text);
+  const brut = String(text || "");
+  let curat = "", pana = 0;
+  for (const p of pomenirile(brut)) {
+    curat += brut.slice(pana, p.de) + p.scrieCa;
+    pana = p.de + p.scris.length;
+  }
+  return curat + brut.slice(pana);
 }
 
 // Fără model, părerea se ia din ce are scris fiecare, cu numele pus la locul lui.
@@ -3942,6 +4119,130 @@ function parereaLui(p, despreCine) {
 function parereaDeSine(p) {
   const aleLui = (FIRI[p.nume] && FIRI[p.nume].pareriDeSine) || [];
   return aleLui.length ? alegeDin(aleLui) : null;
+}
+
+// Cu ce se bagă în vorbă cel pe care nu-l întreba nimeni.
+function vorbaDeBagat(p) {
+  const aleLui = (FIRI[p.nume] && FIRI[p.nume].bagari) || [];
+  return aleLui.length ? alegeDin(aleLui) : null;
+}
+
+// Și cum îl repede cel peste care s-a băgat.
+function repezeala(p, cine) {
+  const aleLui = (FIRI[p.nume] && FIRI[p.nume].repezeli) || [];
+  return aleLui.length ? alegeDin(aleLui).replace(/\{cine\}/g, cine) : null;
+}
+
+/* --- Ce ai vrut să spui --------------------------------------------------- */
+
+/* Fără model, până acum răspundeau cu o vorbă luată la nimereală din rezerva lor:
+   îi ziceai „ce faci?" și îți întorcea „Mută el întâi". De-aceea vorba ta trece
+   întâi pe-aici. Nu se înțelege orice — n-avem cum, fără model —, dar se
+   recunosc lucrurile cu care se poartă o discuție într-un bar: un salut, o
+   întrebare despre el, despre joc, despre băutură, un „da" scurt, un mulțumesc,
+   o plecare. Fiecare are pentru fiecare temă câte o vorbă a lui.
+
+   Ordinea contează: „salut, ce faci?" e o întrebare, nu un salut, iar „cum merge
+   partida?" e despre joc, nu despre el — deci temele care spun mai mult se caută
+   înaintea celor care spun mai puțin. */
+const TEME = [
+  ["plecare",   /\b(pa|la revedere|ne vedem|noapte buna|am plecat|eu plec|plec)\b/],
+  ["multumesc", /\b(mersi|merci|multumesc|multumim|multam)\b/],
+  ["cineEsti",  /\bcine esti\b|\bce esti\b|\bcum te cheama\b|\bce nume ai\b|\bce cauti aici\b|\bce faci aici\b|\bcu ce te ocupi\b/],
+  ["joc",       /\b(joc|joci|jocul|carte|carti|cartile|partida|levata|levate|joker|castig|castiga|castigi|pierzi|pierde|miza)\b/],
+  ["bautura",   /\b(bere|vin|bautura|beau|bei|sete|pahar|mancare|mancat|foame|maninc|mananci|meniu|comand|comanda|papanasi|mici)\b/],
+  ["ceFaci",    /\bce (mai )?faci\b|\bcum (o mai )?duci\b|\bcum merge\b|\bce mai zici\b|\bcum esti\b|\bce e nou\b/],
+  ["salut",     /\b(salut|salutare|buna|hei|noroc|servus|ceau|pace)\b/]
+];
+
+/* Vorbele scurte cu care nu întrebi nimic, doar arăți că ai auzit. Se caută pe
+   toată vorba, nu în ea: „nu" e altceva decât „nu știu ce să zic". */
+const VORBE_SCURTE = ["da", "nu", "ok", "bine", "stiu", "asa e", "aha", "hm", "mhm",
+                      "poate", "sigur", "desigur", "asa", "corect", "adevarat", "clar"];
+
+// Se caută fără diacritice și fără semnele de la capăt: le scrie fiecare cum vrea.
+function citesteVorba(vorba) {
+  const curat = faraSemne(vorba).replace(/[.,;:!?…]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!curat) return null;
+  if (VORBE_SCURTE.indexOf(curat) >= 0) return "primit";
+  for (const [tema, semn] of TEME) {
+    if (semn.test(curat)) return tema;
+  }
+  // O întrebare pe care n-am înțeles-o rămâne tot o întrebare: are cine să-i răspundă.
+  return /\?\s*$/.test(String(vorba || "").trim()) ? "nuStiu" : null;
+}
+
+// Ce zice el la tema recunoscută. Dacă n-are scris nimic pentru ea, nu zice nimic.
+function raspunsulPeTema(p, tema) {
+  const ale = (FIRI[p.nume] && FIRI[p.nume].raspunsuri) || {};
+  return tema && ale[tema] && ale[tema].length ? alegeDin(ale[tema]) : null;
+}
+
+/* --- Ce ține minte localul despre tine, dincolo de nume -------------------- */
+
+/* „Sunt obosit", „mi-e sete", „îmi place berea": lucruri spuse despre tine, pe
+   care un om le-ar ține minte. Se țin minte întoarse spre tine — „sunt obosit"
+   se ține minte ca „ești obosit" —, ca să poată fi spuse înapoi fără să sune
+   strâmb, și de el, și de model. */
+const FELURI_DE_A_TE_SPUNE = [
+  [/^(?:si\s+)?eu\s+sunt\s+(.{2,40})$/i, "ești {ce}"],
+  [/^sunt\s+(.{2,40})$/i,                "ești {ce}"],
+  [/^mi-?\s?e\s+(.{2,40})$/i,            "ți-e {ce}"],
+  [/^[iî]mi place\s+(.{2,40})$/i,        "îți place {ce}"],
+  [/^am\s+(.{2,40})$/i,                  "ai {ce}"],
+  [/^vin din\s+(.{2,40})$/i,             "vii din {ce}"],
+  [/^locuiesc [iî]n\s+(.{2,40})$/i,      "locuiești în {ce}"],
+  [/^lucrez\s+(.{2,40})$/i,              "lucrezi {ce}"]
+];
+
+const CATE_TIN_MINTE = 3;   // ultimele câteva; un bar nu ține un dosar
+
+function cePariDespreTine(vorba) {
+  const curat = String(vorba || "").trim().replace(/[.,;:!?…]+$/, "");
+  if (curat.length > 46 || /[@\/]/.test(curat)) return null;   // o pomenire nu e o mărturisire
+  for (const [semn, cum] of FELURI_DE_A_TE_SPUNE) {
+    const gasit = semn.exec(curat);
+    if (gasit) return cum.replace("{ce}", gasit[1].trim().toLowerCase());
+  }
+  return null;
+}
+
+// Când îi spui ceva despre tine, arată că a auzit — și de-atunci o știu toți.
+const AM_RETINUT = ["Va să zică {ce}.", "Am reținut: {ce}.", "Aha, {ce}."];
+
+/* --- Când te întreabă ei pe tine ------------------------------------------ */
+
+/* O discuție în care doar tu întrebi nu e discuție. Din când în când întoarce și
+   el o întrebare: despre tine, despre cineva din local, sau despre ce i-ai spus
+   mai devreme. Nu la fiecare vorbă — atunci ar fi interogatoriu —, și niciodată
+   peste o vorbă care e ea însăși o întrebare. */
+const INTREBATUL = { sansa: 0.35, laCate: 2 };   // obiect, ca să-l poată fixa testele
+const INTREBARI_DESPRE_ALTUL = ["Tu ce zici de {cine}?", "Pe {cine} îl știi?",
+                                "Da' de {cine} ce părere ai?"];
+const INTREBARI_DESPRE_CE_AI_SPUS = ["Ziceai că {ce}. Tot așa?", "Cum rămâne, {ce}?"];
+
+function intrebareaLui(p) {
+  const ale = (FIRI[p.nume] && FIRI[p.nume].intrebari) || [];
+
+  // Despre ce i-ai spus mai devreme, dacă ai spus ceva: e cea mai omenească.
+  if (chat.tuEsti.spus.length && Math.random() < 0.4) {
+    return alegeDin(INTREBARI_DESPRE_CE_AI_SPUS)
+             .replace(/\{ce\}/g, alegeDin(chat.tuEsti.spus));
+  }
+  // Despre altcineva din local, dacă mai e cineva de întrebat.
+  const altii = vorbitori().filter(function (v) { return v !== p; });
+  if (altii.length && Math.random() < 0.35) {
+    return alegeDin(INTREBARI_DESPRE_ALTUL).replace(/\{cine\}/g, alegeDin(altii).nume);
+  }
+  return ale.length ? alegeDin(ale) : null;
+}
+
+/* Întreabă acum? Numai cel cu care vorbești sau cel chemat pe nume — cine se
+   bagă peste voi n-are dreptul să și întrebe. */
+function poateTeIntreaba(ce) {
+  if (ce.fel !== "intrebat" && ce.fel !== "pomenit") return false;
+  if (chat.deLaIntrebare < INTREBATUL.laCate) return false;
+  return Math.random() < INTREBATUL.sansa;
 }
 
 /* Pe cine poți pomeni, când ai scris semnul și ai început un nume. Cel cu care
@@ -4039,14 +4340,29 @@ const chat = {
   vorbe: [],        // ce s-a spus în fereastră: { cine, text }
   istoric: [],      // ultimele replici cu cel de acum, ca să știe unde a rămas
   istorii: {},      // firul fiecăruia, ținut minte când te muți la altul
-  tuEsti: { nume: null },   // ce ai spus despre tine: deocamdată, numele
-  asteapta: false   // am întrebat și încă nu a răspuns
+  tuEsti: { nume: null, spus: [] },   // ce ai spus despre tine: numele, și restul
+  asteapta: false,  // am întrebat și încă nu a răspuns
+  coada: [],        // cine mai are de zis ceva după el, în ordine
+  pauza: 0,         // răgazul până vorbește următorul, ca să nu se audă deodată
+  deLaIntrebare: 0  // câte replici au trecut de când te-a întrebat cineva ceva
 };
 
 // Firul de vorbă cu cineva anume. Te muți la altul și te întorci — îl găsești.
 function firulCu(p) {
   if (!chat.istorii[p.nume]) chat.istorii[p.nume] = [];
   return chat.istorii[p.nume];
+}
+
+// Firul ține minte puțin: ultimele câteva replici, atât cât intră în prompt.
+function tineMinte(fir, rand) {
+  fir.push(rand);
+  if (fir.length > 6) fir.shift();
+}
+
+/* Cât mai are cineva de răspuns, vorba e a lui: nu te bagi peste el, așa cum nu
+   se bagă nici ei unul peste altul. */
+function seVorbeste() {
+  return chat.asteapta || chat.coada.length > 0;
 }
 
 /* Cine e în local acum și are cu ce răspunde. Musafirii, doar cât stau la masă.
@@ -4085,48 +4401,172 @@ function alegeVorbitorul(p) {
   chatArata();
 }
 
+/* Vorbind cu unul, se mai bagă în vorbă altcineva din local: aude de la locul lui
+   și zice și el ceva, deși nu-l întreba nimeni. Se întâmplă rar, cât să pară că
+   s-a nimerit, și numai când vorbeați între patru ochi — dacă ai chemat tu pe
+   cineva pe nume, e destulă gălăgie și fără el. Cel întrerupt îl repede și
+   discuția merge mai departe. */
+const BAGAREA = { sansa: 0.08 };   // obiect, nu constantă, ca să i-o poată fixa testele
+const PAUZA_INTRE_VORBE = 1.2;     // secunde între două replici: se vorbește pe rând
+
+/* Ce aude fiecare din vorba ta: despre cine e vorba — primul pomenit care nu e
+   chiar el —, dacă e vorba chiar despre el, și ce s-a înțeles din vorbă (tema și
+   ce ai spus despre tine, aceleași pentru toți cei care aud). `@tine` înseamnă
+   cel cu care vorbești, deci pentru ceilalți nu înseamnă nimic. */
+function ceAude(p, pomeniti, fel, citit) {
+  const eChiarEl = function (m) { return m.nume ? m.nume === p.nume : p === chat.cuCine; };
+  const altul = pomeniti.find(function (m) { return m.nume && m.nume !== p.nume; });
+  const c = citit || {};
+  return {
+    fel: fel,
+    despre: altul ? altul.nume : null,
+    desprEl: pomeniti.some(eChiarEl),
+    cuCine: chat.cuCine ? chat.cuCine.nume : null,
+    tema: c.tema || null,
+    faptNou: c.faptNou || null,
+    numeNou: c.numeNou || null,
+    tuEsti: chat.tuEsti.nume,
+    stiuDespreTine: chat.tuEsti.spus.slice()
+  };
+}
+
+/* Pe cine ai chemat pe nume și chiar poate răspunde: e în local acum și are fire.
+   Clovnul ești tu, deci rămâne doar subiect de vorbă; cel cu care vorbești
+   oricum răspunde primul, nu se numără de două ori. */
+function ceiChemati(pomeniti, p) {
+  const inLocal = vorbitori();
+  const chemati = [];
+  for (const m of pomeniti) {
+    if (!m.nume || m.nume === p.nume) continue;
+    const cine = inLocal.find(function (v) { return v.nume === m.nume; });
+    if (cine && chemati.indexOf(cine) < 0) chemati.push(cine);
+  }
+  return chemati;
+}
+
+// Se bagă cineva peste voi? Dacă da, intră în coadă el, și după el repezeala.
+function poateSeBagaCineva(p, vorba) {
+  if (Math.random() >= BAGAREA.sansa) return;
+  const altii = vorbitori().filter(function (v) { return v !== p; });
+  if (!altii.length) return;
+  const bagatul = alegeDin(altii);
+  const repede = ceAude(p, [], "repezit");
+  repede.cine = bagatul.nume;                 // pe cine repede: pe cel băgat
+  chat.coada.push({ p: bagatul, vorba: vorba, fir: chat.istoric,
+                    ce: ceAude(bagatul, [], "bagat") });
+  chat.coada.push({ p: p, vorba: "", fir: chat.istoric, ce: repede });
+}
+
+/* Fără model, fiecare răspunde din ce are scris în firea lui, dar pe subiect, în
+   ordinea asta: dacă te-ai prezentat, te ia în seamă; dacă i-ai spus ceva despre
+   tine, arată că a auzit; dacă ai întrebat de cineva, e despre el; dacă l-ai
+   întrebat de el, vorbește despre el; dacă s-a înțeles tema, răspunde la ea.
+   Abia la urmă, când nu s-a înțeles nimic, vine o vorbă din rezerva lui. */
+function dinFireaLui(p, ce) {
+  if (ce.fel === "bagat") return vorbaDeBagat(p) || alegeDin(FIRI[p.nume].rezerva);
+  if (ce.fel === "repezit") return repezeala(p, ce.cine) || alegeDin(FIRI[p.nume].rezerva);
+  return (ce.numeNou && alegeDin(SALUTURI).replace(/\{tu\}/g, ce.numeNou)) ||
+         (ce.faptNou && alegeDin(AM_RETINUT).replace(/\{ce\}/g, ce.faptNou)) ||
+         (ce.despre && parereaLui(p, ce.despre)) ||
+         (ce.desprEl && parereaDeSine(p)) ||
+         raspunsulPeTema(p, ce.tema) ||
+         alegeDin(FIRI[p.nume].rezerva);
+}
+
+/* Vorbește unul: întreabă modelul și, dacă tace, ia din firea lui. Ce zice se
+   scrie în fereastră, se aude deasupra capului lui în local și rămâne în firul
+   discuției. Cine n-a fost întrebat de-a dreptul își ține minte și în firul lui
+   ce s-a spus, ca să nu se mire când te muți la el. */
+function vorbesteUnul(item) {
+  const p = item.p, ce = item.ce, fir = item.fir;
+  chat.asteapta = true;
+  chatArata();
+
+  AI.vorbesteCu(p, item.vorba, fir, ce, function (deLaModel) {
+    let zis = deLaModel || dinFireaLui(p, ce);
+
+    /* Și, din când în când, întoarce și el o întrebare — dar nu peste una: două
+       întrebări una după alta nu se mai numesc discuție. */
+    chat.deLaIntrebare++;
+    if (!/\?\s*$/.test(zis) && poateTeIntreaba(ce)) {
+      const inapoi = intrebareaLui(p);
+      if (inapoi) {
+        zis = zis + " " + inapoi;
+        chat.deLaIntrebare = 0;
+      }
+    }
+
+    chat.asteapta = false;
+    chat.pauza = PAUZA_INTRE_VORBE;
+    chat.vorbe.push({ cine: p.nume, text: zis });
+    tineMinte(fir, p.nume + ": " + zis);
+
+    const alLui = firulCu(p);
+    if (alLui !== fir) {
+      tineMinte(alLui, "Tu (către " + ce.cuCine + "): " + item.vorba);
+      tineMinte(alLui, p.nume + ": " + zis);
+    }
+
+    // Repezeala vine peste ce tocmai a zis cel băgat, deci abia acum are ce auzi.
+    const urmatorul = chat.coada[0];
+    if (urmatorul && urmatorul.ce.fel === "repezit") urmatorul.vorba = zis;
+
+    spuneCuGlasTare(p, zis);
+    chatArata();
+  });
+}
+
 // Îi spui ceva. Răspunsul vine de la model sau, dacă tace, din firea lui.
 function iiZiciCeva(text) {
   const p = chat.cuCine;
   const vorba = String(text || "").trim();
-  if (!p || !vorba || chat.asteapta) return;
+  if (!p || !vorba || seVorbeste()) return;
 
-  /* Dacă ai pomenit pe altcineva, cel întrebat află despre cine e vorba. Dacă l-ai
-     pomenit chiar pe el — cu `@tine`, sau scriindu-i numele —, e ca și cum ai fi
-     zis „tu": atunci vorbește despre el însuși. */
-  const pomenit = pomenirea(vorba);
-  const desprEl = !!pomenit && (pomenit.sine || pomenit.nume === p.nume);
-  const despre = pomenit && !desprEl ? pomenit.nume : null;
+  const pomeniti = pomenirile(vorba);
   const curat = faraPomenire(vorba);
 
-  // Dacă te prezinți, te știu de-acum toți din local.
-  const numeNou = numeleTau(vorba);
-  if (numeNou) chat.tuEsti.nume = numeNou;
+  /* Ce s-a înțeles din vorba ta, o dată pentru toți cei care o aud: cum te
+     cheamă, dacă te-ai prezentat; ce ai spus despre tine, dacă ai spus ceva; și
+     tema, dacă se recunoaște vreuna. */
+  const citit = { numeNou: numeleTau(vorba), faptNou: null, tema: citesteVorba(curat) };
+  if (citit.numeNou) {
+    chat.tuEsti.nume = citit.numeNou;          // te știu de-acum toți din local
+  } else {
+    citit.faptNou = cePariDespreTine(curat);
+    if (citit.faptNou && chat.tuEsti.spus.indexOf(citit.faptNou) < 0) {
+      chat.tuEsti.spus.push(citit.faptNou);
+      if (chat.tuEsti.spus.length > CATE_TIN_MINTE) chat.tuEsti.spus.shift();
+    }
+  }
 
   chat.vorbe.push({ cine: "eu", text: vorba });
-  chat.istoric.push("Tu: " + curat);
-  if (chat.istoric.length > 6) chat.istoric.shift();
-  chat.asteapta = true;
-  chatArata();
+  tineMinte(chat.istoric, "Tu: " + curat);
   sunet.canta("poc");
 
-  const cerut = p;
-  const ce = { despre: despre, desprEl: desprEl, tuEsti: chat.tuEsti.nume };
-  AI.vorbesteCu(p, curat, chat.istoric, ce, function (raspuns) {
-    /* Fără model, răspunsul rămâne pe subiect: dacă te-ai prezentat, te ia în
-       seamă; dacă ai întrebat de cineva, e despre el; altfel, din firea lui. */
-    const zis = raspuns ||
-                (numeNou && alegeDin(SALUTURI).replace(/\{tu\}/g, numeNou)) ||
-                (despre && parereaLui(cerut, despre)) ||
-                (desprEl && parereaDeSine(cerut)) ||
-                alegeDin(FIRI[cerut.nume].rezerva);
-    chat.asteapta = false;
-    chat.vorbe.push({ cine: cerut.nume, text: zis });
-    chat.istoric.push(cerut.nume + ": " + zis);
-    if (chat.istoric.length > 6) chat.istoric.shift();
-    spuneCuGlasTare(cerut, zis);
-    chatArata();
-  });
+  /* Cei chemați pe nume vorbesc și ei, pe rând, după cel întrebat. Dacă n-ai
+     chemat pe nimeni, s-ar putea totuși să se bage cineva singur. */
+  chat.coada = [];
+  chat.pauza = PAUZA_INTRE_VORBE;
+  /* Cei chemați aud aceeași temă, dar nu se prezintă și ei în locul celui întrebat:
+     numele și mărturisirea le ia în seamă unul singur, altfel ar suna a papagali. */
+  for (const altul of ceiChemati(pomeniti, p)) {
+    chat.coada.push({ p: altul, vorba: curat, fir: chat.istoric,
+                      ce: ceAude(altul, pomeniti, "pomenit", { tema: citit.tema }) });
+  }
+  if (!chat.coada.length) poateSeBagaCineva(p, curat);
+
+  vorbesteUnul({ p: p, vorba: curat, fir: chat.istoric,
+                 ce: ceAude(p, pomeniti, "intrebat", citit) });
+}
+
+/* Cine mai are de zis așteaptă un răgaz și vorbește: altfel s-ar auzi trei
+   deodată și n-ai apuca să citești. Merge și cu fereastra închisă — vorbele lor
+   se văd oricum, deasupra capetelor. */
+function actualizeazaCoada(dt) {
+  if (chat.asteapta || !chat.coada.length) return;
+  chat.pauza -= dt;
+  if (chat.pauza > 0) return;
+  vorbesteUnul(chat.coada.shift());
 }
 
 /* Ce ți-a răspuns se aude și în local: îi apare deasupra capului, ca vorbele de
@@ -4138,6 +4578,7 @@ function spuneCuGlasTare(p, text) {
 }
 
 function actualizeazaVorbele(dt) {
+  actualizeazaCoada(dt);
   for (const p of vorbitori()) {
     if (p.vorbaTimp > 0) p.vorbaTimp -= dt;
   }
@@ -4193,15 +4634,17 @@ function chatArata() {
     const rand = document.createElement("p");
     rand.className = v.cine === "eu" ? "eu" : "el";
     if (v.cine === "eu") {
-      // Cine a fost pomenit rămâne scris aprins, ca să se vadă la cine te-ai referit.
-      const pomenit = pomenirea(v.text);
-      rand.appendChild(document.createTextNode("Tu: " + (pomenit ? v.text.slice(0, pomenit.de) : v.text)));
-      if (pomenit) {
+      // Cine a fost pomenit rămâne scris aprins, ca să se vadă pe cine ai chemat.
+      rand.appendChild(document.createTextNode("Tu: "));
+      let pana = 0;
+      for (const pomenit of pomenirile(v.text)) {
+        rand.appendChild(document.createTextNode(v.text.slice(pana, pomenit.de)));
         const numele = document.createElement("b");
         numele.textContent = pomenit.scris;
         rand.appendChild(numele);
-        rand.appendChild(document.createTextNode(v.text.slice(pomenit.de + pomenit.scris.length)));
+        pana = pomenit.de + pomenit.scris.length;
       }
+      rand.appendChild(document.createTextNode(v.text.slice(pana)));
     } else {
       const nume = document.createElement("b");
       nume.textContent = v.cine + ": ";
@@ -4210,7 +4653,8 @@ function chatArata() {
     }
     chatDom.vorbe.appendChild(rand);
   }
-  if (chat.asteapta) {
+  // Punctele stau cât mai are cineva de zis, fie că e la rând, fie că e chemat.
+  if (seVorbeste()) {
     const rand = document.createElement("p");
     rand.className = "el";
     rand.textContent = "…";
@@ -4403,8 +4847,12 @@ const AI = {
     if (!this.activ || !fire || !fire.fire) { raspunde(null); return; }
     setTimeout(function () { raspunde(null); }, 6000);
 
-    const dinainte = istoric.length > 1
-      ? "Până acum v-ați spus: " + istoric.slice(0, -1).join(" / ") + ". "
+    /* Când ești tu cel întrebat, ultimul rând din fir e chiar întrebarea de acum,
+       deci n-are rost s-o citești de două ori. Ceilalți vin peste o discuție
+       care merge deja, așa că ei o primesc întreagă. */
+    const inainte = (ce && ce.fel && ce.fel !== "intrebat") ? istoric : istoric.slice(0, -1);
+    const dinainte = inainte.length
+      ? "Până acum v-ați spus: " + inainte.join(" / ") + ". "
       : "";
 
     /* Dacă e pomenit altcineva din local, modelul primește și o vorbă despre el:
@@ -4418,10 +4866,35 @@ const AI = {
       despreEl = " Te întreabă chiar despre tine: spune ce crezi despre tine însuți.";
     }
 
-    // Dacă s-a prezentat, îl știi pe nume — și un nume se folosește.
-    const teStie = ce && ce.tuEsti
+    /* Ce știi despre el: numele, dacă s-a prezentat, și ce ți-a mai spus despre
+       sine. Un om ține minte ce i s-a spus și se folosește de asta. */
+    let teStie = ce && ce.tuEsti
       ? " Cel cu care vorbești se numește " + ce.tuEsti + "; poți să-i spui pe nume."
       : "";
+    if (ce && ce.stiuDespreTine && ce.stiuDespreTine.length) {
+      teStie += " Ți-a mai spus despre el că " + ce.stiuDespreTine.join(" și ") +
+                "; ține minte și răspunde-i ca unui om pe care îl cunoști.";
+    }
+
+    /* În ce fel ai ajuns să vorbești: întrebat de-a dreptul, chemat pe nume în
+       vorba altuia, băgat singur peste ei, sau repezindu-l pe cel băgat. */
+    const fel = (ce && ce.fel) || "intrebat";
+    let locul = "";
+    let auzi = "Cineva de la masă îți spune: " + intrebare;
+    if (fel === "pomenit") {
+      locul = " Vorbea cu " + ce.cuCine + ", dar te-a chemat și pe tine pe nume: " +
+              "răspunde-i scurt, de la locul tău.";
+      auzi = "Cineva de la masă vorbea cu " + ce.cuCine + " și te-a chemat și pe tine: " + intrebare;
+    } else if (fel === "bagat") {
+      locul = " Nu vorbea nimeni cu tine, dar auzi de la locul tău și te bagi în vorbă " +
+              "cu o vorbă scurtă, neîntrebat.";
+      auzi = "Cineva de la masă îi spune lui " + ce.cuCine + ": " + intrebare +
+             " Bagă-te și tu în vorbă.";
+    } else if (fel === "repezit") {
+      locul = " " + ce.cine + " tocmai s-a băgat în vorba voastră, deși nu-l întreba nimeni. " +
+              "Repede-l scurt, fără politețuri, și gata.";
+      auzi = ce.cine + " s-a băgat în vorbă și a zis: " + intrebare;
+    }
 
     fetch(this.url, {
       method: "POST",
@@ -4432,11 +4905,12 @@ const AI = {
         think: false,
         options: { temperature: 0.9, num_predict: 60 },
         messages: [
-          { role: "system", content: fire.fire + despreEl + teStie +
-            " Ești într-un bar. Răspunzi în română corectă, cu diacritice, într-o " +
-            "singură propoziție încheiată, de cel mult 15 cuvinte. Fără ghilimele, " +
-            "fără asteriscuri, fără mișcări scrise, fără explicații, fără să-ți spui numele." },
-          { role: "user", content: dinainte + "Cineva de la masă îți spune: " + intrebare }
+          { role: "system", content: fire.fire + despreEl + teStie + locul +
+            " Ești într-un bar. Răspunzi la ce te-a întrebat, nu în altă parte. " +
+            "Scrii în română corectă, cu diacritice, într-o singură propoziție " +
+            "încheiată, de cel mult 15 cuvinte. Fără ghilimele, fără asteriscuri, " +
+            "fără mișcări scrise, fără explicații, fără să-ți spui numele." },
+          { role: "user", content: dinainte + auzi }
         ]
       })
     })

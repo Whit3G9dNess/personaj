@@ -165,9 +165,31 @@ cine e cel pomenit și își spune părerea despre el. Pe clovn poate să-l pome
 oricine, deși cu el nu se poate vorbi: el ești tu. Cel cu care vorbești nu e în
 listă — pentru el e `@tine`, și atunci vorbește despre el însuși.
 
+**Poți chema mai mulți odată.** Într-o vorbă încap câte pomeniri vrei: *„ce ziceți
+de bere, @draconian și @reptilian?"*. Răspunde întâi cel cu care vorbeai, apoi, pe
+rând, fiecare dintre cei chemați pe nume — la câteva secunde unul după altul, nu
+toți deodată. Cine e chemat ține minte că a fost tras în vorbă.
+
+**Se mai bagă cineva în vorbă.** Rar de tot, când vorbești între patru ochi, aude
+altcineva din local și zice și el ceva, neîntrebat. Cel cu care vorbeai îl repede
+— *„Cine te-a întrebat?"* — și discuția merge mai departe. Dacă ai chemat tu pe
+cineva pe nume, nu se mai bagă nimeni peste el.
+
+**Răspund la ce ai întrebat.** Vorba ta se citește întâi: un salut, „ce faci",
+„cine ești", ceva despre joc, despre băutură, un „da" scurt, un mulțumesc, o
+plecare — fiecare temă cu răspunsul ei, scris pentru fiecare om. O întrebare
+neînțeleasă primește tot un răspuns de om („Habar n-am"). Asta ține fără Ollama;
+cu el pornit, răspunsul îl scrie modelul.
+
 **Te țin minte cât ține pagina.** Dacă te prezinți, localul reține numele și ți
-se adresează pe nume; fiecare își ține firul lui de vorbă, așa că te poți întoarce
-la cineva fără să o luați de la capăt. La refresh, uită tot.
+se adresează pe nume. Ține minte și ce spui despre tine — „sunt obosit", „mi-e
+sete", „îmi place berea" —, cel mult trei lucruri odată, și le poate aduce înapoi
+în vorbă. Fiecare își ține firul lui, așa că te poți întoarce la cineva fără să o
+luați de la capăt. La refresh, uită tot.
+
+**Te întreabă și ei pe tine.** Din când în când întorc o întrebare: despre tine,
+despre cineva din local, sau despre ce le-ai spus mai devreme. Nu la fiecare
+vorbă, și niciodată peste o întrebare de-a lor.
 
 **Ce se aude e curățat.** Răspunsul modelului trece printr-o sită: fără nume
 scris în față, fără ghilimele, asteriscuri sau mișcări între paranteze, fără

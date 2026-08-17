@@ -29,6 +29,8 @@ funcționează deja.
 | 13 | Vorba cu ei: chat cu oricine din local | ✅ gata |
 | 14 | Pomenit pe altul: `@cineva` în vorbă | ✅ gata |
 | 15 | Vorbă curată, ținută minte, și `@tine` | ✅ gata |
+| 16 | Mai mulți odată, și cine se bagă în vorbă | ✅ gata |
+| 17 | Vorbă pe înțeles: temă, ce ține minte, întrebări înapoi | ✅ gata |
 
 ---
 
@@ -653,6 +655,126 @@ nici „Barmanul", nici vreo replică cu asteriscuri.
 
 ---
 
+## Faza 16 — Mai mulți odată, și cine se bagă în vorbă
+
+Până acum, o vorbă avea un singur ascultător și o singură pomenire: vorbeai cu
+barmanul, îl pomeneai pe draconian, iar draconianul nu afla niciodată că s-a
+vorbit de el. Faza asta deschide masa: poți chema mai mulți odată, iar localul
+capătă dreptul să se bage peste tine.
+
+### 1. Mai mulți pomeniți, fiecare cu răspunsul lui
+
+Într-o vorbă încap câte pomeniri vrei: *„ce ziceți de bere, @draconian și
+@reptilian?"*. Răspunde întâi cel cu care vorbești — el rămâne omul tău —, apoi,
+pe rând, fiecare dintre cei chemați pe nume. Nu vorbesc deodată: între două
+replici trec vreo două secunde, cât să apuci să citești, iar cât mai are cineva
+de zis, punctele stau în fereastră și nici tu nu scrii peste ei.
+
+Cine e chemat răspunde din locul lui, nu din senin: modelul primește și cu cine
+vorbeai, ca să se audă că s-a băgat în discuția altuia. **Fără Ollama** merge
+aceeași socoteală ca la Faza 14, doar că din locul lui: chemat singur, vorbește
+despre el (`pareriDeSine`); chemat lângă altcineva, despre acela (`pareri`).
+
+Nu răspunde cine nu poate: clovnul ești tu, deci rămâne doar subiect de vorbă, iar
+musafirii de la masa a treia doar cât stau acolo. Ce se spune se aude și în local,
+deasupra fiecărui cap, ca orice vorbă.
+
+Cel chemat **ține minte** că a fost tras în vorbă: în firul lui rămâne scris și
+ce s-a spus, și cu cine vorbeai — te muți la el și nu se miră.
+
+### 2. Se bagă cineva în vorbă
+
+Vorbești cu draconianul și, o dată la vreo douăsprezece vorbe, se bagă altcineva
+din local: aude de la locul lui și zice și el ceva, deși nu-l întreba nimeni.
+Draconianul îl repede — *„Mârrr. Cine te-a întrebat, Barmanule?"* — și discuția
+merge mai departe.
+
+- **Rar.** `BAGAREA.sansa` e 0.08, și e obiect, nu constantă, ca să i-o poată fixa
+  testele. Prea des ar deveni o regulă, nu o întâmplare.
+- **Numai între patru ochi.** Dacă ai chemat tu pe cineva pe nume, e destulă
+  gălăgie la masă: nu se mai bagă și alții peste ei.
+- **Două replici, în ordine.** Întâi cel băgat, apoi repezeala celui cu care
+  vorbeai — și repezeala vine peste ce tocmai s-a zis, nu peste vorba ta.
+
+**Datele.** Fiecare cu fire primește `bagari` — cu ce se bagă neîntrebat — și
+`repezeli`, cu `{cine}` în loc de nume, ca la `pareri`. Amândouă intră în `FIRI`
+și se oglindesc în `personaje.json`.
+
+**Rămâne pe dinafară:** cel care se bagă nu se întoarce spre masă și nu se apropie;
+se bagă doar cu vorba. Cei chemați răspund la rând, nu unul peste altul, și nu-și
+răspund între ei — vorba tot spre tine se întoarce.
+
+**Verificare:** îi scrii barmanului „ce ziceți de bere, @draconian și
+@reptilian?" — răspund toți trei, pe rând, nu deodată. Cu `BAGAREA.sansa` pus pe
+1, orice vorbă aduce un băgat și o repezeală.
+
+---
+
+## Faza 17 — Vorbă pe înțeles
+
+Fără Ollama, discuția nu semăna a discuție. Îi ziceai omului de aur „ce faci" și
+îți întorcea „Mută el întâi", fiindcă răspunsul se lua la nimereală din rezerva
+lui — patru vorbe care n-aveau nicio treabă cu ce întrebaseși. Ținea minte doar
+numele tău, și nu întreba niciodată nimic. Trei lipsuri, luate odată.
+
+### 1. Se citește ce ai scris
+
+Vorba ta trece întâi printr-o citire. Nu se înțelege orice — n-avem cum, fără
+model —, dar se recunosc lucrurile cu care se poartă o discuție într-un bar:
+un **salut**, **ce faci**, **cine ești**, ceva despre **joc**, ceva despre
+**băutură ori mâncare**, un **da** scurt, un **mulțumesc**, o **plecare**. Ce nu
+se recunoaște, dar se termină cu semnul întrebării, e tot o întrebare: pentru ea
+fiecare are un **nu știu** al lui. Abia ce nu e nici întrebare, nici temă, cade
+în rezervă, ca înainte.
+
+Ordinea temelor contează, fiindcă o vorbă poate cădea în două deodată: „salut, ce
+faci?" e o întrebare, nu un salut, iar „cum merge partida?" e despre joc, nu
+despre el. Cine spune mai mult se caută primul.
+
+**Datele.** Fiecare cu fire primește `raspunsuri`, cu câte două vorbe la fiecare
+temă — nouă teme, unsprezece oameni. Barmanul întrebat de băutură zice „Berea e
+rece, dacă întrebi"; spălătorul, „Voi beți, eu spăl paharele".
+
+### 2. Ține minte ce i-ai spus despre tine
+
+Numele se reținea de la Faza 15. De-acum se rețin și **„sunt obosit"**, **„mi-e
+sete"**, **„îmi place berea"**, „vin din Cluj", „am o problemă" — lucrurile pe
+care un om le-ar ține minte de la tine.
+
+Se țin minte **întoarse spre tine**: „sunt obosit" se ține minte ca *„ești
+obosit"*. Așa pot fi spuse înapoi fără să sune strâmb — și de el, fără model, și
+de model, care le primește în prompt („ți-a mai spus despre el că ești obosit").
+Cel mai mult trei odată: un bar ține minte, nu ține dosar.
+
+Când îi spui, se vede că a auzit: *„Va să zică ești obosit."* Iar mai târziu îți
+poate aduce vorba înapoi: *„Ziceai că ți-e sete. Tot așa?"*.
+
+### 3. Te întreabă și ei pe tine
+
+O discuție în care doar tu întrebi nu e discuție. Din când în când întoarce și el
+o întrebare — din ale lui (*„Tu ce bei?"*), despre altcineva din local (*„Pe
+Draconianul îl știi?"*), sau despre ce i-ai spus mai devreme.
+
+- **Nu la fiecare vorbă**: `INTREBATUL.sansa` e 0.35, și trebuie să fi trecut cel
+  puțin două replici de la ultima întrebare. Altfel n-ar fi discuție, ci
+  interogatoriu.
+- **Niciodată peste o întrebare de-a lui**: dacă răspunsul se termina oricum cu
+  semnul întrebării, nu se mai lipește una.
+- **Numai cine e întrebat sau chemat pe nume.** Cine se bagă neîntrebat peste voi
+  (Faza 16) n-are dreptul să și întrebe.
+
+**Datele.** `intrebari`, două de fiecare, lângă `raspunsuri`.
+
+**Rămâne pe dinafară:** citirea e după cuvinte, nu după înțeles — „nu mi-e sete"
+se citește tot ca băutură. Ce ține minte se pierde la refresh, ca tot restul.
+Cine vrea o discuție care înțelege cu adevărat pornește Ollama; astea sunt
+schelăria de dedesubt, ca scena să nu tacă prostește fără el.
+
+**Verificare:** îi scrii omului de aur „ce faci" și îți răspunde la asta, nu
+altceva; îi spui „sunt obosit" și reține; peste câteva vorbe te întreabă el ceva.
+
+---
+
 ## `personaje.json` — toate personajele, într-un loc
 
 Toți doisprezece cu nume sunt în fișier: cei trei de la masă, dealerul,
@@ -670,8 +792,8 @@ ar trebui să dreagă. Scena rămâne singurul fișier care se execută.
 **Cine intră.** Doar cine are nume în scenă. Clovnul intră deși n-are fire — pe
 el îl joci tu, deci `fire` lipsește și scrie de ce.
 
-**Ce scrie despre fiecare.** `fire`, `rezerva`, `despre`, `porecle`, `pareri` și
-`pareriDeSine`, copiate din `FIRI`; `scena` — locul la masă sau în local (în
+**Ce scrie despre fiecare.** `fire`, `rezerva`, `despre`, `porecle`, `pareri`,
+`pareriDeSine`, `bagari`, `repezeli`, `raspunsuri` și `intrebari`, copiate din `FIRI`; `scena` — locul la masă sau în local (în
 `kx`/`ky`, ca de la Faza 12), lățimea, înălțimea, scara; pentru cei patru de la
 masă și `gandire` cu `haos`, că se vede în cât stau pe gânduri.
 

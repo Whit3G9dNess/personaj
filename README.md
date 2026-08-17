@@ -116,10 +116,34 @@ Cel din fața ta nu e în listă — n-are rost să-i spui pe nume când e chiar
 În locul lui e **`@tine`**: *„ce crezi despre @tine?"*, și îți spune ce crede
 despre el însuși.
 
+**Poți chema mai mulți odată.** Într-o vorbă încap câte nume vrei: *„ce ziceți de
+bere, @draconian și @reptilian?"*. Răspunde întâi cel cu care vorbeai, apoi, la
+câteva secunde unul după altul, fiecare dintre cei chemați — nu toți deodată, ca
+să apuci să citești. Cine e chemat ține minte că a fost tras în vorbă: te muți la
+el mai târziu și știe despre ce era vorba.
+
+**Și se mai bagă cineva în vorbă.** Rar de tot, când vorbești cu unul singur, aude
+altcineva din local și zice și el ceva, deși nu-l întreba nimeni — iar cel cu care
+vorbeai îl repede: *„Mârrr. Cine te-a întrebat?"*. Dacă ai chemat tu pe cineva pe
+nume, e destulă gălăgie la masă și nu se mai bagă nimeni.
+
+**Răspund la ce i-ai întrebat.** Vorba ta se citește întâi, așa că „ce faci"
+primește un răspuns despre ce face, nu o vorbă oarecare: un salut, „cine ești",
+ceva despre joc, despre bere sau mâncare, un „da" scurt, un mulțumesc, un „pa" —
+fiecare cu răspunsul lui, la fiecare om. La o întrebare pe care n-o înțeleg îți
+spun cinstit că nu știu. Toate astea merg **fără Ollama**; cu el pornit, vorbele
+le scrie modelul.
+
 **Te țin minte.** Dacă scrii „numele meu este Alex", localul reține și de-atunci
-ți se adresează pe nume — toți, că e mic. Fiecare își ține și firul lui de
-vorbă: te muți la altul și te întorci, vă găsiți unde ați rămas. Ține până la
-refresh, nu mai departe.
+ți se adresează pe nume — toți, că e mic. Rețin și ce spui despre tine: *„sunt
+obosit"*, *„mi-e sete"*, *„îmi place berea"* — arată pe loc că au auzit, și-ți
+aduc vorba înapoi mai târziu: *„Ziceai că ți-e sete. Tot așa?"*. Fiecare își ține
+și firul lui de vorbă: te muți la altul și te întorci, vă găsiți unde ați rămas.
+Ține până la refresh, nu mai departe.
+
+**Și te întreabă și ei pe tine.** Din când în când — nu la fiecare vorbă —
+întorc o întrebare: *„Tu ce bei?"*, *„Pe Draconianul îl știi?"*, sau despre ce
+le-ai spus mai devreme.
 
 Ce zice modelul trece printr-o sită înainte să se audă: își scoate numele scris
 în față, ghilimelele, asteriscurile și mișcările dintre paranteze; vorba ruptă la

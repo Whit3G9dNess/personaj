@@ -2956,11 +2956,17 @@ function apasatPe(p, x, y) {
          y > p.y - inalt * 1.4 && y < p.y + 2 * U;
 }
 
-// Îți torni singur din sticlă, atât cât încape într-un pahar.
+/* Îți torni singur din sticlă, atât cât încape într-un pahar. Sticla fiind a
+   mesei, se caută un pahar care nu e plin: întâi al tău, fiindcă tu ai apăsat pe
+   ea, apoi al celui care a cerut-o, apoi oricare. */
 function toarnaDinSticla(sticla) {
-  const pahar = pahare.find(function (p) {
-    return p.pentru === sticla.pentru && p.tip === "pahar" && p.optiune.id === sticla.optiune.id;
+  const goale = pahare.filter(function (p) {
+    return p.tip === "pahar" && !p.golit && p.nivel < 1 &&
+           p.optiune.id === sticla.optiune.id;
   });
+  const pahar = goale.find(function (p) { return esteAlTau(p.pentru); }) ||
+                goale.find(function (p) { return p.pentru === sticla.pentru; }) ||
+                goale[0];
   if (!pahar || sticla.nivel <= 0) return;
   sticla.nivel = Math.max(0, sticla.nivel - 0.34);
   if (sticla.nivel <= 0) sticla.golit = true;   // sticla goală se strânge de pe masă
@@ -3072,10 +3078,19 @@ function asazaMeniul() {
 /* Un fel apăsat se bifează, apăsat a doua oară se șterge de pe listă. Cât timp
    meniul e deschis poți strânge oricâte pe el: și ciorba, și papanașii, și
    sucul — sau numai două din trei, cum ai chef. */
+/* Ce zice chelnerul când nu mai ai unde pune. Nu refuză în tăcere: un chelner
+   care nu ia comanda și nu spune nimic pare stricat, nu politicos. */
+const VORBE_FARA_LOC = ["N-aveți unde le pune.", "Masa e plină, domnule.",
+                        "Vă mai aduc după ce strâng."];
+
 function bifeaza(o) {
   const i = meniu.alese.indexOf(o);
-  if (i >= 0) meniu.alese.splice(i, 1);
-  else meniu.alese.push(o);
+  if (i >= 0) { meniu.alese.splice(i, 1); return; }
+  if (!incapePeMasa(o, meniu.pentru)) {
+    spuneCuGlasTare(chelnerul, zice(chelnerul, VORBE_FARA_LOC));
+    return;
+  }
+  meniu.alese.push(o);
 }
 
 // Chelnerul ia meniul de pe masă. Dacă n-are nimic pe drum, își reia tura.
@@ -3212,6 +3227,63 @@ function asazaPeMasa(obiect) {
   obiect.y = cy + masa.ry * 0.62 * s + c * pas * 0.42;
 }
 
+/* Masa are un capăt. Fără asta poți cere zece beri și douăsprezece farfurii, iar
+   blatul se umple de pahare puse unul într-altul: chelnerul le strânge pe cele
+   goale, dar tu ceri mai repede decât apucă el să le ducă. De-aceea fiecare are
+   câteva locuri în față, iar sticlele, care stau în mijloc și sunt ale mesei, se
+   numără separat. Ce nu încape nu se poate bifa, și îți spune și de ce. */
+const LOCURI_IN_FATA = 3;
+const STICLE_PE_MASA = 2;
+
+// Ce are pe masă în dreptul lui: paharele și farfuriile, nu și sticlele din mijloc.
+function cateAreInFata(p) {
+  let cate = 0;
+  for (const o of pahare) if (o.pentru === p && o.tip !== "sticla") cate++;
+  return cate;
+}
+
+/* Și ce i se pregătește: ce e pe tavă acum, ce așteaptă la coadă, ce ai bifat
+   fără să fi trimis încă. Altfel ai cere de trei ori, cât nu s-a adus nimic. */
+function cateIiVin(p) {
+  let cate = 0;
+  const numara = function (lista, catreCine, pentru) {
+    (lista || []).forEach(function (o, i) {
+      if (((catreCine && catreCine[i]) || pentru) === p) cate++;
+    });
+  };
+  numara(comanda.lista, comanda.catreCine, comanda.pentru);
+  for (const c of comanda.coada) numara(c.lista, c.catreCine, c.pentru);
+  if (meniu.deschis && meniu.pentru === p) cate += meniu.alese.length;
+  return cate;
+}
+
+function areLocInFata(p) {
+  return cateAreInFata(p) + cateIiVin(p) < LOCURI_IN_FATA;
+}
+
+// Sticlele stau în mijloc, deci se numără o dată pentru toată masa.
+function sticlePeMasa() {
+  let cate = 0;
+  for (const o of pahare) if (o.tip === "sticla") cate++;
+  return cate;
+}
+
+function cateSticle() {
+  let cate = sticlePeMasa();
+  const dinLista = function (lista) {
+    for (const o of lista || []) if (o.id === "vin") cate++;
+  };
+  dinLista(comanda.lista);
+  for (const c of comanda.coada) dinLista(c.lista);
+  if (meniu.deschis) dinLista(meniu.alese);
+  return cate;
+}
+
+// Încape felul ăsta, în fața omului ăstuia, acum?
+function incapePeMasa(o, p) {
+  return areLocInFata(p);
+}
+
 /* Sticla nu stă lângă cel care a cerut-o, ci pe mijlocul blatului, la vedere,
    ca la orice masă la care se bea vin. Nu chiar în buricul mesei, însă: acolo
    stă capul clovnului, care e între noi și masă, iar sticla i-ar ieși prin
@@ -3236,10 +3308,14 @@ function puneComandaPeMasa() {
   comanda.lista.forEach(function (o, i) {
     const cui = (comanda.catreCine && comanda.catreCine[i]) || p;
     if (o.id === "vin") {
-      // Vinul vine cu sticla lui: paharul ți-l torni singur.
-      const sticla = { pentru: cui, optiune: o, tip: "sticla", nivel: 1, cronometru: 1e9 };
-      asazaInMijloc(sticla);
-      pahare.push(sticla);
+      /* Vinul vine cu sticla lui, dar sticla e a mesei, nu a unuia singur: dacă
+         sunt destule pe blat, primești numai paharul și torni din ce e acolo.
+         Altfel, un rând de cinste cu vin ar pune patru sticle deodată. */
+      if (sticlePeMasa() < STICLE_PE_MASA) {
+        const sticla = { pentru: cui, optiune: o, tip: "sticla", nivel: 1, cronometru: 1e9 };
+        asazaInMijloc(sticla);
+        pahare.push(sticla);
+      }
       const pahar = { pentru: cui, optiune: o, tip: "pahar", nivel: 0, cronometru: intreg(4, 9) };
       asazaPeMasa(pahar);
       pahare.push(pahar);
@@ -3350,6 +3426,8 @@ function faceCinste(p) {
   if (!o) return false;
 
   const masa = jucatori.slice();          // toți cei care au jucat mâna
+  // Un rând se dă doar dacă au toți unde-l pune: altfel se umple masa de pahare.
+  if (!masa.every(areLocInFata)) return false;
   comanda.stare = "vine";
   comanda.pentru = p;
   comanda.ce = null;
@@ -3776,19 +3854,23 @@ function deseneazaMeniu() {
     }
 
     const bifat = meniu.alese.indexOf(o) >= 0;
+    // Ce nu mai încape pe masă stă stins în listă: se vede că nu se poate, dinainte
+    // să apeși, ca la un fel terminat din bucătărie.
+    const incape = bifat || incapePeMasa(o, meniu.pentru);
+
     if (bifat) {                                 // semnul de lângă ce ai ales
       ctx.fillStyle = "#e8a13c";
       ctx.fillText("✓", meniu.stanga + 0.9 * U, mijloc);
     }
-    ctx.fillStyle = bifat ? "#f6d79a" : "#f2e7d3";
+    ctx.fillStyle = !incape ? "#6b6055" : (bifat ? "#f6d79a" : "#f2e7d3");
     ctx.fillText(o.nume, meniu.stanga + 4.2 * U, mijloc);
 
     // Cantitatea și prețul stau în coloanele lor, aliniate la dreapta, ca într-o
     // listă de bucate adevărată.
     ctx.textAlign = "right";
-    ctx.fillStyle = "#a89b8c";
+    ctx.fillStyle = !incape ? "#584f46" : "#a89b8c";
     ctx.fillText(o.cantitate, meniu.stanga + 36 * U, mijloc);
-    ctx.fillStyle = bifat ? "#f6d79a" : "#e8dcc4";
+    ctx.fillStyle = !incape ? "#584f46" : (bifat ? "#f6d79a" : "#e8dcc4");
     ctx.fillText(o.pret, meniu.stanga + 50 * U, mijloc);
   });
 }

@@ -34,6 +34,7 @@ funcționează deja.
 | 18 | Fără repetat, strigat pe nume, legat de dinainte | ✅ gata |
 | 19 | Când te iei de ei | ✅ gata |
 | 20 | Furia ținută minte, și vorba dintre ei | ✅ gata |
+| 21 | Masa are un capăt | ✅ gata |
 
 ---
 
@@ -938,6 +939,43 @@ tot localul, din vorbă în vorbă, și să se stingă de la sine.
 **Verificare:** îl înjuri de două ori pe draconian, apoi îl întrebi „ce faci" și
 îți răspunde urât; îl lași în pace două minute și e iar cum era. Lăsând scena să
 meargă, se aud vorbe între ei — iar dacă unul e furios, se ceartă.
+
+---
+
+## Faza 21 — Masa are un capăt
+
+Puteai cere zece beri și douăsprezece farfurii una după alta. Chelnerul le aducea
+pe toate, iar blatul se umplea de pahare puse unul într-altul, cu cinci sticle
+înșirate lângă clovn. Se strâng, când se golesc — dar ceri mai repede decât apucă
+el să ducă vasele la chiuvetă.
+
+**Fiecare are trei locuri în față.** Se numără paharele și farfuriile din dreptul
+lui, plus ce i se pregătește: ce e pe tavă acum, ce așteaptă la coadă și ce ai
+bifat fără să fi trimis încă. Altfel ai cere de trei ori, cât n-a ajuns nimic pe
+masă.
+
+**Ce nu încape nu se poate bifa**, și se vede dinainte: rândul stă stins în
+meniu, ca un fel terminat din bucătărie. Iar dacă tot apeși pe el, chelnerul îți
+spune de ce — *„N-aveți unde le pune."* Un chelner care nu ia comanda și nu zice
+nimic pare stricat, nu politicos.
+
+**Sticla e a mesei, nu a unuia singur.** Aici era gaura cea mare: un rând de
+cinste cu vin (Faza 11.4) punea patru sticle deodată, câte una de fiecare. De-acum
+încap două pe blat, iar cine primește vin peste ele capătă doar paharul și își
+toarnă din ce e acolo. Tot de-aceea `toarnaDinSticla` caută un pahar care nu e
+plin — întâi al tău, fiindcă tu ai apăsat pe sticlă, apoi al celui care a
+cerut-o. În paharul plin nu se mai toarnă: nu se varsă vinul degeaba.
+
+**Și cinstea se uită la masă**: dacă n-au toți unde pune, rândul se lasă pe mâna
+următoare.
+
+**Rămâne pe dinafară:** locurile sunt numărate, nu măsurate — o farfurie de mici
+ține cât un pahar de suc. Masa se golește singură, deci nu e nevoie să ștergi
+nimic tu.
+
+**Verificare:** ceri de la meniu tot ce scrie acolo, de zeci de ori la rând, și
+în fața nimănui nu se strâng mai mult de trei lucruri, nici pe masă mai mult de
+două sticle.
 
 ---
 

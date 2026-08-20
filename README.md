@@ -97,6 +97,12 @@ gol; apeși pe sticlă și îți torni singur. După ce
 comanda ajunge pe masă, se bea și se mănâncă din ea din când în când. Sunetul
 pornește la primul clic, fiindcă browserele nu-l lasă altfel.
 
+**Masa are un capăt.** Nu poți cere zece beri una după alta: fiecare are trei
+locuri în față, iar ce nu mai încape stă stins în meniu și nu se bifează —
+chelnerul îți spune și de ce: *„N-aveți unde le pune."* Sticlele sunt ale mesei,
+încap două; peste ele, vinul vine doar cu paharul, și torni din ce e pe blat. Se
+strâng singure, pe măsură ce se golesc, și atunci se poate iar.
+
 **Și ei comandă, nu numai tu.** La sfârșitul fiecărei mâini, cine a luat cele
 mai puține levate face cinste: cheamă singur chelnerul — *„Un rând de la mine."*
 — și dă la toată masa ce bea el. Draconianul dă bere, reptilianul vin, dealerul

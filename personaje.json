@@ -1,5 +1,5 @@
 {
-  "versiune": 10,
+  "versiune": 11,
   "descriere": "Fișa tuturor personajelor cu nume din local: firea cu care le răspunde modelul, replicile de rezervă când modelul tace, ce se spune despre ei când îi pomenește cineva, locul lor în scenă și dimensiunile. Fișierul e oglinda scenei, nu sursa ei: nu se citește la pornire, fiindcă `index.html` se deschide direct de pe file://, unde fetch cade. Adevărul e în cod; aici scrie ca să se vadă toată distribuția pe o pagină.",
   "campuri": {
     "fire": "Cine e, spus lui: pleacă la model ca prompt de sistem. Clovnul n-are — pe el îl joci tu.",
@@ -39,7 +39,8 @@
     "maiMultiOdata": "Într-o vorbă încap mai multe pomeniri: cine e chemat pe nume și e în local răspunde și el, pe rând, la o secundă și două după cel întrebat. Chemat singur, vorbește despre el; chemat lângă altcineva, despre acela.",
     "bagatulInVorba": "Când vorbești între patru ochi, o dată la vreo douăsprezece vorbe se bagă altcineva din local, neîntrebat, iar cel cu care vorbeai îl repede. Șansa stă în `BAGAREA.sansa`, în cod. Dacă ai chemat tu pe cineva pe nume, nu se mai bagă nimeni peste el.",
     "cinsteaCeluiCarePierde": "La sfârșitul unei mâini, cine a luat cele mai puține levate cheamă singur chelnerul și dă un rând la toată masa — fără să apeși nimic, fără meniu. Dacă e deja o comandă pe drum, ai meniul în față sau chelnerul e ocupat, lasă rândul pe mâna următoare.",
-    "ceAuBautLeSchimbaFirea": "Fiecare pahar cu alcool golit adaugă haos (joacă mai la nimereală, până la trei pahare), fiecare farfurie golită îngreunează gândirea (stă mai mult pe gânduri, până la două). Se vede numai în cum joacă: nicio cifră pe ecran. Trece de la sine în vreo minut și jumătate băutura, ceva mai mult mâncarea."
+    "ceAuBautLeSchimbaFirea": "Fiecare pahar cu alcool golit adaugă haos (joacă mai la nimereală, până la trei pahare), fiecare farfurie golită îngreunează gândirea (stă mai mult pe gânduri, până la două). Se vede numai în cum joacă: nicio cifră pe ecran. Trece de la sine în vreo minut și jumătate băutura, ceva mai mult mâncarea.",
+    "loculDePeMasa": "Fiecare are trei locuri pe masă în dreptul lui (LOCURI_IN_FATA), iar sticlele, care sunt ale mesei, sunt cel mult două (STICLE_PE_MASA). Se numără și ce e pe tavă, la coadă sau bifat în meniu. Ce nu încape stă stins în meniu și nu se poate cere; chelnerul spune de ce. Vinul primit peste sticlele de pe masă vine doar cu paharul."
   },
   "personaje": [
     {

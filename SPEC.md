@@ -127,6 +127,11 @@ Ce s-a golit nu rămâne pe masă: când n-are altceva de făcut, chelnerul trec
 strânge vasele goale și le duce la chiuveta din stânga barului, unde le spală
 spălătorul de vase. Masa se curăță singură.
 
+**Masa are un capăt.** Fiecare are trei locuri în față — se numără și ce e pe
+drum, nu doar ce a ajuns —, iar ce nu mai încape stă stins în meniu și nu se
+poate bifa; chelnerul îți spune de ce. Sticlele sunt ale mesei: încap două pe
+blat, iar cine primește vin peste ele capătă doar paharul.
+
 Vinul face excepție: vine cu sticla și cu paharul gol. Sticla stă pe mijlocul
 mesei, la vedere — nu chiar în buric, ci în golul de lângă clovn, ca să nu-i
 iasă prin cap; apeși pe ea și îți torni singur.

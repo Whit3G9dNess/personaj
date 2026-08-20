@@ -2978,8 +2978,8 @@ function toarnaDinSticla(sticla) {
 function apasa(x, y) {
   sunet.porneste();
 
-  // Cât vorbește clovnul la intrare, un clic îl trece la vorba următoare.
-  if (intrarea.arata) { maiDepartePeIntrare(); return; }
+  // Cât vorbește clovnul la intrare, clicurile sunt ale butoanelor din panou.
+  if (intrarea.arata) { apasaPeIntrare(x, y); return; }
 
   // Clic pe o sticlă de pe masă: torni.
   for (const obiect of pahare) {
@@ -5266,7 +5266,8 @@ const intrarea = {
   arata: true,        // se aprinde singură la deschiderea paginii
   rand: 0,            // a câta vorbă se aude acum
   timp: 0,            // de cât timp se aude
-  stingere: 0         // cât mai ține stinsul, la sfârșit
+  stingere: 0,        // cât mai ține stinsul, la sfârșit
+  butoane: []         // unde stau „înapoi" și „înainte", ca să știi pe ce apeși
 };
 
 const STINSUL_INTRARII = 0.7;   // secunde, ca să nu sară brusc în partidă
@@ -5274,12 +5275,150 @@ const STINSUL_INTRARII = 0.7;   // secunde, ca să nu sară brusc în partidă
 // Cât stă o vorbă pe ecran: cât să apuci s-o citești, plus un răgaz.
 function catTineVorba(vorba) { return 1.9 + String(vorba).length * 0.036; }
 
-// Clovnul din panou: același desen, alt loc și altă mărime.
+/* La masă îl vezi din spate, fiindcă stă între tine și blat. Aici te salută, deci
+   se întoarce: același costum, aceleași culori, aceleași proporții — dar cu fața
+   la tine. E singurul loc din scenă în care i se vede fața, și de-aceea e desenată
+   aici, lângă panou, nu lângă desenul de la masă. */
+function deseneazaClovnDinFata(p, ctx, t) {
+  const lat = p.latime * U;
+  const inalt = p.inaltime * U;
+  const razaCap = lat * 0.42;
+  const legan = 0.06 * Math.sin(t * p.ritm * 0.5 + p.faza);   // se leagănă vorbind
+
+  // --- Pantofii, mari, ieșiți în lateral.
+  ctx.fillStyle = CLOVN.pantof;
+  for (let s = -1; s <= 1; s += 2) {
+    elipsa(s * lat * 0.34, -0.7 * U, lat * 0.30, lat * 0.13);
+    ctx.fill();
+  }
+
+  // --- Pantalonii bufanți, fiecare crac de altă culoare.
+  const inaltPantalon = inalt * 0.44;
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.fillStyle = s < 0 ? CLOVN.rosu : CLOVN.galben;
+    dreptunghiRotunjit(s * lat * 0.28 - lat * 0.18, -inaltPantalon,
+                       lat * 0.36, inaltPantalon - 0.9 * U, lat * 0.15);
+    ctx.fill();
+  }
+
+  // --- Costumul, luminat de sus, ca la masă.
+  const costum = ctx.createLinearGradient(0, -inalt, 0, -inalt * 0.35);
+  costum.addColorStop(0, "#e2695c");
+  costum.addColorStop(1, CLOVN.rosu);
+  ctx.fillStyle = costum;
+  dreptunghiRotunjit(-lat * 0.46, -inalt, lat * 0.92, inalt * 0.68, lat * 0.30);
+  ctx.fill();
+
+  // --- Peticele, altele decât cele de pe spate: e cârpit peste tot.
+  ctx.fillStyle = CLOVN.turcoaz;
+  dreptunghiRotunjit(lat * 0.12, -inalt * 0.88, lat * 0.26, inalt * 0.18, 0.6 * U);
+  ctx.fill();
+  ctx.fillStyle = CLOVN.galben;
+  dreptunghiRotunjit(-lat * 0.38, -inalt * 0.62, lat * 0.24, inalt * 0.15, 0.6 * U);
+  ctx.fill();
+
+  // --- Nasturii-pompon, pe mijloc, de sus în jos.
+  ctx.fillStyle = CLOVN.galben;
+  for (let i = 0; i < 3; i++) {
+    elipsa(0, -inalt * (0.86 - i * 0.17), lat * 0.075, lat * 0.075);
+    ctx.fill();
+  }
+
+  // --- Brațele, pe lângă corp: aici nu ține cărți, doar vorbește.
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.save();
+    ctx.translate(s * lat * 0.44, -inalt * 0.82);
+    ctx.rotate(s * (0.12 + 0.10 * Math.sin(t * p.ritm * 1.1 + p.faza + s)));
+    ctx.fillStyle = CLOVN.rosu;
+    dreptunghiRotunjit(-lat * 0.11, 0, lat * 0.22, inalt * 0.42, lat * 0.11);
+    ctx.fill();
+    ctx.fillStyle = CLOVN.galben;              // manșeta
+    dreptunghiRotunjit(-lat * 0.13, inalt * 0.33, lat * 0.26, inalt * 0.06, lat * 0.05);
+    ctx.fill();
+    ctx.fillStyle = CLOVN.volan;               // mănușa
+    elipsa(0, inalt * 0.42, lat * 0.13, lat * 0.12);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // --- Gulerul cu volane.
+  ctx.fillStyle = CLOVN.volan;
+  for (let i = -3; i <= 3; i++) {
+    elipsa(i * lat * 0.16, -inalt + 1.0 * U + Math.abs(i) * 0.35 * U,
+           lat * 0.15, lat * 0.11);
+    ctx.fill();
+  }
+
+  // --- Capul.
+  const capX = legan * razaCap;
+  const capY = -inalt - razaCap * 0.72;
+  ctx.fillStyle = CLOVN.piele;
+  elipsa(capX, capY, razaCap, razaCap * 1.02);
+  ctx.fill();
+
+  // Părul: două smocuri portocalii, câte unul de fiecare parte. Fața rămâne liberă.
+  ctx.fillStyle = CLOVN.par;
+  for (let s = -1; s <= 1; s += 2) {
+    for (let i = 0; i < 3; i++) {
+      elipsa(capX + s * razaCap * (0.72 + i * 0.12),
+             capY + razaCap * (i * 0.30 - 0.16),
+             razaCap * 0.34, razaCap * 0.30);
+      ctx.fill();
+    }
+  }
+
+  // --- Ochii. Clipește rar, ca orice om care vorbește mult.
+  const clipeste = Math.sin(t * 0.9 + p.faza) > 0.985;
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.fillStyle = "#f6f1e6";
+    elipsa(capX + s * razaCap * 0.34, capY - razaCap * 0.14,
+           razaCap * 0.20, clipeste ? razaCap * 0.03 : razaCap * 0.22);
+    ctx.fill();
+    if (clipeste) continue;
+    ctx.fillStyle = "#2a2018";
+    elipsa(capX + s * razaCap * 0.36, capY - razaCap * 0.12,
+           razaCap * 0.10, razaCap * 0.12);
+    ctx.fill();
+  }
+
+  // --- Obrajii, două pete de fard.
+  ctx.fillStyle = "rgba(226, 105, 92, 0.45)";
+  for (let s = -1; s <= 1; s += 2) {
+    elipsa(capX + s * razaCap * 0.56, capY + razaCap * 0.32, razaCap * 0.20, razaCap * 0.13);
+    ctx.fill();
+  }
+
+  // --- Nasul, în mijlocul feței de data asta.
+  ctx.fillStyle = CLOVN.nas;
+  elipsa(capX, capY + razaCap * 0.18, razaCap * 0.26, razaCap * 0.24);
+  ctx.fill();
+
+  // --- Gura: un zâmbet lat, cât toată fața.
+  ctx.strokeStyle = "#8a2f2a";
+  ctx.lineWidth = razaCap * 0.11;
+  ctx.beginPath();
+  ctx.arc(capX, capY + razaCap * 0.30, razaCap * 0.46, 0.30 * Math.PI, 0.70 * Math.PI);
+  ctx.stroke();
+
+  // --- Pălăria conică, pusă strâmb, cu pompon în vârf.
+  ctx.fillStyle = CLOVN.turcoaz;
+  ctx.beginPath();
+  ctx.moveTo(capX - razaCap * 0.78, capY - razaCap * 0.62);
+  ctx.lineTo(capX + razaCap * 0.62, capY - razaCap * 0.62);
+  ctx.lineTo(capX + razaCap * 0.10, capY - razaCap * 1.72);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = CLOVN.galben;
+  elipsa(capX + razaCap * 0.10, capY - razaCap * 1.78, razaCap * 0.18, razaCap * 0.18);
+  ctx.fill();
+}
+
+// Clovnul din panou: mai mic decât la masă, ca să nu acopere ce spune.
 const clovnulDinIntrare = {
   x: 0, y: 0, scara: 1, unghi: Math.PI / 2,
   latime: 11, inaltime: 20, ritm: 1.9, faza: 0.7,
   privesteTimp: 0, privesteSpre: 1,
-  deseneaza: function (context, t) { deseneazaClovn(this, context, t); }
+  deseneaza: function (context, t) { deseneazaClovnDinFata(this, context, t); }
 };
 
 // Mai departe: la vorba următoare, iar după ultima începe stinsul.
@@ -5288,6 +5427,27 @@ function maiDepartePeIntrare() {
   intrarea.rand++;
   intrarea.timp = 0;
   if (intrarea.rand >= VORBELE_INTRARII.length) intrarea.stingere = STINSUL_INTRARII;
+}
+
+// Înapoi, la ce-a spus înainte. De pe prima vorbă nu se poate: n-are unde.
+function inapoiPeIntrare() {
+  if (!intrarea.arata || intrarea.stingere > 0 || intrarea.rand <= 0) return;
+  intrarea.rand--;
+  intrarea.timp = 0;
+}
+
+/* Clicul pe panou: numai butoanele fac ceva. Restul panoului nu e o suprafață de
+   apăsat — altfel ai sări peste o vorbă fără să vrei, doar fiindcă ai dat un clic
+   ca să pornești sunetul. */
+function apasaPeIntrare(x, y) {
+  for (const b of intrarea.butoane) {
+    if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1) {
+      if (b.ce === "inapoi") inapoiPeIntrare();
+      else maiDepartePeIntrare();
+      sunet.canta("poc");
+      return;
+    }
+  }
 }
 
 function actualizeazaIntrarea(dt) {
@@ -5343,10 +5503,12 @@ function deseneazaIntrarea() {
   ctx.lineWidth = 0.22 * U;
   ctx.stroke();
 
-  // Clovnul stă jos în panou, cât să-i rămână text deasupra capului.
+  /* Clovnul stă jos în panou și e mic: vorba lui e lucrul important aici, el e
+     doar cel care o spune. Cu pălărie cu tot, îi trebuie ceva mai mult decât
+     înălțimea trupului, de-aceea nu urcă mai sus de jumătatea panoului. */
   clovnulDinIntrare.x = x0 + l / 2;
-  clovnulDinIntrare.y = y0 + l * 0.94;
-  clovnulDinIntrare.scara = (l * 0.40) / (clovnulDinIntrare.inaltime * U);
+  clovnulDinIntrare.y = y0 + l * 0.86;
+  clovnulDinIntrare.scara = (l * 0.28) / (clovnulDinIntrare.inaltime * U);
   deseneazaPersonaj(clovnulDinIntrare, t);
 
   // Ce zice acum, rupt în rânduri, în jumătatea de sus.
@@ -5356,18 +5518,49 @@ function deseneazaIntrarea() {
   ctx.fillStyle = "#f2e7d3";
   const randuri = rupeInRanduri(vorba, l - 8 * U);
   const inaltRand = 4.4 * U;
-  const sus = y0 + l * 0.30 - (randuri.length - 1) * inaltRand / 2;
+  const sus = y0 + l * 0.24 - (randuri.length - 1) * inaltRand / 2;
   randuri.forEach(function (rand, i) {
     ctx.fillText(rand, x0 + l / 2, sus + i * inaltRand);
   });
 
-  // Câte vorbe mai are de spus: bulinele de jos, ca la o poveste cu pagini.
+  // Câte vorbe mai are de spus: bulinele din stânga jos, ca paginile unei povești.
   const cate = VORBELE_INTRARII.length;
   const pas = 2.6 * U;
   for (let i = 0; i < cate; i++) {
     ctx.fillStyle = i <= intrarea.rand ? "#e8a13c" : "rgba(232, 161, 60, 0.28)";
-    elipsa(x0 + l / 2 + (i - (cate - 1) / 2) * pas, y0 + l - 3 * U, 0.55 * U, 0.55 * U);
+    elipsa(x0 + 4 * U + i * pas, y0 + l - 3.4 * U, 0.55 * U, 0.55 * U);
     ctx.fill();
+  }
+
+  /* Butoanele, în dreapta jos: „înainte" e mereu acolo, „înapoi" apare doar când
+     ai la ce te întoarce. Sunt desenate de la dreapta spre stânga, ca „înainte"
+     să stea mereu în același colț, oricâte butoane ar fi. */
+  intrarea.butoane = [];
+  const inaltB = 5.4 * U, dreapta = x0 + l - 3.4 * U, josB = y0 + l - 3 * U;
+  ctx.font = Math.round(2.7 * U) + "px system-ui, sans-serif";
+  let capat = dreapta;
+  const feluri = intrarea.rand > 0
+    ? [{ ce: "inainte", text: "Înainte ›" }, { ce: "inapoi", text: "‹ Înapoi" }]
+    : [{ ce: "inainte", text: "Înainte ›" }];
+
+  for (const fel of feluri) {
+    const latB = ctx.measureText(fel.text).width + 4.4 * U;
+    const x = capat - latB, y = josB - inaltB;
+    const viu = fel.ce === "inainte";
+
+    ctx.fillStyle = viu ? "rgba(232, 161, 60, 0.16)" : "rgba(232, 161, 60, 0.07)";
+    dreptunghiRotunjit(x, y, latB, inaltB, 0.9 * U);
+    ctx.fill();
+    ctx.strokeStyle = viu ? "rgba(232, 161, 60, 0.75)" : "rgba(232, 161, 60, 0.40)";
+    ctx.lineWidth = 0.18 * U;
+    ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = viu ? "#e8a13c" : "#c9b490";
+    ctx.fillText(fel.text, x + latB / 2, y + inaltB * 0.68);
+
+    intrarea.butoane.push({ ce: fel.ce, x0: x, y0: y, x1: x + latB, y1: y + inaltB });
+    capat = x - 1.6 * U;
   }
 
   ctx.restore();

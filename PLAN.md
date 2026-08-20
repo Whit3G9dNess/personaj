@@ -986,11 +986,20 @@ Scena se deschidea direct în mijlocul unei mâini: vedeai cărți zburând și 
 știai nici că poți comanda, nici că poți vorbi cu ei, nici ce bate ce. Faza asta
 pune în față **clovnul**, o dată, la deschiderea paginii.
 
-**Un panou pătrat**, în mijloc, cu localul stins în spate. În el, clovnul —
-desenat cu același desen ca la masă, deci tot cu spatele: pe el îl vezi așa tot
-jocul, iar *„eu sunt tu"* se înțelege mai bine cu omul pe care chiar îl vei privi
-din spate toată seara. Deasupra lui, ce spune acum, rupt în rânduri cât să încapă;
-sub el, câte buline câte vorbe are de spus, ca să se vadă cât a mai rămas.
+**Un panou pătrat**, în mijloc, cu localul stins în spate. În el, clovnul — de
+data asta **cu fața la tine**: la masă îl vezi din spate, fiindcă stă între tine
+și blat, dar când te salută se întoarce. Același costum, aceleași culori,
+aceleași proporții, plus ce nu se vede niciodată în joc: ochi care clipesc rar,
+obraji fardați, nasul roșu în mijloc și un zâmbet cât toată fața. E singurul loc
+din scenă unde i se vede fața, de-aceea desenul stă aici, lângă panou, nu lângă
+cel de la masă.
+
+E și **mic**: cât o treime din înălțimea panoului. Vorba lui e lucrul important
+aici, el e doar cel care o spune — prima încercare îl făcea cât tot panoul și
+ajungea cu pălăria peste text.
+
+Deasupra lui, ce spune acum, rupt în rânduri cât să încapă. Jos, în stânga, câte
+buline câte vorbe are de spus, ca paginile unei povești.
 
 **Șase vorbe**, în ordine: cine e, că ești tu; că îți zice ce se poate face; că un
 clic pe cineva de la masă cheamă chelnerul; regulile cărților, cu jokerul care
@@ -999,10 +1008,17 @@ la o levată. Fiecare stă pe ecran cât să apuci s-o citești — cam trei sec
 cele scurte, șapte cea cu regulile — și trece singură mai departe. La sfârșit se
 stinge, iar partida începe.
 
+**Butoanele, în dreapta jos.** *„Înainte ›"* e mereu acolo; *„‹ Înapoi"* apare
+abia când ai la ce te întoarce, adică de la a doua vorbă încolo. Ele sunt
+singurele locuri din panou pe care se apasă: un clic în rest nu face nimic —
+altfel ai sări peste o vorbă doar fiindcă ai dat un clic ca să pornească sunetul.
+De pe ultima vorbă, „înainte" închide panoul.
+
+Vorbele trec și singure, mai departe, cu răgazul lor: butoanele sunt pentru cine
+citește mai repede sau vrea să se întoarcă, nu în locul mersului de la sine.
+
 **Se arată o dată.** Nu e un meniu care se deschide cu o tastă: apare la
-deschiderea paginii și nu se mai întoarce în sesiunea aia. Un clic îl trece la
-vorba următoare, atât — nu-l închide și nu deschide altceva; tot atunci pornește
-și sunetul, fiindcă browserele cer un clic pentru asta.
+deschiderea paginii și nu se mai întoarce în sesiunea aia.
 
 **Cât ține, cărțile așteaptă** — e singurul lucru din scenă care oprește partida,
 ca să nu-ți scape prima mână cât citești. Localul din spate merge înainte, ca să

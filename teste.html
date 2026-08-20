@@ -330,6 +330,8 @@ return {
   actualizeazaIntrarea: typeof actualizeazaIntrarea !== "undefined" ? actualizeazaIntrarea : null,
   deseneazaIntrarea: typeof deseneazaIntrarea !== "undefined" ? deseneazaIntrarea : null,
   catTineVorba: typeof catTineVorba !== "undefined" ? catTineVorba : null,
+  inapoiPeIntrare: typeof inapoiPeIntrare !== "undefined" ? inapoiPeIntrare : null,
+  maiDepartePeIntrare: typeof maiDepartePeIntrare !== "undefined" ? maiDepartePeIntrare : null,
   rupeInRanduri: typeof rupeInRanduri !== "undefined" ? rupeInRanduri : null,
   LOCURI_IN_FATA: typeof LOCURI_IN_FATA !== "undefined" ? LOCURI_IN_FATA : null,
   STICLE_PE_MASA: typeof STICLE_PE_MASA !== "undefined" ? STICLE_PE_MASA : null,
@@ -4394,13 +4396,85 @@ function testeIntrarea() {
     egal(s.intrarea.arata, false, "s-a întors singur peste partidă");
   });
 
-  test("un clic îl trece la vorba următoare, nu deschide nimic", function () {
+  // Apasă pe butonul cerut, unde l-a desenat panoul.
+  function apasaButonul(s, ce) {
+    s.goleste();
+    s.deseneazaIntrarea();
+    const b = s.intrarea.butoane.find(function (x) { return x.ce === ce; });
+    if (!b) return false;
+    s.apasa((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2);
+    return true;
+  }
+
+  test("clicul pe panou nu sare peste vorbă: numai butoanele fac ceva", function () {
     const s = porneste();
     s.dinNouLaIntrare();
-    s.apasa(s.W() / 2, s.H() / 2);
-    egal(s.intrarea.rand, 1, "clicul n-a trecut mai departe");
+    s.deseneazaIntrarea();
+    s.apasa(s.W() / 2, s.H() / 2);              // în mijlocul panoului, pe clovn
+    egal(s.intrarea.rand, 0, "un clic oarecare a sărit peste o vorbă");
     egal(s.meniu.deschis, false, "clicul a chemat chelnerul peste intrare");
     egal(s.comanda.stare, "nimic", "clicul a comandat ceva peste intrare");
+  });
+
+  test("butonul „înainte” duce la vorba următoare", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    adevarat(apasaButonul(s, "inainte"), "nu există niciun buton de înainte");
+    egal(s.intrarea.rand, 1, "butonul n-a dus nicăieri");
+  });
+
+  test("butonul „înapoi” apare abia când ai la ce te întoarce", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    s.deseneazaIntrarea();
+    adevarat(!s.intrarea.butoane.some(function (b) { return b.ce === "inapoi"; }),
+             "de la prima vorbă se poate da înapoi, deși n-are unde");
+
+    s.maiDepartePeIntrare();
+    s.deseneazaIntrarea();
+    adevarat(s.intrarea.butoane.some(function (b) { return b.ce === "inapoi"; }),
+             "de la a doua vorbă tot nu se poate da înapoi");
+  });
+
+  test("butonul „înapoi” te duce la vorba dinainte", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    s.maiDepartePeIntrare();
+    s.maiDepartePeIntrare();
+    egal(s.intrarea.rand, 2, "n-a înaintat cum trebuie");
+
+    apasaButonul(s, "inapoi");
+    egal(s.intrarea.rand, 1, "butonul de înapoi n-a dus înapoi");
+    apasaButonul(s, "inapoi");
+    egal(s.intrarea.rand, 0, "nu se poate ajunge înapoi la prima vorbă");
+    apasaButonul(s, "inapoi");
+    egal(s.intrarea.rand, 0, "a dat înapoi de pe prima vorbă");
+  });
+
+  test("butoanele stau în dreapta jos a panoului", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    s.maiDepartePeIntrare();
+    s.deseneazaIntrarea();
+
+    for (const b of s.intrarea.butoane) {
+      adevarat(b.x0 > s.W() / 2, b.ce + " nu stă în jumătatea din dreapta");
+      adevarat(b.y0 > s.H() / 2, b.ce + " nu stă în jumătatea de jos");
+    }
+    const inainte = s.intrarea.butoane.find(function (b) { return b.ce === "inainte"; });
+    const inapoi = s.intrarea.butoane.find(function (b) { return b.ce === "inapoi"; });
+    adevarat(inainte.x0 > inapoi.x1, "„înainte” nu e cel mai din dreapta");
+  });
+
+  test("de pe ultima vorbă, „înainte” închide panoul", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    for (let i = 0; i < s.VORBELE_INTRARII.length - 1; i++) s.maiDepartePeIntrare();
+    egal(s.intrarea.rand, s.VORBELE_INTRARII.length - 1, "n-a ajuns la ultima vorbă");
+
+    apasaButonul(s, "inainte");
+    s.actualizeazaIntrarea(2);
+    egal(s.intrarea.arata, false, "ultimul «înainte» n-a închis panoul");
   });
 
   test("panoul e pătrat, cu clovnul și vorba lui în el", function () {
@@ -4423,6 +4497,56 @@ function testeIntrarea() {
     adevarat(patrate.length > 0, "panoul nu e pătrat");
     adevarat(Math.abs(patrate[0].limite.cx - s.W() / 2) < 2 * s.U(),
              "panoul nu stă în mijloc");
+  });
+
+  test("clovnul din panou e cu fața la tine: are ochi, nas și gură", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    s.goleste();
+    s.deseneazaIntrarea();
+
+    // Nasul roșu, rotund, undeva în dreptul capului.
+    const nasuri = s.desene.filter(function (d) {
+      return d.stil === "#e4453a" && d.limite &&
+             (d.limite.x1 - d.limite.x0) < 6 * s.U();
+    });
+    adevarat(nasuri.length > 0, "n-are nas");
+
+    // Ochii: două pete albe, una lângă alta, la aceeași înălțime.
+    const albe = s.desene.filter(function (d) { return d.stil === "#f6f1e6" && d.limite; });
+    adevarat(albe.length >= 2, "n-are ochi");
+    adevarat(Math.abs(albe[0].limite.cy - albe[1].limite.cy) < 0.6 * s.U(),
+             "ochii nu sunt la aceeași înălțime");
+    adevarat(albe[0].limite.cx !== albe[1].limite.cx, "ochii sunt unul peste altul");
+
+    // Gura: o linie trasă, nu umplută.
+    const trase = s.desene.filter(function (d) { return d.op === "stroke" && d.stil === "#8a2f2a"; });
+    adevarat(trase.length > 0, "n-are gură");
+  });
+
+  test("clovnul nu acoperă ce spune", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    s.maiDepartePeIntrare();
+    s.maiDepartePeIntrare();
+    s.maiDepartePeIntrare();                   // vorba cea mai lungă, pe trei rânduri
+    s.goleste();
+    s.deseneazaIntrarea();
+
+    const scrise = s.desene.filter(function (d) {
+      return d.op === "text" && d.limite &&
+             d.text.indexOf("nainte") < 0 && d.text.indexOf("napoi") < 0;
+    });
+    adevarat(scrise.length > 1, "vorba lungă n-a fost scrisă pe mai multe rânduri");
+    const celMaiDeJos = Math.max.apply(null, scrise.map(function (d) { return d.limite.cy; }));
+
+    // Vârful pălăriei: turcoazul cel mai de sus dintre desenele lui.
+    const palaria = s.desene.filter(function (d) {
+      return d.stil === "#2f9d95" && d.limite;
+    });
+    adevarat(palaria.length > 0, "n-are pălărie");
+    const varf = Math.min.apply(null, palaria.map(function (d) { return d.limite.y0; }));
+    adevarat(varf > celMaiDeJos, "pălăria intră peste text");
   });
 
   test("vorba lungă se rupe în rânduri, ca să încapă", function () {

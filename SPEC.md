@@ -103,9 +103,14 @@ ești tu, ce se poate face aici, că un clic pe cineva de la masă cheamă cheln
 cu meniul, regulile cărților, că se poate vorbi cu toți din local — dar se
 supără, dacă ești rău —, și că intră și el la o levată.
 
+Clovnul e desenat aici cu fața la tine — singurul loc din scenă unde i se vede
+fața — și mic, cât să nu acopere ce spune.
+
 Vorbele trec singure, una după alta, iar la sfârșit panoul se stinge și începe
-partida. Un clic trece la vorba următoare. Nu se deschide cu nicio tastă și nu se
-mai întoarce: e al primei intrări în local. Cât ține, cărțile așteaptă.
+partida. În dreapta jos sunt două butoane: **„Înainte"**, mereu acolo, și
+**„Înapoi"**, care apare când ai la ce te întoarce; în rest, clicurile pe panou
+nu fac nimic. Nu se deschide cu nicio tastă și nu se mai întoarce: e al primei
+intrări în local. Cât ține, cărțile așteaptă.
 
 ## 4b. Comanda de la bar
 

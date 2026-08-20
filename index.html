@@ -2891,16 +2891,16 @@ const sunet = {
    față) și „nimic, mulțumesc" (pleacă cu mâna goală). */
 const OPTIUNI = [
   { sectiune: "Mâncare" },
-  { id: "mici",      nume: "mici cu piure",   cantitate: "300 g",  pret: "32 lei", fel: "mancare", culoare: "#8a5a33" },
-  { id: "ciorba",    nume: "ciorbă de burtă", cantitate: "400 ml", pret: "24 lei", fel: "mancare", culoare: "#c8a76a" },
-  { id: "cartofi",   nume: "cartofi prăjiți", cantitate: "200 g",  pret: "16 lei", fel: "mancare", culoare: "#d8a52a" },
+  { id: "mici",      nume: "mici cu piure",  pret: "32 lei", fel: "mancare", culoare: "#8a5a33" },
+  { id: "ciorba",    nume: "ciorbă de burtă", pret: "24 lei", fel: "mancare", culoare: "#c8a76a" },
+  { id: "cartofi",   nume: "cartofi prăjiți",  pret: "16 lei", fel: "mancare", culoare: "#d8a52a" },
   { sectiune: "Deserturi" },
-  { id: "papanasi",  nume: "papanași",        cantitate: "250 g",  pret: "22 lei", fel: "mancare", desert: true, culoare: "#e8dfc0" },
-  { id: "inghetata", nume: "înghețată",       cantitate: "150 g",  pret: "14 lei", fel: "mancare", desert: true, culoare: "#efe7ea" },
+  { id: "papanasi",  nume: "papanași",  pret: "22 lei", fel: "mancare", desert: true, culoare: "#e8dfc0" },
+  { id: "inghetata", nume: "înghețată",  pret: "14 lei", fel: "mancare", desert: true, culoare: "#efe7ea" },
   { sectiune: "De băut" },
-  { id: "suc",       nume: "Prigat",          cantitate: "0,5 l",  pret: "9 lei",  fel: "baut",    culoare: "#e07b1f" },
-  { id: "bere",      nume: "bere",            cantitate: "0,5 l",  pret: "12 lei", fel: "baut",    culoare: "#d8a52a", alcool: true },
-  { id: "vin",       nume: "vin",             cantitate: "0,25 l", pret: "15 lei", fel: "baut",    culoare: "#7c2b33", alcool: true },
+  { id: "suc",       nume: "Prigat",  pret: "9 lei",  fel: "baut",    culoare: "#e07b1f" },
+  { id: "bere",      nume: "bere",  pret: "12 lei", fel: "baut",    culoare: "#d8a52a", alcool: true },
+  { id: "vin",       nume: "vin", pret: "15 lei", fel: "baut",    culoare: "#7c2b33", alcool: true },
   { id: "gata",      nume: "doar atât",        fel: "gata",    inchide: true },
   { id: "gandesc",   nume: "mă mai gândesc",   fel: "gandesc", inchide: true },
   { id: "nimic",     nume: "nimic, mulțumesc", fel: "nimic",   inchide: true }
@@ -3868,11 +3868,10 @@ function deseneazaMeniu() {
     ctx.fillStyle = !incape ? "#6b6055" : (bifat ? "#f6d79a" : "#f2e7d3");
     ctx.fillText(o.nume, meniu.stanga + 4.2 * U, mijloc);
 
-    // Cantitatea și prețul stau în coloanele lor, aliniate la dreapta, ca într-o
-    // listă de bucate adevărată.
+    // Prețul stă în coloana lui, aliniat la dreapta, ca într-o listă de bucate
+    // adevărată. Gramajele au fost și ele acolo o vreme, dar o listă de bar arată
+    // mai bine cu numele și prețul, atât.
     ctx.textAlign = "right";
-    ctx.fillStyle = !incape ? "#584f46" : "#a89b8c";
-    ctx.fillText(o.cantitate, meniu.stanga + 36 * U, mijloc);
     ctx.fillStyle = !incape ? "#584f46" : (bifat ? "#f6d79a" : "#e8dcc4");
     ctx.fillText(o.pret, meniu.stanga + 50 * U, mijloc);
   });

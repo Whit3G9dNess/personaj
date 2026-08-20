@@ -1866,7 +1866,7 @@ function testeComanda() {
     egal(s.meniu.randuri.length, 11, "rânduri pe care se poate apăsa");
   });
 
-  test("meniul e scris ca la restaurant: fel, cantitate, preț", function () {
+  test("meniul e scris ca la restaurant: fel și preț", function () {
     const s = porneste();
     cheamaChelnerul(s, "Clovnul");
     const scrise = texte(cadruIntreg(s));
@@ -1881,13 +1881,9 @@ function testeComanda() {
     for (const r of s.meniu.randuri) {
       const o = r.optiune;
       if (o.inchide) continue;                 // rândurile de sfârșit n-au preț
-      adevarat(scrise.indexOf(o.cantitate) >= 0, o.nume + " n-are cantitatea scrisă");
       adevarat(scrise.indexOf(o.pret) >= 0, o.nume + " n-are prețul scris");
-      if (o.fel === "baut") {
-        adevarat(/\bl$/.test(o.cantitate), o.nume + " ar trebui măsurat în litri, nu " + o.cantitate);
-      } else {
-        adevarat(/\b(g|ml)$/.test(o.cantitate), o.nume + " ar trebui măsurat în grame sau ml");
-      }
+      // Gramajele s-au scos din meniu: rămân numele și prețul, atât.
+      egal(o.cantitate, undefined, o.nume + " a rămas cu gramajul scris");
     }
   });
 

@@ -1083,7 +1083,7 @@ aceeași fire și aceleași replici, iar dimensiunile din `scena` sunt cele din 
 
 ## Ce s-a hotărât la fazele 9–10
 
-- **Meniul** e o listă scrisă — fel, cantitate, preț —, nu farfurii desenate
+- **Meniul** e o listă scrisă — felul și prețul —, nu farfurii desenate
   lângă personaj: la nouă feluri, desenele s-ar fi bătut cap în cap.
 - **Adversarii** sunt conduși de Ollama când e pornit și de o judecată scrisă în
   cod când nu e. Amândouă, nu una din două (vezi Faza 10).

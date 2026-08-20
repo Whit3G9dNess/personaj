@@ -87,7 +87,7 @@ pusă în mijlocul mesei lor, și pleacă. Printre mese
 umblă un chelner cu tava, care trece și pe la noi din când în când.
 
 **Poți comanda.** Dă clic pe oricare dintre cei trei: chelnerul lasă tura și vine
-la masă cu meniul — o listă scrisă, cu fel, cantitate și preț. Mici cu piure,
+la masă cu meniul — o listă scrisă, cu felul și prețul. Mici cu piure,
 ciorbă de burtă, cartofi prăjiți, papanași, înghețată, Prigat, bere, vin — sau
 nimic, dacă n-ai chef. Alegi câte vrei odată: apeși pe fiecare fel și se bifează,
 apeși încă o dată și se șterge, iar jos scrie cât face tot. Când ai terminat,

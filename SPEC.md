@@ -115,11 +115,11 @@ intrări în local. Cât ține, cărțile așteaptă.
 ## 4b. Comanda de la bar
 
 Chemi chelnerul cu un clic pe personajul pentru care vrei să comanzi. Meniul e o
-listă scrisă, ca la restaurant — fel, cantitate, preț, pe trei coloane:
+listă scrisă, ca la restaurant — felul și prețul:
 
 - **Mâncare:** mici cu piure, ciorbă de burtă, cartofi prăjiți.
 - **Deserturi:** papanași, înghețată.
-- **De băut:** Prigat, bere, vin — măsurate în litri.
+- **De băut:** Prigat, bere, vin.
 
 Comanda se face dintr-o dată, ca la masă: apeși pe câte feluri vrei și fiecare
 se bifează — ciorbă, papanași și un suc, sau numai ciorba și sucul, cum ai chef.

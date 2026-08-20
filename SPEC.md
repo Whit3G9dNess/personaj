@@ -106,10 +106,10 @@ supără, dacă ești rău —, și că intră și el la o levată.
 Clovnul e desenat aici cu fața la tine — singurul loc din scenă unde i se vede
 fața — și mic, cât să nu acopere ce spune.
 
-Vorbele trec singure, una după alta, iar la sfârșit panoul se stinge și începe
-partida. În dreapta jos sunt două butoane: **„Înainte"**, mereu acolo, și
-**„Înapoi"**, care apare când ai la ce te întoarce; în rest, clicurile pe panou
-nu fac nimic. Nu se deschide cu nicio tastă și nu se mai întoarce: e al primei
+Vorbele nu trec singure: fiecare stă pe ecran până apeși. În dreapta jos sunt
+două butoane: **„Înainte"**, mereu acolo, și **„Înapoi"**, care apare când ai la
+ce te întoarce; în rest, clicurile pe panou nu fac nimic. După ultima vorbă,
+panoul se stinge și începe partida. Nu se deschide cu nicio tastă și nu se mai întoarce: e al primei
 intrări în local. Cât ține, cărțile așteaptă.
 
 ## 4b. Comanda de la bar
@@ -119,7 +119,7 @@ listă scrisă, ca la restaurant — felul și prețul:
 
 - **Mâncare:** mici cu piure, ciorbă de burtă, cartofi prăjiți.
 - **Deserturi:** papanași, înghețată.
-- **De băut:** Prigat, bere, vin.
+- **De băut:** apă plată, Prigat, bere, vin.
 
 Comanda se face dintr-o dată, ca la masă: apeși pe câte feluri vrei și fiecare
 se bifează — ciorbă, papanași și un suc, sau numai ciorba și sucul, cum ai chef.

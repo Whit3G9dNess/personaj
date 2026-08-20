@@ -1004,9 +1004,8 @@ buline câte vorbe are de spus, ca paginile unei povești.
 **Șase vorbe**, în ordine: cine e, că ești tu; că îți zice ce se poate face; că un
 clic pe cineva de la masă cheamă chelnerul; regulile cărților, cu jokerul care
 bate zecele; că poți vorbi cu ei, dar se supără dacă ești rău; și că intră și el
-la o levată. Fiecare stă pe ecran cât să apuci s-o citești — cam trei secunde
-cele scurte, șapte cea cu regulile — și trece singură mai departe. La sfârșit se
-stinge, iar partida începe.
+la o levată. Fiecare stă pe ecran cât stai tu cu ea: nimic nu se grăbește singur,
+vorba trece abia când apeși. După ultima, panoul se stinge și partida începe.
 
 **Butoanele, în dreapta jos.** *„Înainte ›"* e mereu acolo; *„‹ Înapoi"* apare
 abia când ai la ce te întoarce, adică de la a doua vorbă încolo. Ele sunt
@@ -1014,8 +1013,10 @@ singurele locuri din panou pe care se apasă: un clic în rest nu face nimic —
 altfel ai sări peste o vorbă doar fiindcă ai dat un clic ca să pornească sunetul.
 De pe ultima vorbă, „înainte" închide panoul.
 
-Vorbele trec și singure, mai departe, cu răgazul lor: butoanele sunt pentru cine
-citește mai repede sau vrea să se întoarcă, nu în locul mersului de la sine.
+Butoanele sunt singurul mers înainte. La început vorbele treceau și singure, după
+un răgaz socotit din lungimea lor, dar răgazul e al cititorului, nu al nostru: unul
+citește de două ori, altul dintr-o privire. Singurul lucru care mai merge de la
+sine e stinsul de după ultima vorbă.
 
 **Se arată o dată.** Nu e un meniu care se deschide cu o tastă: apare la
 deschiderea paginii și nu se mai întoarce în sesiunea aia.

@@ -2894,16 +2894,17 @@ const sunet = {
    față) și „nimic, mulțumesc" (pleacă cu mâna goală). */
 const OPTIUNI = [
   { sectiune: "Mâncare" },
-  { id: "mici",      nume: "mici cu piure",  pret: "32 lei", fel: "mancare", culoare: "#8a5a33" },
+  { id: "mici",      nume: "mici cu piure",   pret: "32 lei", fel: "mancare", culoare: "#8a5a33" },
   { id: "ciorba",    nume: "ciorbă de burtă", pret: "24 lei", fel: "mancare", culoare: "#c8a76a" },
-  { id: "cartofi",   nume: "cartofi prăjiți",  pret: "16 lei", fel: "mancare", culoare: "#d8a52a" },
+  { id: "cartofi",   nume: "cartofi prăjiți", pret: "16 lei", fel: "mancare", culoare: "#d8a52a" },
   { sectiune: "Deserturi" },
-  { id: "papanasi",  nume: "papanași",  pret: "22 lei", fel: "mancare", desert: true, culoare: "#e8dfc0" },
-  { id: "inghetata", nume: "înghețată",  pret: "14 lei", fel: "mancare", desert: true, culoare: "#efe7ea" },
+  { id: "papanasi",  nume: "papanași",        pret: "22 lei", fel: "mancare", desert: true, culoare: "#e8dfc0" },
+  { id: "inghetata", nume: "înghețată",       pret: "14 lei", fel: "mancare", desert: true, culoare: "#efe7ea" },
   { sectiune: "De băut" },
-  { id: "suc",       nume: "Prigat",  pret: "9 lei",  fel: "baut",    culoare: "#e07b1f" },
-  { id: "bere",      nume: "bere",  pret: "12 lei", fel: "baut",    culoare: "#d8a52a", alcool: true },
-  { id: "vin",       nume: "vin", pret: "15 lei", fel: "baut",    culoare: "#7c2b33", alcool: true },
+  { id: "apa",       nume: "apă plată",      pret: "6 lei",  fel: "baut",    culoare: "#cfe3ea" },
+  { id: "suc",       nume: "Prigat",         pret: "9 lei",  fel: "baut",    culoare: "#e07b1f" },
+  { id: "bere",      nume: "bere",           pret: "12 lei", fel: "baut",    culoare: "#d8a52a", alcool: true },
+  { id: "vin",       nume: "vin",            pret: "15 lei", fel: "baut",    culoare: "#7c2b33", alcool: true },
   { id: "gata",      nume: "doar atât",        fel: "gata",    inchide: true },
   { id: "gandesc",   nume: "mă mai gândesc",   fel: "gandesc", inchide: true },
   { id: "nimic",     nume: "nimic, mulțumesc", fel: "nimic",   inchide: true }
@@ -5267,15 +5268,11 @@ const VORBELE_INTRARII = [
 const intrarea = {
   arata: true,        // se aprinde singură la deschiderea paginii
   rand: 0,            // a câta vorbă se aude acum
-  timp: 0,            // de cât timp se aude
   stingere: 0,        // cât mai ține stinsul, la sfârșit
   butoane: []         // unde stau „înapoi" și „înainte", ca să știi pe ce apeși
 };
 
 const STINSUL_INTRARII = 0.7;   // secunde, ca să nu sară brusc în partidă
-
-// Cât stă o vorbă pe ecran: cât să apuci s-o citești, plus un răgaz.
-function catTineVorba(vorba) { return 1.9 + String(vorba).length * 0.036; }
 
 /* La masă îl vezi din spate, fiindcă stă între tine și blat. Aici te salută, deci
    se întoarce: același costum, aceleași culori, aceleași proporții — dar cu fața
@@ -5427,7 +5424,6 @@ const clovnulDinIntrare = {
 function maiDepartePeIntrare() {
   if (!intrarea.arata || intrarea.stingere > 0) return;
   intrarea.rand++;
-  intrarea.timp = 0;
   if (intrarea.rand >= VORBELE_INTRARII.length) intrarea.stingere = STINSUL_INTRARII;
 }
 
@@ -5435,7 +5431,6 @@ function maiDepartePeIntrare() {
 function inapoiPeIntrare() {
   if (!intrarea.arata || intrarea.stingere > 0 || intrarea.rand <= 0) return;
   intrarea.rand--;
-  intrarea.timp = 0;
 }
 
 /* Clicul pe panou: numai butoanele fac ceva. Restul panoului nu e o suprafață de
@@ -5452,16 +5447,13 @@ function apasaPeIntrare(x, y) {
   }
 }
 
+/* Panoul nu se grăbește singur: vorbele stau cât stai tu cu ele și trec numai
+   când apeși pe „Înainte". Singurul lucru care merge de la sine e stinsul de la
+   sfârșit, după ultima vorbă. */
 function actualizeazaIntrarea(dt) {
-  if (!intrarea.arata) return;
-
-  if (intrarea.stingere > 0) {
-    intrarea.stingere -= dt;
-    if (intrarea.stingere <= 0) intrarea.arata = false;   // și nu se mai întoarce
-    return;
-  }
-  intrarea.timp += dt;
-  if (intrarea.timp >= catTineVorba(VORBELE_INTRARII[intrarea.rand])) maiDepartePeIntrare();
+  if (!intrarea.arata || intrarea.stingere <= 0) return;
+  intrarea.stingere -= dt;
+  if (intrarea.stingere <= 0) intrarea.arata = false;      // și nu se mai întoarce
 }
 
 /* Vorbele lui sunt lungi, iar bula din scenă e de un singur rând: aici textul se

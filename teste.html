@@ -330,7 +330,6 @@ return {
   VORBELE_INTRARII: typeof VORBELE_INTRARII !== "undefined" ? VORBELE_INTRARII : null,
   actualizeazaIntrarea: typeof actualizeazaIntrarea !== "undefined" ? actualizeazaIntrarea : null,
   deseneazaIntrarea: typeof deseneazaIntrarea !== "undefined" ? deseneazaIntrarea : null,
-  catTineVorba: typeof catTineVorba !== "undefined" ? catTineVorba : null,
   inapoiPeIntrare: typeof inapoiPeIntrare !== "undefined" ? inapoiPeIntrare : null,
   maiDepartePeIntrare: typeof maiDepartePeIntrare !== "undefined" ? maiDepartePeIntrare : null,
   rupeInRanduri: typeof rupeInRanduri !== "undefined" ? rupeInRanduri : null,
@@ -417,7 +416,6 @@ function porneste(optiuni) {
   scena.dinNouLaIntrare = function () {
     scena.intrarea.arata = true;
     scena.intrarea.rand = 0;
-    scena.intrarea.timp = 0;
     scena.intrarea.stingere = 0;
   };
   scena.panza = panza;
@@ -1861,10 +1859,10 @@ function testeComanda() {
     cheamaChelnerul(s, "Clovnul");
     const nume = s.meniu.randuri.map(function (r) { return r.optiune.id; });
     for (const id of ["mici", "ciorba", "cartofi", "papanasi", "inghetata",
-                      "suc", "bere", "vin", "gata", "gandesc", "nimic"]) {
+                      "apa", "suc", "bere", "vin", "gata", "gandesc", "nimic"]) {
       adevarat(nume.indexOf(id) >= 0, "lipsește din meniu: " + id);
     }
-    egal(s.meniu.randuri.length, 11, "rânduri pe care se poate apăsa");
+    egal(s.meniu.randuri.length, 12, "rânduri pe care se poate apăsa");
   });
 
   test("meniul e scris ca la restaurant: fel și preț", function () {
@@ -1876,7 +1874,7 @@ function testeComanda() {
       adevarat(scrise.indexOf(cap) >= 0, "lipsește capul de listă „" + cap + "”");
     }
     for (const fel of ["ciorbă de burtă", "cartofi prăjiți", "papanași",
-                       "înghețată", "Prigat"]) {
+                       "înghețată", "Prigat", "apă plată"]) {
       adevarat(scrise.indexOf(fel) >= 0, "lipsește din meniu: " + fel);
     }
     for (const r of s.meniu.randuri) {
@@ -4335,11 +4333,14 @@ function testeLoculDePeMasa() {
 function testeIntrarea() {
   sectiune("6.24 Faza 22 — Intrarea în local");
 
-  // Lasă clovnul să-și spună toate vorbele, cu răgazul lor.
+  // Îi dă înainte până le spune pe toate: singur nu trece nici una.
   function panaTermina(s) {
     let paza = 0;
-    while (s.intrarea.arata && paza++ < 60 * 200) s.actualizeazaIntrarea(1 / 60);
-    return paza < 60 * 200;
+    while (s.intrarea.arata && !(s.intrarea.stingere > 0) && paza++ < 50) {
+      s.maiDepartePeIntrare();
+    }
+    s.actualizeazaIntrarea(2);              // și stinsul de la sfârșit
+    return paza < 50;
   }
 
   test("la deschiderea paginii, clovnul e în față", function () {
@@ -4367,23 +4368,15 @@ function testeIntrarea() {
     });
   });
 
-  test("trece singur de la o vorbă la alta, fără să apeși nimic", function () {
+  test("nu trece singur mai departe: vorba stă până apeși", function () {
     const s = porneste();
     s.dinNouLaIntrare();
-    s.actualizeazaIntrarea(s.catTineVorba(s.VORBELE_INTRARII[0]) + 0.01);
-    egal(s.intrarea.rand, 1, "a rămas la prima vorbă");
-    adevarat(s.intrarea.arata, "s-a închis după prima vorbă");
+    s.actualizeazaIntrarea(120);            // două minute de răbdare
+    egal(s.intrarea.rand, 0, "a trecut singur mai departe");
+    egal(s.intrarea.arata, true, "s-a închis singur, fără să apese nimeni");
   });
 
-  test("vorba lungă stă pe ecran mai mult decât cea scurtă", function () {
-    const s = porneste();
-    const scurta = s.catTineVorba(s.VORBELE_INTRARII[0]);
-    const lunga = s.catTineVorba(s.VORBELE_INTRARII[3]);
-    adevarat(lunga > scurta, "toate vorbele stau la fel de puțin");
-    adevarat(scurta > 2, "prima vorbă trece prea repede ca s-o citești");
-  });
-
-  test("se închide singur după ultima vorbă, și nu se mai întoarce", function () {
+  test("după ultima vorbă se închide, și nu se mai întoarce", function () {
     const s = porneste();
     s.dinNouLaIntrare();
     adevarat(panaTermina(s), "n-a terminat niciodată de vorbit");

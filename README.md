@@ -1,4 +1,4 @@
-# Personaj
+# Partida de cărți
 
 Trei personaje stau la o masă, într-o lumină caldă, și joacă cărți: un clovn de
 circ, un draconian care scoate foc pe bot și un reptilian umanoid-crocodil.
@@ -14,8 +14,9 @@ Deschide `index.html` în browser. Atât.
 Prima dată te întâmpină clovnul, într-un panou pătrat — cu fața la tine, cum nu-l
 mai vezi nicăieri altundeva în joc —, și îți spune în șase vorbe ce se poate face
 în local: că el ești tu, cum comanzi, cum se bat cărțile, cu cine poți vorbi.
-Vorbele trec singure, iar în dreapta jos ai **„Înainte"** și **„Înapoi"**, dacă
-vrei să mergi în ritmul tău. La sfârșit se dă la o parte și începe partida.
+Nimic nu se grăbește: vorba stă cât stai tu cu ea și trece abia când apeși
+**„Înainte"**, din dreapta jos; cu **„Înapoi"** te întorci la ce-a spus mai devreme.
+După ultima, panoul se dă la o parte și începe partida.
 
 Fără instalare, fără `npm install`, fără server. În Visual Studio Code poți folosi
 și extensia *Live Server* dacă vrei reîncărcare automată la salvare.
@@ -88,7 +89,8 @@ umblă un chelner cu tava, care trece și pe la noi din când în când.
 
 **Poți comanda.** Dă clic pe oricare dintre cei trei: chelnerul lasă tura și vine
 la masă cu meniul — o listă scrisă, cu felul și prețul. Mici cu piure,
-ciorbă de burtă, cartofi prăjiți, papanași, înghețată, Prigat, bere, vin — sau
+ciorbă de burtă, cartofi prăjiți, papanași, înghețată, apă plată, Prigat, bere,
+vin — sau
 nimic, dacă n-ai chef. Alegi câte vrei odată: apeși pe fiecare fel și se bifează,
 apeși încă o dată și se șterge, iar jos scrie cât face tot. Când ai terminat,
 zici **„doar atât"** și pleacă cu comanda, sau **„mă mai gândesc"** — atunci

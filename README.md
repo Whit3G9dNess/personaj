@@ -11,6 +11,11 @@ vorbă cu oricine din local.
 
 Deschide `index.html` în browser. Atât.
 
+Prima dată te întâmpină clovnul, într-un panou pătrat, și îți spune în șase
+vorbe ce se poate face în local: că el ești tu, cum comanzi, cum se bat cărțile,
+cu cine poți vorbi. Trece singur mai departe — sau apeși, dacă ești grăbit —, iar
+la sfârșit se dă la o parte și începe partida.
+
 Fără instalare, fără `npm install`, fără server. În Visual Studio Code poți folosi
 și extensia *Live Server* dacă vrei reîncărcare automată la salvare.
 

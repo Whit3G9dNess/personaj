@@ -325,6 +325,12 @@ return {
   AI: typeof AI !== "undefined" ? AI : null,
   alegeDinCod: typeof alegeDinCod !== "undefined" ? alegeDinCod : null,
   faceCinste: typeof faceCinste !== "undefined" ? faceCinste : null,
+  intrarea: typeof intrarea !== "undefined" ? intrarea : null,
+  VORBELE_INTRARII: typeof VORBELE_INTRARII !== "undefined" ? VORBELE_INTRARII : null,
+  actualizeazaIntrarea: typeof actualizeazaIntrarea !== "undefined" ? actualizeazaIntrarea : null,
+  deseneazaIntrarea: typeof deseneazaIntrarea !== "undefined" ? deseneazaIntrarea : null,
+  catTineVorba: typeof catTineVorba !== "undefined" ? catTineVorba : null,
+  rupeInRanduri: typeof rupeInRanduri !== "undefined" ? rupeInRanduri : null,
   LOCURI_IN_FATA: typeof LOCURI_IN_FATA !== "undefined" ? LOCURI_IN_FATA : null,
   STICLE_PE_MASA: typeof STICLE_PE_MASA !== "undefined" ? STICLE_PE_MASA : null,
   cateAreInFata: typeof cateAreInFata !== "undefined" ? cateAreInFata : null,
@@ -400,6 +406,17 @@ function porneste(optiuni) {
   // Testele nu vorbesc cu Ollama decât dacă cer ele anume: altfel ar depinde de
   // ce e instalat pe calculator și cât de repede răspunde.
   if (scena.AI) scena.AI.activ = false;
+
+  /* Intrarea cu clovnul e a primei deschideri de pagină, și ea ia primul clic.
+     Testele intră direct în local, ca și cum ar fi ascultat-o deja; cine o
+     încearcă anume o pornește la loc, cu `dinNouLaIntrare`. */
+  if (scena.intrarea) scena.intrarea.arata = false;
+  scena.dinNouLaIntrare = function () {
+    scena.intrarea.arata = true;
+    scena.intrarea.rand = 0;
+    scena.intrarea.timp = 0;
+    scena.intrarea.stingere = 0;
+  };
   scena.panza = panza;
   scena.desene = panza.desene;
   scena.goleste = panza.goleste;
@@ -4314,6 +4331,117 @@ function testeLoculDePeMasa() {
   });
 }
 
+/* --- 6.24 Faza 22: intrarea in local -------------------------------------- */
+
+function testeIntrarea() {
+  sectiune("6.24 Faza 22 — Intrarea în local");
+
+  // Lasă clovnul să-și spună toate vorbele, cu răgazul lor.
+  function panaTermina(s) {
+    let paza = 0;
+    while (s.intrarea.arata && paza++ < 60 * 200) s.actualizeazaIntrarea(1 / 60);
+    return paza < 60 * 200;
+  }
+
+  test("la deschiderea paginii, clovnul e în față", function () {
+    const s = porneste();
+    adevarat(s.intrarea, "nu întâmpină nimeni pe nimeni");
+    s.dinNouLaIntrare();
+    egal(s.intrarea.arata, true, "scena începe fără nicio vorbă de bun venit");
+    egal(s.intrarea.rand, 0, "începe de la mijlocul poveștii");
+  });
+
+  test("spune toate vorbele, în ordinea lor", function () {
+    const s = porneste();
+    const asteptate = [
+      "Bună! Eu sunt clovnul! Eu sunt tu!",
+      "Hai să-ți zic ce poți face în acest joculeț!",
+      "Dacă apeși pe mine sau pe draconian sau pe reptilian, poți comanda ceva!",
+      "Eu joc cărți și astea sunt regulile: cartea cu clovn bate zecele, dar " +
+        "celelalte cărți bat cartea cu clovn! Cea mai mare carte câștigă!",
+      "Poți vorbi și cu ceilalți, dar nu fi rău, ceilalți se pot enerva pe tine!",
+      "Eu o să intru la o levată cu prietenii mei, să ai o experiență cât mai bună!"
+    ];
+    egal(s.VORBELE_INTRARII.length, asteptate.length, "s-au schimbat câte vorbe spune");
+    asteptate.forEach(function (vorba, i) {
+      egal(s.VORBELE_INTRARII[i], vorba, "vorba a " + (i + 1) + "-a e alta");
+    });
+  });
+
+  test("trece singur de la o vorbă la alta, fără să apeși nimic", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    s.actualizeazaIntrarea(s.catTineVorba(s.VORBELE_INTRARII[0]) + 0.01);
+    egal(s.intrarea.rand, 1, "a rămas la prima vorbă");
+    adevarat(s.intrarea.arata, "s-a închis după prima vorbă");
+  });
+
+  test("vorba lungă stă pe ecran mai mult decât cea scurtă", function () {
+    const s = porneste();
+    const scurta = s.catTineVorba(s.VORBELE_INTRARII[0]);
+    const lunga = s.catTineVorba(s.VORBELE_INTRARII[3]);
+    adevarat(lunga > scurta, "toate vorbele stau la fel de puțin");
+    adevarat(scurta > 2, "prima vorbă trece prea repede ca s-o citești");
+  });
+
+  test("se închide singur după ultima vorbă, și nu se mai întoarce", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    adevarat(panaTermina(s), "n-a terminat niciodată de vorbit");
+    egal(s.intrarea.arata, false, "a rămas peste joc");
+
+    s.actualizeazaIntrarea(60);
+    egal(s.intrarea.arata, false, "s-a întors singur peste partidă");
+  });
+
+  test("un clic îl trece la vorba următoare, nu deschide nimic", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    s.apasa(s.W() / 2, s.H() / 2);
+    egal(s.intrarea.rand, 1, "clicul n-a trecut mai departe");
+    egal(s.meniu.deschis, false, "clicul a chemat chelnerul peste intrare");
+    egal(s.comanda.stare, "nimic", "clicul a comandat ceva peste intrare");
+  });
+
+  test("panoul e pătrat, cu clovnul și vorba lui în el", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    s.goleste();
+    s.deseneazaIntrarea();
+
+    const scrise = s.desene.filter(function (d) { return d.op === "text"; });
+    adevarat(scrise.length > 0, "panoul e gol, fără nicio vorbă");
+    adevarat(scrise.some(function (d) { return d.text.indexOf("clovnul") >= 0; }),
+             "nu scrie nicăieri cine e");
+
+    // Panoul: o formă mare, pătrată, în mijlocul ecranului.
+    const patrate = s.desene.filter(function (d) {
+      if (!d.limite) return false;
+      const lat = d.limite.x1 - d.limite.x0, inalt = d.limite.y1 - d.limite.y0;
+      return lat > 30 * s.U() && Math.abs(lat - inalt) < 2 * s.U();
+    });
+    adevarat(patrate.length > 0, "panoul nu e pătrat");
+    adevarat(Math.abs(patrate[0].limite.cx - s.W() / 2) < 2 * s.U(),
+             "panoul nu stă în mijloc");
+  });
+
+  test("vorba lungă se rupe în rânduri, ca să încapă", function () {
+    const s = porneste();
+    const randuri = s.rupeInRanduri(s.VORBELE_INTRARII[3], 40 * s.U());
+    adevarat(randuri.length > 1, "vorba lungă a rămas pe un singur rând");
+    egal(randuri.join(" "), s.VORBELE_INTRARII[3], "s-a pierdut ceva la rupere");
+  });
+
+  test("după ce se închide, nu mai desenează nimic peste joc", function () {
+    const s = porneste();
+    s.dinNouLaIntrare();
+    panaTermina(s);
+    s.goleste();
+    s.deseneazaIntrarea();
+    egal(s.desene.length, 0, "a rămas ceva desenat peste partidă");
+  });
+}
+
 /* ==========================================================================
    7. RULAREA
    ========================================================================== */
@@ -4354,6 +4482,7 @@ function testeLoculDePeMasa() {
   testeProvocare();
   testeFuriaSiVorbaLor();
   testeLoculDePeMasa();
+  testeIntrarea();
 
   rezumat.className = cazute === 0 ? "verde" : "rosu";
   rezumat.textContent = "REZULTAT: " + trecute + " trecute, " + cazute + " căzute" +

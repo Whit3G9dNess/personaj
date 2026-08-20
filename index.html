@@ -2978,6 +2978,9 @@ function toarnaDinSticla(sticla) {
 function apasa(x, y) {
   sunet.porneste();
 
+  // Cât vorbește clovnul la intrare, un clic îl trece la vorba următoare.
+  if (intrarea.arata) { maiDepartePeIntrare(); return; }
+
   // Clic pe o sticlă de pe masă: torni.
   for (const obiect of pahare) {
     if (obiect.tip !== "sticla" || obiect.nivel <= 0) continue;
@@ -5236,6 +5239,141 @@ function legaFereastraDeVorba() {
 }
 
 /* ==========================================================================
+   5i. INTRAREA ÎN LOCAL
+   ========================================================================== */
+
+/* Înainte de prima mână, clovnul iese în față și îți spune ce se poate face pe
+   aici. E singurul lucru din scenă care oprește partida — de-aceea ține puțin,
+   se dă singur la o parte când a terminat de vorbit, și nu se mai întoarce. Nu e
+   un meniu care se deschide cu o tastă: se arată o dată, la deschiderea paginii,
+   și atât. Localul din spate merge înainte, doar cărțile așteaptă.
+
+   Clovnul e desenat aici cu același desen ca la masă, deci tot cu spatele: pe el
+   îl vezi așa tot jocul, iar „eu sunt tu" se înțelege mai bine cu omul pe care
+   chiar îl vei privi din spate toată seara. */
+
+const VORBELE_INTRARII = [
+  "Bună! Eu sunt clovnul! Eu sunt tu!",
+  "Hai să-ți zic ce poți face în acest joculeț!",
+  "Dacă apeși pe mine sau pe draconian sau pe reptilian, poți comanda ceva!",
+  "Eu joc cărți și astea sunt regulile: cartea cu clovn bate zecele, dar " +
+    "celelalte cărți bat cartea cu clovn! Cea mai mare carte câștigă!",
+  "Poți vorbi și cu ceilalți, dar nu fi rău, ceilalți se pot enerva pe tine!",
+  "Eu o să intru la o levată cu prietenii mei, să ai o experiență cât mai bună!"
+];
+
+const intrarea = {
+  arata: true,        // se aprinde singură la deschiderea paginii
+  rand: 0,            // a câta vorbă se aude acum
+  timp: 0,            // de cât timp se aude
+  stingere: 0         // cât mai ține stinsul, la sfârșit
+};
+
+const STINSUL_INTRARII = 0.7;   // secunde, ca să nu sară brusc în partidă
+
+// Cât stă o vorbă pe ecran: cât să apuci s-o citești, plus un răgaz.
+function catTineVorba(vorba) { return 1.9 + String(vorba).length * 0.036; }
+
+// Clovnul din panou: același desen, alt loc și altă mărime.
+const clovnulDinIntrare = {
+  x: 0, y: 0, scara: 1, unghi: Math.PI / 2,
+  latime: 11, inaltime: 20, ritm: 1.9, faza: 0.7,
+  privesteTimp: 0, privesteSpre: 1,
+  deseneaza: function (context, t) { deseneazaClovn(this, context, t); }
+};
+
+// Mai departe: la vorba următoare, iar după ultima începe stinsul.
+function maiDepartePeIntrare() {
+  if (!intrarea.arata || intrarea.stingere > 0) return;
+  intrarea.rand++;
+  intrarea.timp = 0;
+  if (intrarea.rand >= VORBELE_INTRARII.length) intrarea.stingere = STINSUL_INTRARII;
+}
+
+function actualizeazaIntrarea(dt) {
+  if (!intrarea.arata) return;
+
+  if (intrarea.stingere > 0) {
+    intrarea.stingere -= dt;
+    if (intrarea.stingere <= 0) intrarea.arata = false;   // și nu se mai întoarce
+    return;
+  }
+  intrarea.timp += dt;
+  if (intrarea.timp >= catTineVorba(VORBELE_INTRARII[intrarea.rand])) maiDepartePeIntrare();
+}
+
+/* Vorbele lui sunt lungi, iar bula din scenă e de un singur rând: aici textul se
+   rupe în rânduri, cât să încapă în panou. */
+function rupeInRanduri(text, latMax) {
+  const randuri = [];
+  let rand = "";
+  for (const cuvant of String(text).split(" ")) {
+    const incercare = rand ? rand + " " + cuvant : cuvant;
+    if (rand && ctx.measureText(incercare).width > latMax) {
+      randuri.push(rand);
+      rand = cuvant;
+    } else {
+      rand = incercare;
+    }
+  }
+  if (rand) randuri.push(rand);
+  return randuri;
+}
+
+function deseneazaIntrarea() {
+  if (!intrarea.arata) return;
+
+  // La sfârșit se stinge tot deodată: și perdeaua, și panoul.
+  const cat = intrarea.stingere > 0 ? intrarea.stingere / STINSUL_INTRARII : 1;
+
+  ctx.save();
+  ctx.globalAlpha = cat;
+
+  // Perdeaua peste local: se vede că e acolo, dar nu-ți fură ochii.
+  ctx.fillStyle = "rgba(8, 5, 3, 0.78)";
+  ctx.fillRect(0, 0, W, H);
+
+  // Panoul, pătrat, în mijloc.
+  const l = Math.min(W * 0.86, H * 0.86, 74 * U);
+  const x0 = (W - l) / 2, y0 = (H - l) / 2;
+  ctx.fillStyle = "rgba(16, 11, 7, 0.96)";
+  dreptunghiRotunjit(x0, y0, l, l, 1.4 * U);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(232, 161, 60, 0.45)";
+  ctx.lineWidth = 0.22 * U;
+  ctx.stroke();
+
+  // Clovnul stă jos în panou, cât să-i rămână text deasupra capului.
+  clovnulDinIntrare.x = x0 + l / 2;
+  clovnulDinIntrare.y = y0 + l * 0.94;
+  clovnulDinIntrare.scara = (l * 0.40) / (clovnulDinIntrare.inaltime * U);
+  deseneazaPersonaj(clovnulDinIntrare, t);
+
+  // Ce zice acum, rupt în rânduri, în jumătatea de sus.
+  const vorba = VORBELE_INTRARII[Math.min(intrarea.rand, VORBELE_INTRARII.length - 1)];
+  ctx.font = Math.round(3.2 * U) + "px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#f2e7d3";
+  const randuri = rupeInRanduri(vorba, l - 8 * U);
+  const inaltRand = 4.4 * U;
+  const sus = y0 + l * 0.30 - (randuri.length - 1) * inaltRand / 2;
+  randuri.forEach(function (rand, i) {
+    ctx.fillText(rand, x0 + l / 2, sus + i * inaltRand);
+  });
+
+  // Câte vorbe mai are de spus: bulinele de jos, ca la o poveste cu pagini.
+  const cate = VORBELE_INTRARII.length;
+  const pas = 2.6 * U;
+  for (let i = 0; i < cate; i++) {
+    ctx.fillStyle = i <= intrarea.rand ? "#e8a13c" : "rgba(232, 161, 60, 0.28)";
+    elipsa(x0 + l / 2 + (i - (cate - 1) / 2) * pas, y0 + l - 3 * U, 0.55 * U, 0.55 * U);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+/* ==========================================================================
    6. MAȘINA DE STĂRI A UNEI MÂINI
    ========================================================================== */
 
@@ -5939,8 +6077,17 @@ function cadru(acum) {
   dt = Math.min(dt, 0.05);
   t += dt;
 
-  actualizeazaTot(dt);
+  /* Cât ține intrarea, partida stă: nu vrem să-ți scape prima mână cât citești.
+     Localul din spate merge înainte, ca să nu pară o poză. */
+  if (intrarea.arata) {
+    actualizeazaIntrarea(dt);
+    for (const p of personaje) actualizeazaPersonaj(p, dt);
+    actualizeazaFundal(dt);
+  } else {
+    actualizeazaTot(dt);
+  }
   deseneazaTot();
+  deseneazaIntrarea();
 
   requestAnimationFrame(cadru);
 }

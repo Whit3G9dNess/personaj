@@ -95,6 +95,18 @@ e, el e cea mai mică de acolo. Așa zecele redevine riscant, și apare cacealma
 
 Bucla merge la nesfârșit. Dacă nu atingi nimic, joacă și el în locul tău.
 
+## 4a. Intrarea
+
+La deschiderea paginii, înaintea primei mâini, se arată un panou pătrat cu
+clovnul în el, peste localul stins. Clovnul spune, pe rând, șase vorbe: că el
+ești tu, ce se poate face aici, că un clic pe cineva de la masă cheamă chelnerul
+cu meniul, regulile cărților, că se poate vorbi cu toți din local — dar se
+supără, dacă ești rău —, și că intră și el la o levată.
+
+Vorbele trec singure, una după alta, iar la sfârșit panoul se stinge și începe
+partida. Un clic trece la vorba următoare. Nu se deschide cu nicio tastă și nu se
+mai întoarce: e al primei intrări în local. Cât ține, cărțile așteaptă.
+
 ## 4b. Comanda de la bar
 
 Chemi chelnerul cu un clic pe personajul pentru care vrei să comanzi. Meniul e o

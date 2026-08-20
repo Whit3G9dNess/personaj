@@ -35,6 +35,7 @@ funcționează deja.
 | 19 | Când te iei de ei | ✅ gata |
 | 20 | Furia ținută minte, și vorba dintre ei | ✅ gata |
 | 21 | Masa are un capăt | ✅ gata |
+| 22 | Intrarea în local | ✅ gata |
 
 ---
 
@@ -976,6 +977,44 @@ nimic tu.
 **Verificare:** ceri de la meniu tot ce scrie acolo, de zeci de ori la rând, și
 în fața nimănui nu se strâng mai mult de trei lucruri, nici pe masă mai mult de
 două sticle.
+
+---
+
+## Faza 22 — Intrarea în local
+
+Scena se deschidea direct în mijlocul unei mâini: vedeai cărți zburând și nu
+știai nici că poți comanda, nici că poți vorbi cu ei, nici ce bate ce. Faza asta
+pune în față **clovnul**, o dată, la deschiderea paginii.
+
+**Un panou pătrat**, în mijloc, cu localul stins în spate. În el, clovnul —
+desenat cu același desen ca la masă, deci tot cu spatele: pe el îl vezi așa tot
+jocul, iar *„eu sunt tu"* se înțelege mai bine cu omul pe care chiar îl vei privi
+din spate toată seara. Deasupra lui, ce spune acum, rupt în rânduri cât să încapă;
+sub el, câte buline câte vorbe are de spus, ca să se vadă cât a mai rămas.
+
+**Șase vorbe**, în ordine: cine e, că ești tu; că îți zice ce se poate face; că un
+clic pe cineva de la masă cheamă chelnerul; regulile cărților, cu jokerul care
+bate zecele; că poți vorbi cu ei, dar se supără dacă ești rău; și că intră și el
+la o levată. Fiecare stă pe ecran cât să apuci s-o citești — cam trei secunde
+cele scurte, șapte cea cu regulile — și trece singură mai departe. La sfârșit se
+stinge, iar partida începe.
+
+**Se arată o dată.** Nu e un meniu care se deschide cu o tastă: apare la
+deschiderea paginii și nu se mai întoarce în sesiunea aia. Un clic îl trece la
+vorba următoare, atât — nu-l închide și nu deschide altceva; tot atunci pornește
+și sunetul, fiindcă browserele cer un clic pentru asta.
+
+**Cât ține, cărțile așteaptă** — e singurul lucru din scenă care oprește partida,
+ca să nu-ți scape prima mână cât citești. Localul din spate merge înainte, ca să
+nu pară o poză.
+
+**Rămâne pe dinafară:** la refresh se arată din nou, ca tot ce ține scena asta
+minte. Ca să apară o singură dată vreodată ar trebui ceva salvat în browser, iar
+regula de până acum e că nimic nu trece de un refresh.
+
+**Verificare:** deschizi pagina, clovnul spune toate șase vorbele și panoul se
+închide singur; nu se mai deschide cu nicio tastă, iar în tot timpul ăsta nu s-a
+jucat nicio carte.
 
 ---
 
